@@ -9,7 +9,7 @@ pkgname=hfsprogs-rune
 pkgver=332.25
 pkgrel=10
 pkgdesc="HFS/HFS+ user space utils" 
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 depends=('libbsd' 'openssl')
 license=('custom:APSL')
 url="http://www.opensource.apple.com/"
@@ -37,7 +37,7 @@ build() {
   patch -Np1 -i $srcdir/debian/patches/0012-Fix-mkfs-not-creating-UUIDs-for-new-filesystems.patch
   patch -Np1 -i $srcdir/debian/patches/0013-Fix-manpages.patch
   patch -Np0 -i "${srcdir}/makefile.patch" || return 1
-  make -f Makefile.lnx
+  make -j4 -f Makefile.lnx
 }
 
 package() {

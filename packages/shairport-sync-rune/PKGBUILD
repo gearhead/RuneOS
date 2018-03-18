@@ -1,0 +1,47 @@
+# Maintainer: Elia Cereda <eliacereda+arch at gmail dot com>
+
+pkgname=shairport-sync-rune
+pkgver=3.1.7
+pkgrel=1
+pkgdesc='Emulates an AirPort Express for the purpose of streaming music from iDevices - Rune'
+url='https://github.com/mikebrady/shairport-sync'
+arch=(i686 x86_64 armv6h armv7h)
+license=('custom')
+backup=(etc/conf.d/shairport-sync)
+install='shairport-sync.install'
+depends=(alsa-lib libdaemon openssl avahi popt libsoxr libconfig)
+makedepends=(git)
+source=(shairport-sync-$pkgver.zip::https://github.com/mikebrady/shairport-sync/archive/$pkgver.zip
+	shairport-sync.install
+	shairport-sync.service
+	shairport-sync.conf
+	shairport-sync.sysusers
+	useradd.patch::https://github.com/mikebrady/shairport-sync/commit/15c376ad57629dad16f1120dbf4c080f7de48475.patch)
+sha1sums=('SKIP'
+          'd51485f3857529b70a29b38814ea60e7dde54ca8'
+	  '705558f866cc0c0a0a16087892656bd4a99318a9'
+          '343d9f46eec6d53b4e46f0210a19b3754535043e'
+	  'b806f9cd3eeaf8585a51d79c7b5681e3d3e4748a'
+	  '0d216ac98a7c390476c79732e7361c4e66651340')
+
+prepare() {
+  cd shairport-sync-$pkgver
+  patch -R < ../useradd.patch  
+}
+
+build() {
+  cd shairport-sync-$pkgver
+  autoreconf -i -f
+#  ./configure --with-metadata --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-apple-alac --prefix="$pkgdir/usr"
+  ./configure --prefix="$pkgdir/usr" --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-dns_sd --with-metadata --with-stdout --with-pipe --with-convolution --with-apple-alac
+
+  make
+}
+
+package() {
+  install -D -m644 shairport-sync.service "$pkgdir"/usr/lib/systemd/system/shairport-sync.service
+  install -D -m644 shairport-sync.conf "$pkgdir"/etc/shairport-sync.conf
+  cd shairport-sync-$pkgver
+  install -D -m664 LICENSES "$pkgdir"/usr/share/licenses/$pkgname/LICENSE 
+  make install
+}

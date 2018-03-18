@@ -2,15 +2,15 @@
 
 pkgname=upmpdcli-rune
 _pkgname=upmpdcli
-pkgver=0.12
-pkgrel=1
+pkgver=1.2.15
+pkgrel=3
 pkgdesc="an UPnP front-end to the Music Player Daemon"
 url="http://www.lesbonscomptes.com/upmpdcli/"
-license="GPL"
-depends=('libupnpp-rune')
+license=('GPL2')
+depends=('libupnpp-rune' 'libmpdclient' 'libmicrohttpd' 'jsoncpp' 'curl' 'expat')
 builddepends=('autoconf')
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
-source=("git://github.com/medoc92/upmpdcli.git"
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
+source=("https://www.lesbonscomptes.com/upmpdcli/downloads/$_pkgname-$pkgver.tar.gz"
         "upmpdcli.conf"
         "runeaudio.png")
 sha1sums=('SKIP'
@@ -19,18 +19,16 @@ sha1sums=('SKIP'
 install=upmpdcli.install
 build() {
 
-  cd ${srcdir}/${_pkgname}
-  ./autogen.sh
+  cd "$srcdir/$_pkgname-$pkgver"
   ./configure --prefix=/usr --sysconfdir=/etc
   make
 }
 
 package() {
-  cd ${srcdir}/${_pkgname}
-  make DESTDIR="${pkgdir}/" install
+  cd "$srcdir/$_pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
   mkdir -p ${pkgdir}/etc/
   cp ${startdir}/upmpdcli.conf ${pkgdir}/etc/
   cp ${startdir}/runeaudio.png ${pkgdir}/usr/share/upmpdcli/
   install -Dm644  ${startdir}/upmpdcli.service ${pkgdir}/usr/lib/systemd/system/upmpdcli.service
 }
-

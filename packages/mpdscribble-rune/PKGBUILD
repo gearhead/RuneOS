@@ -4,13 +4,12 @@
 pkgname=mpdscribble-rune
 pkglabel=mpdscribble
 pkgver=0.22
-pkgrel=6
+pkgrel=8
 pkgdesc='An mpd client which submits track info to last.fm'
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url='http://mpd.wikia.com/wiki/Client:Mpdscribble'
 license=('GPL2')
 depends=('curl' 'glib2' 'libmpdclient')
-#install="${pkglabel}.install"
 changelog="${pkglabel}.changelog"
 source=("http://www.musicpd.org/download/mpdscribble/${pkgver}/${pkglabel}-${pkgver}.tar.bz2"
         "${pkglabel}.service")
@@ -19,9 +18,11 @@ sha256sums=('1cde2b5f8c70f0e3e6f059d01bf0b0f2eac2b29fbcd14b01a8a5103e603feb41'
 
 build()
 {
+#    cp "${startdir}"/config.guess "${srcdir}"/mpdscribble-0.22/build/
+#	cp "${startdir}"/config.sub "${srcdir}"/mpdscribble-0.22/build/
 	cd "${srcdir}/${pkglabel}-${pkgver}"
 	./configure --prefix=/usr --sysconfdir=/etc --enable-debug
-	make
+	make -j4
 }
 
 package()
@@ -30,5 +31,6 @@ package()
 	install -Dm 644 "doc/mpdscribble.conf" "${pkgdir}/etc/mpdscribble.conf"
 	install -Dm 644 "${srcdir}/${pkglabel}.service" \
 	                "${pkgdir}/usr/lib/systemd/system/mpdscribble.service"
-	make DESTDIR="$pkgdir" install
+	make -j4 DESTDIR="$pkgdir" install
+	rm -rf "${pkgdir}"/usr/share
 }

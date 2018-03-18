@@ -3,16 +3,17 @@
 
 pkgname=libupnpp-rune
 _pkgname=libupnpp
-pkgver=20150925
+pkgver=$(date +%Y%m%d)
 pkgrel=1
 pkgdesc="a C++ wrapper for libupnp - used with upmpdcli or upplay"
-url="https://github.com/medoc92/libupnpp"
-license="GPL"
+#url="https://github.com/medoc92/libupnpp"
+url="https://@opensourceprojects.eu/git/p/libupnpp/code"
+license=('GPL')
 depends=('libupnp')
 makedepends=('git' 'autoconf')
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 
-source=("git://github.com/medoc92/libupnpp.git")
+source=('libupnpp::git+https://@opensourceprojects.eu/git/p/libupnpp/code')
 md5sums=('SKIP')
 
 build() {

@@ -2,10 +2,10 @@
 # Based on original work of: DrZaius <lou[at]fakeoutdoorsman.com>
 
 pkgname=ffmpeg-rune
-pkgver=2.8
-pkgrel=1
+pkgver=3.4.1
+pkgrel=3
 pkgdesc="Universal multimedia toolkit"
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('GPL')
 url="http://ffmpeg.org/"
 license=('GPL')
@@ -13,23 +13,16 @@ license=('GPL')
 makedepends=('git' 'yasm' 'libvdpau')
 conflicts=('ffmpeg')
 provides=("ffmpeg=$pkgver")
-#source=("$pkgname"::'git://source.ffmpeg.org/ffmpeg.git')
 source=(http://ffmpeg.org/releases/ffmpeg-$pkgver.tar.bz2)
-md5sums=('SKIP')
-
-#pkgver() {
-#  cd "$srcdir/$pkgname"
-#  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-#}
+sha1sums=('4347db0b5a5cfc3847395b29aefb51d09cfdd697')
 
 build() {
 
   cd "$srcdir/ffmpeg-$pkgver"
-./configure   --prefix=/usr \
---enable-memalign-hack \
+./configure \
+--prefix='/usr' \
 --enable-shared \
 --enable-ffmpeg \
---disable-static \
 --disable-debug \
 --disable-avdevice \
 --disable-avfilter \
@@ -45,6 +38,7 @@ build() {
 --enable-demuxer=ape \
 --enable-demuxer=asf \
 --enable-demuxer=flac \
+--enable-demuxer=tak \
 --enable-demuxer=mp3 \
 --enable-demuxer=mpc \
 --enable-demuxer=mov \
@@ -53,6 +47,7 @@ build() {
 --enable-demuxer=tta \
 --enable-demuxer=wav \
 --enable-demuxer=wv \
+--enable-demuxer=mpegts \
 --disable-bsfs \
 --disable-filters \
 --disable-parsers \
@@ -80,6 +75,7 @@ build() {
 --enable-decoder=wavpack \
 --enable-decoder=wmav1 \
 --enable-decoder=wmav2 \
+--enable-decoder=wmalossless \
 --enable-decoder=pcm_alaw \
 --enable-decoder=pcm_dvd \
 --enable-decoder=pcm_f32be \
@@ -99,7 +95,7 @@ build() {
 --enable-decoder=pcm_u24be \
 --enable-decoder=pcm_u24le
 
-make
+make -j4
 
 }
 

@@ -1,12 +1,12 @@
 [Unit]
-Description=MPD Scribble
-After=sound.target
-Requires=mpd.service
+Description=last.fm updater for MPD
+Wants=mpd.service
 After=mpd.service
 
 [Service]
-ExecStart=/usr/local/bin/mpdscribble -D
-Restart=always
+Type=forking
+PIDFile=/run/mpdscribble.pid
+ExecStart=/usr/bin/mpdscribble --pidfile /run/mpdscribble.pid
 
 [Install]
 WantedBy=multi-user.target

@@ -2,26 +2,28 @@
 
 pkgbase=php
 pkgname=php-rune
-pkgdesc="PHP-FPM 5.5.29 [pthreads] (RuneAudio)"
+pkgdesc="PHP-FPM 5.6.33 ssl1.1 [pthreads] (RuneAudio)"
 packager="RuneAudio Team"
-pkgver=5.5.29
+pkgver=5.6.33
 pkgrel=1
 pkgdir=${startdir}/pkg/${pkgname}
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('PHP')
 url='http://www.php.net'
 makedepends=('file' 'libmcrypt' 'libltdl' 'libpng' 'libjpeg' 'icu'
              'curl' 'bzip2' 'db' 'gmp' 'systemd' 're2c' 'libxml2')
 source=("http://www.php.net/distributions/${pkgbase}-${pkgver}.tar.gz"
-        'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles')
+        'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles'
+	'php_5_6_33_openssl_1_1.patch')
 
 sha1sums=('SKIP'
 	  '688e35049f78011f514a87506890d56c5a15654d'
 	  '09e9b0a73a921b063ac357faaf422af106b94487'
-	  'a32b34b8f0262317c865260cf937fcbccbaf8927')
-
+	  'a32b34b8f0262317c865260cf937fcbccbaf8927'
+	  '5d4432e79efce9d3d9087c91b3eacdc9091cd192')
 build() {
-	cd ${srcdir}/php-${pkgver}
+	cd ${srcdir}/php-${pkgver}/
+        patch -Np1 -i "${startdir}"/php_5_6_33_openssl_1_1.patch
 	local _phpconfig="--srcdir=../php-${pkgver} \
 		--config-cache \
 		--prefix=/usr \
@@ -91,16 +93,16 @@ build() {
 	cd ${srcdir}/build-fpm
 	ln -s ../php-${pkgver}/configure
 	./configure ${_phpconfig} ${_phpextensions}
-	make
+	make -j4
 }
 
-check() {
-	cd ${srcdir}/build-fpm
-	export SNMP_TIMEOUT=1
-	export SNMP_RETRIES=0
-	printf "n\n" | make test
-	echo
-}
+#check() {
+#	cd ${srcdir}/build-fpm
+#	export SNMP_TIMEOUT=1
+#	export SNMP_RETRIES=0
+#	printf "n\n" | make test
+#	echo
+#}
 
 package() {
 	pkgdesc='RuneAudio Optimized FastCGI Process Manager for PHP'
@@ -111,7 +113,7 @@ package() {
 	install='php-fpm.install'
 
 	cd ${srcdir}/build-fpm
-	make -j1 INSTALL_ROOT=${pkgdir} install
+	make -j4 INSTALL_ROOT=${pkgdir} install
 	install -d -m755 ${pkgdir}/usr/share/pear
 	# install RuneAudio php configuration
 	rm -rf ${pkgdir}/etc/php

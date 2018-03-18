@@ -1,24 +1,24 @@
 # Maintainer: Simone De Gregori <orion@runeaudio.com>
 
 pkgname=spop-rune
-pkgver=0.0.3
+pkgver=0.0.4
 pkgrel=1
 pkgdesc="Spotify client daemon (RuneAudio)"
 url='https://github.com/Schnouki/spop'
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('gplv3')
 groups=('daemons')
 depends=('glibc' 'libspotify' 'libao' 'libsoup' 'libnotify' 'dbus-glib' 'json-glib')
 makedepends=('cmake' 'python2')
 provides=('spop')
 conflicts=('spop')
-source=(git://github.com/Schnouki/spop.git)
+source=(spop::git+https://github.com/Schnouki/spop)
 sha1sums=('SKIP')
 
 build() {
     cd "${srcdir}"/spop
     cmake -Wdev -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX="${pkgdir}"/usr
-    make
+    make -j4
 }
 
 package() {
@@ -26,5 +26,5 @@ package() {
     mkdir "${pkgdir}"/etc/
     mkdir "${pkgdir}"/etc/spop
     cp "${startdir}"/spopd.conf "${pkgdir}"/etc/spop/
-    make PREFIX="${pkgdir}"/usr install
+    make -j4 PREFIX="${pkgdir}"/usr install
 }

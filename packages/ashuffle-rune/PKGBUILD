@@ -1,0 +1,27 @@
+# Maintainer: Simone De Gregori <orion@runeaudio.com>
+# Development: https://github.com/Joshkunz/ashuffle
+ 
+pkgname=ashuffle-rune
+pkgver=0.22
+pkgrel=6
+pkgdesc="Ashuffle is an application for automatically shuffling your mpd library in a similar way to a more standard music player's \"shuffle library\" feature."
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
+url="https://github.com/Joshkunz/ashuffle"
+license=('MIT')
+depends=('mpd-rune' 'libmpdclient')
+makedepends=('clang' 'git')
+source=('ashuffle-rune::git+https://github.com/Joshkunz/ashuffle'
+        'ashuffle.service')
+sha1sums=('SKIP'
+          'SKIP')
+ 
+build() {
+    cd "$srcdir/${pkgname}"
+    make -j4
+}
+ 
+package() {
+    cd "$srcdir/${pkgname%}"
+    install -Dm755 "${srcdir}"/ashuffle-rune/ashuffle "${pkgdir}"/usr/bin/ashuffle
+    install -Dm644 "${srcdir}"/ashuffle.service "${pkgdir}"/usr/lib/systemd/ashuffle.service
+}

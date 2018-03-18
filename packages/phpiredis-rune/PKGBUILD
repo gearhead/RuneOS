@@ -5,7 +5,7 @@ pkgname=phpiredis-rune
 pkgver=1.0.0
 pkgrel=3
 pkgdesc="PHP low level extension for Redis"
-arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url="https://github.com/nrk/phpiredis"
 license=('PHP')
 depends=('php-rune' 'hiredis')
@@ -18,14 +18,14 @@ build() {
     cd ${srcdir}/phpiredis
     phpize
     ./configure --prefix=/usr --enable-phpiredis
-    make
+    make -j4
     #make test
 }
  
 package() {
     cd ${srcdir}/phpiredis
  
-    make INSTALL_ROOT="${pkgdir}" install
+    make -j4 INSTALL_ROOT="${pkgdir}" install
     echo "extension=phpiredis.so" > "${ininame}"
     install -vDm644 "${ininame}" "$pkgdir/${inifile}"
 }

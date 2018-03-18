@@ -1,0 +1,41 @@
+pkgname=amixer-webui
+pkgver=0.r55.cedaebb
+pkgrel=1
+pkgdesc="a web interface to alsamxer"
+url="https://github.com/JiriSko/amixer-webui"
+arch=('armv6h' 'armv7h')
+license=('MIT')
+depends=('alsa-utils' 'rsync')
+makedepends=('python' 'python-pip' 'git')
+provides=('amixer-webui')
+conflicts=('amixer-webui')
+source=("$pkgname::git+https://github.com/JiriSko/amixer-webui.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+  printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd "$pkgname"
+}
+
+build() {
+  cd "${srcdir}"/"$pkgname"
+  make -j4
+}
+
+package() {
+  cd "$srcdir"/"$pkgname"
+  make -j4 package
+  cp -r "$srcdir"/"$pkgname"/production/deb-package/* "$pkgdir"/
+  mkdir "$pkgdir"/etc
+  cp "$srcdir"/"$pkgname"/amixer-webui.conf "$pkgdir"/etc/
+  mkdir "$pkgdir"/usr/lib/
+  mkdir "$pkgdir"/usr/lib/systemd/
+  mkdir "$pkgdir"/usr/lib/systemd/system/
+  install -Dm 644 "$startdir/$pkgname.service" \
+	                "$pkgdir/usr/lib/systemd/system/$pkgname.service"
+
+}

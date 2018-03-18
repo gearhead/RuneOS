@@ -24,12 +24,12 @@ conflicts=('mpd')
 replaces=('mpd')
 source=("http://www.musicpd.org/download/${_pkgname}/${pkgver%.*}/${_pkgname}-${pkgver}.tar.xz"
         'tmpfiles.d'
-	    'mpd.conf'
-	    '0001-Extend-MPD-0.19.21-DSD-support.patch')
+	'mpd.conf'
+	'0001-Extend-MPD-0.19.21-DSD-support.patch')
 sha1sums=('27dd903f4f7c0f5ffeb85e6820c02d2b82485572'
           'f4d5922abb69abb739542d8e93f4dfd748acdad7'
           'b4939d0f2c2c7da89e1be6faed496e788c9603e6'
-	      'efca5b90d50b168a9d657b44208a3bc72da7ed0d')
+	  'efca5b90d50b168a9d657b44208a3bc72da7ed0d')
 backup=('etc/mpd.conf')
 install=install
 CXXFLAGS="-fpermissive -O2"
@@ -56,16 +56,16 @@ build() {
 		--enable-soundcloud \
 		--enable-tak \
 		--enable-pipe-output \
-		--enable-zzip \
+		--disable-zzip \
 		--disable-ao \
 		--disable-modplug \
 		--disable-pulse \
+                --disable-jack \
 		--disable-shout \
 		--disable-modplug \
 		--disable-sidplay \
 		--disable-ipv6 \
 		--disable-opus \
-		--disable-ipv6 \
 		--disable-recorder-output \
 		--disable-iso9660 \
 		--disable-wildmidi \
@@ -73,10 +73,9 @@ build() {
 		--disable-fluidsynth \
 		--disable-gme \
 		--disable-bzip2 \
-        --disable-mpg123 \
+                --disable-mpg123 \
 	  	--disable-wildmidi \
 	  	--disable-lame-encoder \
-		--disable-ipv6 \
 		--with-zeroconf=avahi \
 		--with-systemdsystemunitdir=/usr/lib/systemd/system
 

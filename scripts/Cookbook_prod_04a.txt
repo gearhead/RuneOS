@@ -23,7 +23,7 @@ pacman -S ntp --noconfirm
 ntpdate pool.ntp.org
 
 # install Redis (1.53 MiB)
-#pacman -S redis --noconfirm
+pacman -S redis --noconfirm
 
 
 #########################################
@@ -119,13 +119,6 @@ pacman -S alsa-utils --noconfirm
 # install SOX (3.08 MiB)
 pacman -S sox --noconfirm
 
-# install Jack (2.56 MiB)
-pacman -S jack --noconfirm
-
-# install NetJACK driver (0.15 MiB)
-pacman -S celt --noconfirm
-
-
 ############################
 ### -- install RuneUI -- ###
 ############################
@@ -134,7 +127,7 @@ ln -s /srv/http/ /var/www
 cd /var/www
 
 # clone RuneUI git repo
-git clone -b 0.4b https://github.com/hondagx35/RuneUI.git .
+git clone -b 0.5b https://github.com/gearhead/RuneUI.git .
 
 
 ##############################

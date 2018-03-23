@@ -46,40 +46,39 @@ prepare() {
 
 build() {
 	cd "${srcdir}/mpd-${pkgver}"
+	
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
 		--enable-libmpdclient \
-		--enable-mad \
-		--enable-soxr \
-		--enable-ffmpeg \
-		--enable-soundcloud \
-		--enable-tak \
 		--enable-pipe-output \
-		--disable-zzip \
-		--disable-ao \
-		--disable-modplug \
 		--disable-pulse \
-                --disable-jack \
+		--enable-soundcloud \
+		--disable-sidplay \
+		--disable-ao \
+		--disable-jack \
 		--disable-shout \
 		--disable-modplug \
-		--disable-sidplay \
-		--disable-ipv6 \
+		--disable-wavpack \
 		--disable-opus \
+		--disable-lame-encoder \
+		--disable-ipv6 \
 		--disable-recorder-output \
 		--disable-iso9660 \
 		--disable-wildmidi \
 		--disable-oss \
 		--disable-fluidsynth \
-		--disable-gme \
 		--disable-bzip2 \
-                --disable-mpg123 \
-	  	--disable-wildmidi \
-	  	--disable-lame-encoder \
+		--disable-gme \
+		--disable-mpg123 \
+		--enable-mad \
+		--enable-soxr \
+		--enable-ffmpeg \
 		--with-zeroconf=avahi \
-		--with-systemdsystemunitdir=/usr/lib/systemd/system
+		--with-systemduserunitdir=/usr/lib/systemd/user \
+		--with-systemdsystemunitdir=/usr/lib/systemd/system \
 
-	make -j4
+	make
 }
 
 package() {

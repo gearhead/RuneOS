@@ -1,0 +1,379 @@
+########################################
+# RuneAudio v0.4-beta cookbook         #
+# written by: Orion (production image) #
+# edited for 2017 kernel by Gearhead   #
+# HW platform: RaspberryPi (01)	    #
+########################################
+# install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide, choose syslinux bootloader
+
+# general system update
+pacman -Syu --noconfirm
+
+# uninstall unecessary packages
+pacman -R cryptsetup jfsutils lvm2 man-db man-pages reiserfsprogs haveged
+
+# install git support (22.47 MiB)
+pacman -S git --noconfirm
+
+# install NTP package (3.87 MiB)
+pacman -S ntp --noconfirm
+
+# first time sync
+ntpdate pool.ntp.org
+
+# install Redis (1.53 MiB)
+pacman -S redis --noconfirm
+
+
+#########################################
+### -- additional system libraries -- ###
+#########################################
+# install libmcrypt (0.25 MiB)
+pacman -S libmcrypt --noconfirm
+
+# install libjpeg-turbo (1.15 MiB)
+pacman -S libjpeg --noconfirm
+
+# install apr-util (nginx req.) (1.63 MiB) 
+pacman -S apr-util --noconfirm
+
+
+##########################
+### -- system tools -- ###
+##########################
+
+# install wget (3.05 MiB)
+pacman -S wget --noconfirm
+
+# install ethtool (0.25 MiB)
+pacman -S ethtool --noconfirm
+
+###########################
+### -- network tools -- ###
+###########################
+# install avahi (2.30 MiB)
+pacman -S avahi --noconfirm
+
+# install nettools (0.49 MiB)
+pacman -S net-tools --noconfirm
+
+# install ifplugd (0.13 MiB)
+pacman -S ifplugd --noconfirm
+
+# install wireless tools (0.33 MiB)
+pacman -S wireless_tools --noconfirm
+
+# install wpa_supplicant (1.43 MiB)
+pacman -S wpa_supplicant --noconfirm
+
+# install hostapd (0.85 MiB)
+pacman -S hostapd --noconfirm
+
+# install nfs-utils (2.49 MiB)
+pacman -S nfs-utils --noconfirm
+
+# install libupnp (0.46 MiB)
+pacman -S libupnp --noconfirm
+
+# install libxml2 (8.10 MiB)
+pacman -S libxml2 --noconfirm
+
+# install yasm (2.80 MiB)
+pacman -S yasm --noconfirm
+
+
+##############################
+### -- filesystem tools -- ###
+##############################
+# install NTFS support (1.50 MiB)
+pacman -S ntfs-3g --noconfirm
+
+# install dosfstools (0.25 MiB)
+pacman -S dosfstools --noconfirm
+
+# install exFAT support (0.19 MiB)
+pacman -S exfat-utils --noconfirm
+
+# install sshfs support (0.07 MiB)
+pacman -S sshfs --noconfirm
+
+# install cifs-utils (0.63 MiB)
+pacman -S cifs-utils --noconfirm
+
+# install ftpfs (0.06 MiB)
+pacman -S curlftpfs --noconfirm
+
+# install USB automount daemon (0.34 MiB)
+# >>> REMEMBER to enable kernel polling when using devmon without udisks:
+# http://ignorantguru.github.com/udevil/#polling
+pacman -S udevil --noconfirm
+
+
+#########################
+### -- AUDIO stack -- ###
+#########################
+# install ALSA utils (9.66 MiB)
+pacman -S alsa-utils --noconfirm
+
+# install SOX (3.08 MiB)
+pacman -S sox --noconfirm
+
+# install Jack (2.56 MiB)
+pacman -S jack --noconfirm
+
+# install NetJACK driver (0.15 MiB)
+pacman -S celt --noconfirm
+
+
+############################
+### -- install RuneUI -- ###
+############################
+cd /
+ln -s /srv/http/ /var/www
+cd /var/www
+
+# clone RuneUI git repo
+git clone -b 0.4b https://github.com/hondagx35/RuneUI.git .
+
+
+##############################
+# -- setup filesystem ACL -- #
+##############################
+# setup tmpfs directory
+chmod 777 /run
+
+# setup webserver directory
+chown -R http.http /srv/http/
+chmod 644 $(find /srv/http/ -type f)
+chmod 755 $(find /srv/http/ -type d)
+chmod -R 755 /srv/http/command/
+chmod -R 755 /srv/http/db/redis_datastore_setup
+chmod -R 755 /srv/http/db/redis_acards_details
+
+# setup log directory
+rm -r /var/log/*
+mkdir /var/log/runeaudio
+echo "logs            /var/log                tmpfs           nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
+echo "rune-logs       /var/log/runeaudio      tmpfs           nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
+
+# install motd
+cp /var/www/app/config/_os/etc/motd /etc/
+cp /var/www/app/config/_os/etc/issue /etc/
+
+# install RuneAudio MPD package dependencies
+# install libmpdclient (0.27 MiB)
+pacman -S libmpdclient --noconfirm
+
+# install faad2 (0.39 MiB)
+pacman -S faad2 --noconfirm
+
+# install sqlite3 (1.21 MiB)
+pacman -S sqlite3 --noconfirm
+
+# install libmad (0.13 MiB)
+pacman -S libmad --noconfirm
+
+# install libmms (0.09 MiB)
+pacman -S libmms --noconfirm
+
+# install libid3tag (0.12 MiB)
+pacman -S libid3tag --noconfirm
+
+# install audiofile (0.31 MiB)
+pacman -S audiofile --noconfirm
+
+# install mpg123 (0.69 MiB)
+pacman -S mpg123 --noconfirm
+
+# install mpc (0.10 MiB)
+pacman -S mpc --noconfirm
+
+pacman -S jsoncpp --noconfirm
+pacman -S libmicrohttpd --noconfirm
+
+pacman -S libpulse
+pacman -S perl-uri
+
+# ----->>>> DOWNLOAD PACKAGES FROM RuneOS REPO <<<<----- #
+
+# get packages somehow
+cd /usr/local/src/
+# ffmpeg-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/ffmpeg-rune/ffmpeg-rune-r65426.4b63bce-1-armv6h.pkg.tar.xz
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/ffmpeg-rune/libva.so.1.3501.0
+
+# hfsprogs-rune (optional)
+#wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/hfsprogs-rune/hfsprogs-rune-332.25-10-armv6h.pkg.tar.xz
+
+# hfsutils-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/hfsutils-rune/hfsutils-rune-3.2.6-4-armv6h.pkg.tar.xz
+
+# mpd-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/mpd-rune/mpd-rune-0.18.14-1-armv6h.pkg.tar.xz
+
+# mpdscribble-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/mpdscribble-rune/mpdscribble-rune-0.22-6-armv6h.pkg.tar.xz
+
+# nginx-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/nginx-rune/nginx-rune-1.4.7-2-armv6h.pkg.tar.xz
+
+# php-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/php-rune/php-rune-5.5.16-1-armv6h.pkg.tar.xz
+
+# phpredis-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/phpredis-rune/phpredis-rune-2.2.5-1-armv6h.pkg.tar.xz
+
+# samba-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/samba-rune/samba-rune-2.2.12-1-armv6h.pkg.tar.xz
+
+# shairport-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/shairport-rune/shairport-rune-1.0-1-armv6h.pkg.tar.xz
+
+# tcp_wrappers
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/tcp_wrappers/tcp_wrappers-7.6-16-armv6h.pkg.tar.xz
+
+# upmpdcli-rune
+wget https://github.com/RuneAudio/RuneOS/raw/master/01_raspberrypi/packages/upmpdcli-rune/upmpdcli-rune-0.8.0-1-armv6h.pkg.tar.xz
+
+
+# ----->>>> INSTALL RuneOS packages <<<<----- #
+
+
+# install ffmpeg-rune
+pacman -Sd --nodeps libva
+pacman -U ffmpeg-rune-2.8.8-3-armv6h.pkg.tar.xz --noconfirm
+
+# install mpd-rune
+pacman -U mpd-rune-0.20.6-1-armv6h.pkg.tar.xz --noconfirm
+
+# install mpdscribble-rune
+pacman -U mpdscribble-0.22-6-armv6h.pkg.tar.xz --noconfirm
+
+# install nginx-rune
+pacman -U nginx-rune-1.11.3-6-armv6h.pkg.tar.xz --noconfirm
+
+# install php-rune
+pacman -U php-rune-5.5.29-2-armv6h.pkg.tar.xz --force
+
+# install phpredis-rune
+pacman -U phpredis-rune-2.2.7-2-armv6h.pkg.tar.xz
+
+# install php support
+pacman -U php-libevent-0.1.0-2-armv6h.pkg.tar.xz
+pacman -U php-pthreads-2.0.11-1-armv6h.pkg.tar.xz
+pacman -U phpiredis-rune-1.0.0.3-armv6h.pkg.tar.xz
+
+# cannot get this to compile
+# install samba4-rune
+#pacman -U samba4-rune-4.6.2-1-armv6h.pkg.tar.xz
+
+# install shairport-rune
+pacman -U shairport-rune-1.1.1-1-armv6h.pkg.tar.xz
+
+#install libupnp-rue
+pacman -U libupnp-rune-20170329-1-armv6h.pkg.tar.xz
+
+# install upmpdcli-rune
+pacman -U upmpdcli-rune-0.13.1-20170330-armv6h.pkg.tar.xz
+
+# install ashuffle
+pacman -U ashuffle-rune-1.0-20170328-armv6h.pkg.tar.xz
+
+# instapp spotify
+pacman -U libspotify-12.1.103-3-armv6h.pkg.tar.xz
+pacman -U spop-rune-0.0.3-20160128-armv6h.pkg.tar.xz 
+
+# install hfs support
+pacman -U hfsprogs-rune-332.25-10-armv6h.pkg.tar.xz
+pacman -U hfsutils-rune-3.2.6-5-armv6h.pkg.tar.xz 
+
+# ----->>>> INSTALL Go Daddy Intermediate CA (Jamendo) <<<<----- #
+
+cp -Rv /var/www/app/config/_os/usr/share/ca-certificates /usr/share/
+cp -Rv /var/www/app/config/_os/etc/ca-certificates /etc/
+
+# update SSL certs database
+trust extract-compat -v
+
+# ----->>>> SYSTEM CONFIGURATION <<<<----- #
+
+# install RuneAudio system tweaks
+cp -Rv /var/www/app/config/_os/etc/* /etc
+rm /etc/profile.d/proxy.sh 
+cp -R /var/www/app/config/_os/usr/* /usr
+rm -rf /etc/security/limits.d/
+mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
+ln -s /etc/nginx/nginx-dev.conf /etc/nginx/nginx.conf
+
+/*
+# there is so much more than this, now
+cp /var/www/app/config/_os/etc/modprobe.d/modprobe.conf /etc/modprobe.d/
+cp /var/www/app/config/_os/etc/modprobe.d/snd-soc-pcm512x.conf /etc/modprobe.d/
+cp /var/www/app/config/_os/etc/profile.d/proxy.sh /etc/profile.d/
+cp /var/www/app/config/_os/etc/udev/rules.d/* /etc/udev/rules.d/
+cp /var/www/app/config/_os/etc/udevil/udevil.conf /etc/udevil/
+cp /var/www/app/config/_os/etc/netconfig /etc/netconfig
+cp /var/www/app/config/_os/etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/
+cp /var/www/app/config/_os/etc/sysctl.d/* /etc/sysctl.d/
+cp /var/www/app/config/_os/etc/security/limits.conf /etc/security/limits.conf
+rm -rf /etc/security/limits.d/
+cp /var/www/app/config/_os/usr/lib/systemd/system/rc-local.service /usr/lib/systemd/system/
+cp /var/www/app/config/_os/usr/lib/systemd/system/redis.service /usr/lib/systemd/system/
+cp /var/www/app/config/_os/usr/lib/systemd/system/rune_PL_wrk.service /usr/lib/systemd/system/
+cp /var/www/app/config/_os/usr/lib/systemd/system/rune_SY_wrk.service /usr/lib/systemd/system/
+cp /var/www/app/config/_os/usr/lib/systemd/system/rune_shutdown.service /usr/lib/systemd/system/
+cp /var/www/app/config/_os/usr/lib/systemd/system/shairport.service /usr/lib/systemd/system/
+cp /var/www/app/config/_os/usr/lib/systemd/system/udevil.service /usr/lib/systemd/system/
+cp /var/www/app/config/_os/usr/lib/systemd/system/wpa_supplicant@.service /usr/lib/systemd/system/
+*/
+
+# disable RNGD - not installed
+#systemctl disable rngd
+
+# disable systemd-journald
+systemctl disable systemd-journald
+systemctl mask systemd-journald
+systemctl mask systemd-journal-flush.service
+
+# disable systemd-logind
+systemctl disable systemd-logind
+systemctl mask systemd-logind
+
+# enable php
+systemctl enable php-fpm
+
+# enable nginx
+systemctl enable nginx
+
+# enable mpd
+systemctl enable mpd
+
+# enable redis
+systemctl enable redis
+
+# enable RuneAudio background workers
+systemctl enable rune_PL_wrk
+systemctl enable rune_SY_wrk
+
+# enable rune_shutdown
+systemctl enable rune_shutdown
+
+# link Orion Optimize script
+ln -s /srv/http/command/orion_optimize.sh /usr/sbin/
+
+# create /mnt directory structure
+mkdir /mnt/MPD
+mkdir /mnt/MPD/USB
+mkdir /mnt/MPD/Webradio
+mkdir /mnt/MPD/NAS
+mkdir /mnt/MPD/LocalStorage
+chown -R mpd.audio /mnt/MPD
+
+# reboot system
+reboot
+
+#Log in and repair filesystem
+rm -rf /var/run /var/lock && pacman -S filesystem
+
+edit php config to be line Pi2
+edit /etc/redis.ini to match pi2

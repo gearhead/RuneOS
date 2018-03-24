@@ -247,6 +247,8 @@ pacman -U ashuffle-rune-1.0-20170328-armv6h.pkg.tar.xz --noconfirm
 
 # instapp spotify
 pacman -U libspotify-12.1.103-3-armv6h.pkg.tar.xz --noconfirm
+# spopd needs a sym link to see the new library
+ln -s /lib/libjsoncpp.so.20 /lib/libjsoncpp.so.19
 pacman -U spop-rune-0.0.3-20160128-armv6h.pkg.tar.xz  --noconfirm
 
 # install hfs support

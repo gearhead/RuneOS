@@ -119,12 +119,15 @@ pacman -S alsa-utils --noconfirm
 # install SOX (3.08 MiB)
 pacman -S sox --noconfirm
 
+# we do not need Jack kg
 # install Jack (2.56 MiB)
-pacman -S jack --noconfirm
+#pacman -S jack --noconfirm
 
 # install NetJACK driver (0.15 MiB)
-pacman -S celt --noconfirm
+#pacman -S celt --noconfirm
 
+pacman -S cronie
+pacman -S sudo
 
 ############################
 ### -- install RuneUI -- ###

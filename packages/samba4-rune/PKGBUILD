@@ -5,7 +5,9 @@
 # Contributor: Netanel Shine 
 # Contributor: ngoonee 
 # Contributor: Adam Russell 
-# Contributor: Dhananjay Sathe 
+# Contributor: Dhananjay Sathe
+# Contributor: Keith Grider 
+# edited for RuneOS to remove AD/ADS from compile
 
 pkgbase=samba
 pkgname=('samba4-rune')
@@ -39,6 +41,8 @@ validpgpkeys=('52FBC0B86D954B0843324CDC6F33915B6568B7EA') #Samba Distribution Ve
 
 prepare() {
   cd samba-${pkgver}
+  # this patch needed for 4.7.5 and 4.7.6 so it will compile without ADS
+  # Does not work with 4.8.0
   patch -p1 < "${startdir}"/0001-libads-Fix-the-build-without-ads.patch
 }
 
@@ -127,14 +131,6 @@ install=samba.install
          xargs sed -i "s|#!/usr/bin/env python$|#!/usr/bin/env python2|"
     find ${pkgdir}/usr/bin ${pkgdir}/usr/bin -type f -executable | \
          xargs sed -i "s|#!/usr/bin/env python$|#!/usr/bin/env python2|"
-
-    # Make admin scripts look in the right place for the samba python module
-    #for script in bin/samba_dnsupdate bin/samba_kcc bin/samba_spnupdate \
-    #              bin/samba_upgradedns bin/samba-tool
-    #do
-    #    sed -i "/^sys\.path\.insert/ a\sys.path.insert(0, '/usr/lib/python${_pyver}/site-packages')" \
-    #           ${pkgdir}/usr/${script}
-    #done
 
   # install systemd files
   install -d -m755 ${pkgdir}/usr/lib/systemd/system

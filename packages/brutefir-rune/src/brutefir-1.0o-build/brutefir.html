@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <title>BruteFIR</title>
+
+  <style media="screen, print">
+table, th, td {
+   border: 1px solid black;
+}
+  </style>
+</head>
+
+<body>
+<h1>BruteFIR</h1>
+<h2>Table of contents</h2>
+<ul>
+<li><a href="brutefir.html#news">News</a>
+<li><a href="brutefir.html#docage">Note on the documentation's age</a>
+<li><a href="brutefir.html#whatis">What is it?</a>
+<li><a href="brutefir.html#good">What is it good for?</a>
+<li><a href="brutefir.html#bruteconv">BruteFIR convolution</a>
+<ul>
+<li><a href="brutefir.html#bruteconv_1">The problem of complexity</a>
+<li><a href="brutefir.html#bruteconv_2">Problems with long FFTs</a>
+<li><a href="brutefir.html#bruteconv_3">Partitioned convolution</a>
+<li><a href="brutefir.html#bruteconv_4">Optimizing where it counts</a>
+<li><a href="brutefir.html#bruteconv_5">Conclusion</a>
+</ul>
+<li><a href="brutefir.html#download">Where can I get it?</a>
+<li><a href="brutefir.html#howfast">How fast is it?</a>
+<ul>
+<li><a href="brutefir.html#throughput">How high throughput can I get?</a>
+<li><a href="brutefir.html#lowdelay">How low I/O delay can I get?</a>
+</ul>
+<li><a href="brutefir.html#hardware">Hardware considerations</a>
+<li><a href="brutefir.html#config">Configuring and running</a>
+<ul>
+<li><a href="brutefir.html#config_1">General settings</a>
+<li><a href="brutefir.html#config_2">General structure syntax</a>
+<li><a href="brutefir.html#config_3">Coeff structure</a>
+<li><a href="brutefir.html#config_4">Input and output structure</a>
+<li><a href="brutefir.html#config_5">Filter structure</a>
+<li><a href="brutefir.html#config_6">Configuration file example</a>
+</ul>
+<li><a href="brutefir.html#bfio">I/O modules</a>
+<ul>
+<li><a href="brutefir.html#bfio_alsa">ALSA sound card I/O (alsa)</a>
+<li><a href="brutefir.html#bfio_oss">OSS sound card I/O (oss)</a>
+<li><a href="brutefir.html#bfio_jack">JACK audio server I/O (jack)</a>
+<li><a href="brutefir.html#bfio_file">Raw PCM file I/O (file)</a>
+<li><a href="brutefir.html#bfio_own">Writing your own I/O module</a>
+</ul>
+<li><a href="brutefir.html#bflogic">Logic modules</a>
+<ul>
+<li><a href="brutefir.html#bflogic_cli">Command line interface (cli)</a>
+<li><a href="brutefir.html#bflogic_eq">Run-time equalizer</a>
+<li><a href="brutefir.html#bflogic_own">Writing your own logic module</a>
+</ul>
+<li><a href="brutefir.html#tuning">Tuning</a>
+<ul>
+<li><a href="brutefir.html#tuning_1">Realtime index</a>
+<li><a href="brutefir.html#tuning_2">FFTW wisdom</a>
+<li><a href="brutefir.html#tuning_3">Low latency patch</a>
+<li><a href="brutefir.html#tuning_4">Sample clock problems</a>
+<li><a href="brutefir.html#tuning_5">Double precision or not</a>
+<li><a href="brutefir.html#tuning_6">Choosing number of partitions</a>
+<li><a href="brutefir.html#tuning_7">Realtime issues</a>
+</ul>
+<li><a href="brutefir.html#features">Request features</a>
+<li><a href="brutefir.html#references">References</a>
+</ul>
+<p>
+
+<h2 id="news">News</h2>
+<p><strong>2016-11-15</strong><br>
+Re-released 1.0o with corrected version number in the output (it
+incorrectly said 1.0m before).
+
+<p><strong>2016-08-09</strong><br>
+Maintenance release 1.0o. Second this day, I was a bit trigger happy on
+the first. Here I've put in some minor bugfixes received from the Debian
+package maintainer.
+
+<p><strong>2016-08-09</strong><br>
+Maintenance release 1.0n, no functional change.
+
+<p><strong>2013-11-29</strong><br>
+There was still a typo in the last uploaded 1.0m affecting
+SSE2. Uploaded fix.
+
+<p><strong>2013-11-28</strong><br>
+There was a typo in the last uploaded 1.0m release causing the
+S24_LE/S24_3LE formats to break for input. So if you downloaded 1.0m
+yesterday please do it again.
+
+<p><strong>2013-11-27</strong><br>
+BruteFIR v1.0m. Fixed an SSE2 bug introduced in 1.0l. Added
+'safety_limit' feature which can be used to protect your expensive
+speakers (and sensitive ears). Also fixed a rare race condition bug
+and further synchronized sample formats with ALSA, so now S24_4LE
+means low 24 bits of 32 bit word. Thus if you used S24_4LE before you
+should use S32_LE now to get the old behavior.
+
+<p><strong>2013-10-06</strong><br>
+BruteFIR v1.0l. Refreshed code to compile well on x86-64, dropped
+3Dnow support and replaced the hand-coded SSE with SSE C code, and
+refreshed JACK and ALSA I/O modules to catch up with changes in the
+APIs. Also fixed a filter indexing bug in the <code>cffa</code> CLI
+command.
+
+<p><strong>2009-03-31</strong><br>
+BruteFIR v1.0k. Refreshed JACK and ALSA I/O modules to catch up with
+changes in the APIs.
+
+<p><strong>2009-03-05</strong><br>
+BruteFIR v1.0j. Fixed a memory leak in the CLI.
+<p>
+As you may have noted, I do not any longer actively develop BruteFIR
+further. From my point of view the software is "complete". I have had
+plans to start a next generation BruteFIR from scratch with a more
+modern design (using threads instead of forked processes etc), but
+priorities in life change, and I do not any longer have much time to
+write code so it is not likely to happen.
+<p>
+However, I'm happy to see that there are many BruteFIR users out
+there. Do continue to report bugs as my intention is to keep the
+code working and fix any bugs that arise.
+
+<p><strong>2006-10-08</strong><br>
+BruteFIR v1.0i. Minor fixes in CLI. Sub-sample delay now works also
+with negative delays.
+<p>
+There's also some interesting patent news, actually this is old
+news, but I did not know about it until now - the patent EP0649578 has
+been revoked after an opposition. It was argued that from the existing
+prior art (of which most is referenced here), the non-uniform
+partitioned part of the patent lacks inventive step. Additionally,
+there is a testimony that claims that the "invention" was actually
+exposed in advance - an academic person at a Danish university
+explained the idea to the people that then went home and filed the
+patent which has plagued the industry and open-source world for so
+long. A theft and lockdown of ideas which we so often before have seen
+in the world of patents. Anyway, based on this opposition, the EPO has
+revoked the patent.
+<p>
+For BruteFIR this does not mean anything since it employs uniform
+partitioned convolution. However, the non-uniform partitioned
+convolution algorithm is probably free to use in open-source 
+software. There are still patents on this in other countries (such as
+the US), but with the corresponding patent revoked in Europe, they
+will be hard to defend. Note that I'm not a patent lawyer, so if you
+really are going to implement non-uniform partitioned convolution I
+recommend to consult a professional first, because there is no 100%
+clear prior art as in the uniform partitioned convolution case.
+<p>
+In the future, there might be a non-uniform version of BruteFIR, but
+not likely in the near future since it will require new design from
+the ground and up. The convolution principle is the same, but
+implementation is much different with non-uniform partitions, since
+you have to perform different size FFTs in parallel. The simplest idea
+would be to simply run the same convolution engine in several "layers"
+with different partition sizes and mixing together the result in the
+end. This way the implementation difference is small and could be
+realized quite easily in BruteFIR, but efficiency will suffer. I
+probably will rather spend time to do it from the ground and up. But
+not this year.
+
+<p><strong>2006-07-12</strong><br>
+BruteFIR v1.0h. Added a sub-sample delay function (that is delays
+smaller than one sample can be specified), support for text format in
+the file I/O module, and support for naming ports in the JACK I/O
+module.
+
+<p><strong>2006-03-30</strong><br>
+BruteFIR v1.0g. Fixed input mixer and delay setting bugs.
+
+<p><strong>2005-08-11</strong><br>
+BruteFIR v1.0f. Fixed a filter parse bug.
+
+<p><strong>2005-06-28</strong><br>
+BruteFIR v1.0e. Fix to work with GCC 4.0.
+
+<p><strong>2005-06-12</strong><br>
+Released a minor maintenance release, 1.0d. Contains some minor
+adjustments to the JACK I/O module, and a fatal bug fix concerning
+multiple inputs/outputs, which was introduced in 1.0b.
+
+<p><strong>2005-01-04</strong><br>
+BruteFIR v1.0c. Mistake in 1.0b caused the CLI module not accepting
+return characters, causing problems for telnet operation. Fixed that.
+
+<p><strong>2004-11-21</strong><br>
+BruteFIR v1.0b. Updated the JACK I/O module, it is now possible to run
+several BruteFIR instances using JACK at the same time, and it is not
+necessary to connect to external ports at startup. The CLI can now
+take commands from a serial line. Additionally, a couple of remaining
+bugs in the equalizer module have been fixed.
+
+<p><strong>2004-08-07</strong><br>
+BruteFIR v1.0a. Minor update, removed the coefficient set limit and
+updated the example configuration files in the package.
+
+<p><strong>2004-04-21</strong><br>
+BruteFIR v1.0. I felt it was time to release 1.0 now. I have fixed up
+the code so it compiles on FreeBSD and Solaris again, and I added an
+OSS module, which makes BruteFIR truly usable on FreeBSD platforms.
+
+<p><strong>2004-02-22</strong><br>
+BruteFIR v0.99n. As suspected, the merge function was not good enough,
+and has now been removed. However, instead, a cross-fade algorithm has
+been added, which indeed is a bit costly in terms of CPU time, but
+makes coefficient changes truly seamless.
+
+<p><strong>2004-01-17</strong><br>
+BruteFIR v0.99m. Fixed a few bugs, and updated the ALSA code to
+support the 1.0 version of the API. Now it is also possible to make more
+time-precise CLI scripting. I'm suspecting that the merge function is
+not good enough to be very useful, I may remove it or replace it with
+a better sounding (but inefficient) cross-fade algorithm.
+
+<p><strong>2003-10-26</strong><br>
+BruteFIR v0.99l. Added a function to hide discontinuities that may
+occur when filter coefficients are changed in runtime (function is
+called "merge"). Also added a skip option to coefficient loaded, to
+skip a given number of bytes in the beginning of a file.
+
+<p><strong>2003-08-10</strong><br>
+BruteFIR v0.99k. This is a maintenance release, which fixes a few
+bugs, including a severe powersave bug which could cause unexpected
+and very loud noise come out. It also adds an option to run in daemon mode.
+
+<p><strong>2003-07-11</strong><br>
+BruteFIR v0.99j. Now we are getting near a 1.0 release. This release
+contains quite many new features, and bug fixes. Some feature
+highlights: BruteFIR now employs FFTW3, there is support for 32 and 64 
+bits in the same binary and buffer over/underflows can be
+ignored. Among important bug fixes are that FFTW wisdom is now stored
+properly, so it can be re-used more often, and the equalizer module
+now sets the magnitude properly at the edges.
+
+<p><strong>2003-02-11</strong><br>
+BruteFIR v0.99i. I released the h-version a bit too early, lots of
+small but significant mistakes followed. This version fixes those
+(hopefully).
+
+<p><strong>2003-02-09</strong><br>
+BruteFIR v0.99h. A couple of bug fixes associated to the new callback
+I/O. It also adds support for native endian and auto sample formats,
+and a simple automatic load balancer for multi-processor machines.
+
+<p><strong>2003-02-02</strong><br>
+BruteFIR v0.99g. This release adds support for callback I/O. One
+callback I/O module is available, supporting JACK. This support means
+that the program has went through quite radical reorganizations, so
+something might be broke. If you discover any problems, please let me know.
+
+<p><strong>2003-01-05</strong><br>
+BruteFIR v0.99f. Minor peak meter adjustment and bug fix.
+
+<p><strong>2002-12-25</strong><br>
+BruteFIR v0.99e. Lots of tuning have been made to work better with
+sound card I/O. It should now be more reliable in low latency
+configurations. The release also includes some various minor
+improvements and bug fixes.
+<p>
+For those that find the default configuration file unnecessary and
+just in the way, there is now the <code>-nodefault</code> command line
+option, which will cause BruteFIR to skip the default configuration
+file.
+
+<p><strong>2002-11-28</strong><br>
+BruteFIR v0.99d. Fixes yet another bug in the ALSA code, which caused
+the software not to work with hardware with odd period sizes, such as
+some (all?) ice1712-based cards. The real-time index has also been
+much simplified and improved in terms of reliability, and a power-save
+feature was added.
+<p>
+Sometime soon, there will be 1.0...
+
+<p><strong>2002-10-10</strong><br>
+BruteFIR v0.99c, is an important bug fix release. Among other fixes,
+it fixes the slightly embarrassing bug of incorrect reading of
+3 byte 24 bit formats. Apart from many bug fixes, it adds double
+buffer support to the equalizer module, and a simple script function
+to the CLI. The risk of buffer underflow at startup has also been
+strongly reduced.
+
+<p><strong>2002-09-12</strong><br>
+BruteFIR v0.99b, fixed a serious bug in the ALSA code, which caused
+buffer underflow when the software buffer size was larger than the
+hardware buffer size.
+
+<p><strong>2002-08-25</strong><br>
+BruteFIR v0.99a, a couple of minor bug fixes, discovered during the
+development of <a
+href="http://www.ludd.ltu.se/~torger/almusvcu.html">AlmusVCU</a>.
+
+<p><strong>2002-08-04</strong><br>
+This new release (v0.99) contains a first version of an equalizer
+module, which allows equalization to be changed in runtime. Now the
+I/O delay is fixed, always exactly twice the filter block length
+(if the sound card hardware is properly designed). Good for
+synchronization with other audio processors, or clustering. There is
+also a slight change in configuration file format, so you know why it 
+will complain when run with an old configuration file.
+
+<p><strong>2002-07-26</strong><br>
+Added a minor feature that proved necessary for some applications,
+such as Ambisonics. This feature makes it is possible to multiply
+inputs/outputs in mixing with negative values, not just positive. The
+new version is BruteFIR 0.98e. An invalid version was available a few
+hours during this day (forgot to include some CLI patches), so if you
+downloaded your v0.98e at this date, download it again.
+
+<p><strong>2002-07-21</strong><br>
+Two bug fixes in this new release, BruteFIR 0.98d. The first concerns
+scaling of coefficient parameters, where PCM coefficients where
+incorrectly scaled. The other fix is in the ALSA I/O module, which
+could at some occasions fail to set the sample rate.
+
+<p><strong>2002-06-14</strong><br>
+BruteFIR 0.98c, another small step towards 1.0. This contains an
+important bugfix. Earlier versions could mix up the mix buffers which
+caused looping sound with some filter configurations, this is now
+fixed. The common mistake (at least for me) to link a 32 bit BruteFIR
+with a 64 bit FFTW or the other way around is now taken care of.
+
+<p><strong>2002-05-05</strong><br>
+BruteFIR 0.98b. The sample rate monitoring added in 0.98a is now
+optional, through the option monitor_rate. Also support for SSE2 for
+Pentium 4 processors is implemented (only used when compiled with
+double precision). It is also possible to compile and run on Solaris
+with Sparc processors.
+
+<p><strong>2002-04-16</strong><br>
+Yet another of the usual minor updates: BruteFIR 0.98a. This fixes a
+minor bug which could cause stray processes to be left after exit. It
+also improves the real-time index calculation so it works properly on
+SMP, and the program now exits with an error when sample rate is
+changed in runtime. There are now interpretable exit codes from the
+program as well, so one can now why it exited.
+
+<p><strong>2002-03-25</strong><br>
+BruteFIR 0.98: This new release supports virtual inputs and outputs,
+which can be used to control delay of individual outputs even if they
+are mixed to the same physical output.
+
+<p><strong>2001-12-20</strong><br>
+Another bugfix release, 0.97d. Also added a <code>-quiet</code> command
+line parameter to suppress title, warnings and informational messages
+at startup.
+
+<p><strong>2001-12-17</strong><br>
+Due to popular demand, the ALSA I/O module has got support for
+accessing the software modes of the ALSA library. The new release is
+0.97c.
+
+<p><strong>2001-12-16</strong><br>
+Ooops. The new sample format handling was not as good as I initially
+thought. Now that has been fixed. Oh, clipping for 32 bit formats
+works again. I hope I did not burst anyone's ears (other than
+mine). The release version is 0.97b.
+
+<p><strong>2001-12-15</strong><br>
+Some major bugs was introduced in 0.97, hopefully most of them has
+been squashed in this new release, 0.97a.
+
+<p><strong>2001-12-09</strong><br>
+BruteFIR 0.97: a new release with lots of major changes. The software is
+now much more modular. It uses modules for input and output, ALSA and
+file I/O being the first modules available. It also supports
+logic modules, the old BruteFIR CLI being the first example. The logic
+modules can be used to achieve adaptive filtering. The new module
+architecture will probably need some time to stabilize, and due to the
+large amount of changes to the code, there is a great risk that this
+new version is less stable than the last. A few details in the
+configuration file format has changed as well, for which the
+documentation has been updated. The documentation for how to program a
+BruteFIR module is not yet available though.
+
+<p><strong>2001-11-04</strong><br>
+Added a todo list. Any suggestions are welcome of course.
+
+<p><strong>2001-10-27</strong><br>
+Added some quick and dirty benchmarks, and added some new
+documentation. I made a low latency benchmark due to popular demand,
+and the interesting result is that it is possible to get as low as
+three milliseconds I/O delay, which is much lower than what I expected.
+
+<p><strong>2001-09-27</strong><br>
+New release, BruteFIR 0.96a. Some minor bugfixes, and at last
+processor capability detection code has been included, so BruteFIR
+will detect SSE or 3DNow, and use the optimized code accordingly.
+
+<p><strong>2001-08-26</strong><br>
+Updated documentation to cover all the new features of BruteFIR 0.96.
+
+<p><strong>2001-08-20</strong><br>
+BruteFIR 0.96 has been released, with a few important bugfixes, but
+also much new features, which not yet has been documented here. It is
+now possible to make filter networks, and have different length
+on different filters.
+
+<p><strong>2001-07-18</strong><br>
+A new release, BruteFIR 0.95b, which contains an important bugfix is
+available for download. It fixes a block bounds violation error when
+converting from 32 bit integers to floating point. It also contains
+some tuning of realtime priorities.
+
+<p><strong>2001-06-10</strong><br>
+Some minor updates to the documentation.
+
+<p><strong>2001-06-03</strong><br>
+A bugfix release, BruteFIR 0.95a, is available for download. It fixes
+a bug which caused the program to crash when long filters in raw
+format was read.
+<p>
+The documentation is now up to date again.
+
+<p><strong>2001-05-26</strong><br>
+New release, BruteFIR 0.95. This includes some new features, for
+example support for changing delay in runtime and support for
+non-interleaved sound cards. An important bug fix has also been
+applied, when mixing files and sound cards for inputs/outputs trouble
+could occur, but that should be fixed now.
+<p>
+Again, the documentation on this page is not entirely up to date with
+the software itself.
+
+<p><strong>2001-04-11</strong><br>
+BruteFIR 0.94a released, which is a bugfix release. A severe bug in
+the ALSA support code caused the error "Hardware does not support
+enough fragments." with common sound cards. Now it is gone. Still
+there is some work to do on the ALSA support code, like adding support
+for cards with non-interleaved buffer layout (like the RME9652).
+
+<p><strong>2001-04-08</strong><br>
+Major changes and cleanups of this page has been done, and the source
+code has been re-released. The new version is 0.94, and contains a new
+improved convolution algorithm with hand-coded assembler optimizations
+for Intel's SSE and AMD's 3Dnow. With this, BruteFIR is now capable of
+even higher throughput.
+
+<h2 id="docage">Note on the documentation's age</h2>
+<p>
+Note that the core of this documentation was written 1999 &mdash; 2001
+and is thus old. It's up to date regarding how to configure BruteFIR,
+but there's many references to old kernel versions and old CPUs
+embedded in here.
+
+<h2 id="whatis">What is it?</h2>
+<p>
+BruteFIR is a software convolution engine, a program for
+applying long FIR filters to multi-channel digital audio, either
+offline or in realtime. Its basic operation is specified through a
+configuration file, and filters, attenuation and delay can be changed
+in runtime through a simple command line interface. The FIR filter
+algorithm used is an optimized frequency domain algorithm, partly
+implemented in hand-coded assembler, thus throughput is extremely
+high. In realtime, a standard computer can typically run more than 10
+channels with more than 60000 filter taps each.
+<p>
+Through its highly modular design, things like adaptive filtering,
+signal generators and sample I/O are easily added, extended and
+modified, without the need to alter the program itself.
+<p>
+BruteFIR is free and open-source. It is licensed through the GNU
+General Public License <a href="brutefir.html#gpl">[6]</a>.
+<p>
+The preferred operating system platform for the program is Linux
+<a href="brutefir.html#linux">[11]</a>, but it is easily 
+ported to other Unixes as well, and supports for example FreeBSD out
+of the box. BruteFIR uses the high-performance
+FFTW library <a href="brutefir.html#fftw">[7]</a> for the Fast Fourier
+Transform (FFT, <a href="brutefir.html#cooley_tukey">[5]</a>)
+calculations, and ALSA, the Advanced Linux Sound 
+Architecture <a href="brutefir.html#alsa">[2]</a>, is the preferred
+way of interfacing sound cards, although OSS, Open Sound System <a
+href="brutefir.html#oss">[25]</a>, is supported as well. The main
+features are:
+
+<ul>
+<li>Designed for realtime filtering of HiFi quality digital audio
+<li>Up to 256 inputs and 256 outputs
+<li>Input/output provided by external modules for maximum flexibility
+<ul>
+<li>Default I/O modules provide support for sound cards and files
+<li>Access multiple I/O modules (= several sound cards / files) at the
+same time
+<li>8 - 24 bit audio at any rate supported by sound cards
+<li>Easy-to-use C language API to create your own I/O modules, for
+example to support more file formats, other sound card APIs, or
+generate test signals
+</ul>
+<li>Mix/copy channels before and/or after filtering
+<li>Cascade filters or build complex filter networks
+<li>Simple C language API to create logic modules, to add new
+functionality
+<ul>
+<li>Create your own logic module, for example to do adaptive filtering
+<li>Provided is a logic module which implements a CLI accessible
+through telnet to manage runtime settings, and a dynamic equalizer.
+<li>Toggle/change filter in runtime
+<li>Alter attenuation for each individual input and output in runtime
+<li>Alter delay for each individual input and output in runtime
+<li>Sub-sample delays are possible
+</ul>
+<li>Filter length limited only by processor power and memory
+<li>Typical filter lengths are in the range 2048 - 262144 taps
+<li>Reasonable low I/O-delay (typically 200 ms)
+<li>Fixed I/O-delay, thus possible to sample-align with other processors
+<li>Cross-fade for seamless filter coefficient changes.
+<li>Re-dithering of outputs (HP TPDF)
+<li>Overflow protection and monitoring
+<li>32 or 64 bit floating point internal resolution.
+<li>Supports multiple processors
+</ul>
+
+<h2 id="good">What is it good for?</h2>
+<p>
+A few examples of applications where BruteFIR could be a central component:
+<ul>
+<li>Digital crossover filters
+<li>Room equalization
+<li>Cross-talk cancellation
+<li>Wavefield synthesis
+<li>Auralization
+<li>Ambiophonics
+<li>Ambisonics
+</ul>
+Among these, room equalization and auralization needs the
+longest FIR filters in the common case. Many applications can do with
+quite short filters actually, but the thing is that you will probably
+not need to compromise on the filter lengths when you use BruteFIR,
+even when sample rates go up. However, BruteFIR is pretty useless by
+itself, since it is only a FIR filter engine. It does not provide any
+filter coefficients, thus it is not a filter design program. Also, due to
+its relatively high I/O-delay, BruteFIR is most suited for
+applications when the input signal is not live.
+<p>
+If you are interested in room equalization, my old NWFIIR project <a
+href="brutefir.html#nwfiir">[18]</a> might be of interest. It's a bit
+dated though. A better program for room equalization is Denis Sbragion's DRC <a
+href="brutefir.html#drc">[22]</a>.
+
+<h2 id="bruteconv">BruteFIR convolution</h2>
+<p>
+The main design goal of BruteFIR is to achieve as high throughput as
+possible when filters are long (longer than 10000 taps). This
+means that the filter algorithm must be very fast, since it will be
+consuming almost all processor time of the whole program. BruteFIR's
+convolution algorithm is an example of a situation where a
+theoretically less efficient algorithm is faster in practice, because
+it is easily optimized and hides performance problems of more complex
+components.
+<p>
+Frequency domain algorithms for convolution is much faster than the
+straight-forward time domain one when filters are long. The well known
+overlap-save algorithm is used as the base in BruteFIR's
+convolution. However, there are practical problems with this
+algorithm as we will see.
+
+<h3 id="bruteconv_1">The problem of complexity</h3>
+<p>
+Efficient convolution is done in the frequency domain and therefore
+an FFT algorithm is needed. The FFT calculations occupy typically more than
+90% of all processing time when plain overlap-save is
+employed. Unfortunately, FFT it is not easy to implement. There exist
+numerous implementations which vary greatly in performance, which is
+one proof of the complexity. Since it takes up almost all processing
+time, we must optimize it in order to make the convolution
+faster. This leaves us with a quite hard optimization problem.
+<p>
+One way to optimize is to code assembler by hand and try to be better
+than the compiler. Modern processors for personal computers like
+Intel's Pentium III <a href="brutefir.html#intel">[10]</a> or AMD's
+Athlon <a href="brutefir.html#amd">[1]</a> has custom SIMD instructions
+(Single Instruction Multiple Data), which allows for a single
+instruction to operate on more than one data element at a time. For
+example, a single instruction may add together four or eight floating
+point numbers. Typically, one can improve the performance of an
+algorithm four times when using these instructions. They are not used
+by common compilers like GCC (GNU Compiler Collection <a
+href="brutefir.html#gcc">[9]</a>), meaning that we have a good opportunity
+to write assembler code that will with a wide margin outperform code
+generated by the compiler. Most FFT libraries are written in C, and
+thus does not use these efficient SIMD instructions. So,
+theoretically, we could implement an FFT algorithm using SIMD
+instructions and beat the ones already available. However, we are
+going for a simpler approach as we shall see. Since one of the
+design goals of BruteFIR is to be fairly portable, we want to make any
+assembler implementation small and simple, so it easily can be ported
+to other processor architectures. Maybe 'small', but certainly not
+'simple' would be applicable on an assembler implementation of FFT. In
+conclusion, we find optimization with assembler as an attractive
+method to increase performance of existing algorithms. However, the
+algorithm we need to optimize, FFT, is quite complex and thus not an
+attractive target for optimization.
+<p>
+One of the fastest FFT libraries
+available is FFTW <a href="brutefir.html#fftw">[7]</a>, <a
+href="brutefir.html#frigo_johnson">[8]</a>, which is used by
+BruteFIR. There are more efficient FFT libraries out there (?), but 
+they are often limited to short lengths (typically less than 8192), or
+are not free software nor open-source, which is a requirement of the
+BruteFIR project.
+<p>
+
+<h3 id="bruteconv_2">Problems with long FFTs</h3>
+Many of the fastest FFT implementations support only shorter filter
+lengths (djbfft <a href="brutefir.html#djbfft">[3]</a> being one
+example), and those that support long
+lengths may behave poorly on some architectures. One example is FFTW
+which on my 900 MHz AMD Athlon test system gets a large performance
+dip when FFT lengths become larger than 32768
+(real-valued transforms). On the test system, a 262144 point FFT is 30
+times slower than a 32768 point, which theoretically should be only 10
+times. Although the behavior is more stable on my 550 MHz Pentium III
+test system, performance drops more than O(n * log2(n)) which is the
+complexity of the FFT algorithm. Note that these tests were performed
+using FFTW2.
+<p>
+These performance problems is of course due to memory accesses, and
+poor cooperation between the hardware caching architecture and the
+software. When the data of the algorithm exceeds the cache size, the
+problem becomes obvious.
+<p>
+Both Pentium and Athlon architectures allows for giving the cache
+hints from the software to reduce problems in these situations, but
+this must be done in assembler, and is therefore seldom used.
+<p>
+Apart from performance problems, long FFTs include more
+multiplications and scalings which induces a larger quantization
+error. This is however a minor problem (?).
+
+<h3 id="bruteconv_3">Partitioned convolution</h3>
+<p>
+We have seen that the central algorithm of fast convolution, the Fast
+Fourier Transform, is complex to implement and optimize. We have also
+seen that the need of long FFTs reduces the choices of available
+implementations and that the existing can behave poorly on some
+hardware architectures. A modified fast convolution algorithm that
+uses shorter FFTs, and where most time is spent in code which is
+small and easily optimized, would be ideal.
+<p>
+Many have worked on improving the standard frequency domain
+convolution algorithms for different purposes. The central idea found
+in many of these improvements, is that the impulse response, that is
+the filter, is partitioned into several smaller parts. When each
+part is filtered with the input, the results delayed suitably and finally
+added together, one gets the same result as when processing the whole
+filter at once. As far as I know, the earliest user of this simple but
+powerful concept is T.G. Stockham <a
+href="brutefir.html#stockham">[16]</a>, who published his results only
+one year after the famous Cooley and Tukey FFT paper <a
+href="brutefir.html#cooley_tukey">[5]</a>. The concept can
+be used to solve several problems. Stockham used it for saving memory,
+but in later work made in the eighties and early nineties, at the time
+when realtime DSP became feasible for the first time, it was stated
+that it can also be used to reduce quantization errors, reduce
+I/O-delay, and adapt to optimal FFT lengths of a specific
+implementation. All these improvements are described by J.S. Soo and
+K.K. Pang <a href="brutefir.html#soo_pang_1">[14]</a>, <a
+href="brutefir.html#soo_pang_2">[15]</a>. Other realtime partitioned
+convolution pioneers are B.D. Kulp <a
+href="brutefir.html#kulp">[17]</a>, P.C.W. Sommen <a
+href="brutefir.html#sommen_1">[12]</a>, <a
+href="brutefir.html#sommen_2">[13]</a> and J.M.P. Borrallo and
+M. G. Otero  <a href="brutefir.html#borrallo_otero">[4]</a>. Their
+work is a good place to start reading for the one interested in
+getting a more detailed description of partitioned convolution. The
+convolution algorithm in BruteFIR is conceptually exactly the same as
+the one found in these papers.
+<p>
+When partitioned convolution is used, something interesting happens in
+the processing time distribution of the algorithm. The major part of
+processing is moved from the FFT algorithm, to the trivial operation
+of convolution in the frequency domain which is simply
+multiplication. The more parts we split the impulse response into, the
+more convolution and less FFT is done. Naturally the FFTs get shorter,
+and thus we get rid of the problems associated to long FFTs. We now
+realize that partitioned convolution is the answer to our wishes, we
+do not need long FFTs and it becomes less important to optimize the
+FFT algorithm.
+
+<h3 id="bruteconv_4">Optimizing where it counts</h3>
+<p>
+We notice that we will earn most from optimizing the operation where a
+segment of input converted to the frequency domain is multiplied with
+the corresponding part of the filter also in the frequency
+domain. The result is then added to the output. When the data format
+is half-complex, a format used by most real-valued FFTs, The straight-forward
+implementation look like this when programmed in C:
+<p>
+<pre>
+    d[0] += b[0] * c[0];
+    for (n = 1; n &lt; n_fft / 2; n++) {
+	d[n] += b[n] * c[n] - b[n_fft - n] * c[n_fft - n];
+	d[n_fft - n] += b[n] * c[n_fft - n] + b[n_fft - n] * c[n];
+    }
+    d[n] += b[n] * c[n];
+</pre>
+<p>
+<code>b</code> is the input, <code>c</code> is the filter coefficients, and
+<code>d</code> is the output. As we see, this is a very short and simple
+algorithm, which is easy to implement in assembler. There are a couple
+of problems though. The data in each array is accessed from the tail
+and the front at the same time. It would be better for the cache to
+localize the accesses, and move from front to end only. It is also a
+problem that  the data is accessed both in forward and reverse order
+(both 0,1,2,3 and 3,2,1,0), since we want to used SIMD
+instructions. To solve the problem, we need to reorder the data. This
+will only be necessary to do once with the filter coefficients, so it is
+free. For the input however, we need to do this once after each forward
+transform, and for the output we need to restore the half-complex
+order prior to each inverse transform. In BruteFIR the input reordering
+is put into the mixing and scaling step, and the output reordering in
+the quantization step, so the cost is next to nothing. Below is a
+C implementation of the previous algorithm, when data has been
+reordered to better fit SIMD instructions and to improve the memory
+access pattern:
+<p>
+<pre>
+    d1s = d[0] + b[0] * c[0];
+    d2s = d[4] + b[4] * c[4];
+    for (n = 0; n &lt; n_fft; n += 8) {
+	d[n+0] += b[n+0] * c[n+0] - b[n+4] * c[n+4];
+	d[n+1] += b[n+1] * c[n+1] - b[n+5] * c[n+5];
+	d[n+2] += b[n+2] * c[n+2] - b[n+6] * c[n+6];
+	d[n+3] += b[n+3] * c[n+3] - b[n+7] * c[n+7];
+
+    	d[n+4] += b[n+0] * c[n+4] + b[n+4] * c[n+0];
+    	d[n+5] += b[n+1] * c[n+5] + b[n+5] * c[n+1];
+    	d[n+6] += b[n+2] * c[n+6] + b[n+6] * c[n+2];
+    	d[n+7] += b[n+3] * c[n+7] + b[n+7] * c[n+3];
+    }
+    d[0] = d1s;
+    d[4] = d2s;
+</pre>
+<p>
+The above function is easily converted into assembler using Intel's
+SSE instructions, or AMD's 3Dnow instructions, with cache hint
+instructions. The key loop (which is unrolled to further improve
+performance) becomes less than 50 lines long.
+<p>
+It is interesting that partitioned convolution makes much more memory 
+references than ordinary overlap-save. In the most simple algorithm
+analysis, only the number of mathematical operations (like
+multiplications and additions) are considered when evaluating
+performance. Better analysis also counts the number of memory
+references, but unfortunately that is not enough considering the
+modern computer architecture; it is also of profound importance to
+take <em>how</em> the accesses are done into consideration. One bad
+reference can be worse in terms of performance than ten good ones on a
+modern computer.
+
+<h3 id="bruteconv_5">Conclusion</h3>
+<p>
+By implementing partitioned convolution we have avoided the need of
+using long FFTs, and moved the major part of the processing time from
+the FFT to a simple multiplication loop. By reordering data after the forward
+transform and restoring it prior to inverse transform, the
+multiplication loop can be easily realized with SIMD instructions, and
+thus become very efficient. On the 900 MHz AMD Athlon test system,
+filtering of a 131072 tap long filter is twice as fast when 16
+partitions of 8192 taps each are used instead of a single
+partition (note: this test case is exceptional, the performance improvement
+is less in the common case). This despite the new algorithm uses more
+memory references and more mathematical operations.
+<p>
+Apart from the improvement in throughput, we also get lower I/O-delay
+(equals about twice the partition length), lower memory consumption,
+and more flexible filter length options. A 140000 tap filter would
+require a 262144 tap filter if ordinary overlap-save was used, but
+with partitioned convolution we can use 18 partitions of 8192 taps,
+and then get a gross performance improvement, coupled with delay
+reduction.
+<p>
+Still, one must not over-estimate partitioned convolution. If there really
+is an optimal FFT algorithm available, ordinary overlap-save will
+certainly outperform the partitioned algorithm. An example of an
+assembler-optimized FFT algorithm can be found in the non-free and
+non-portable Intel Native signaling processing library <a
+href="brutefir.html#nsp">[19]</a>.
+
+<h2 id="download">Where can I get it?</h2>
+<p>
+You are free to <a href="files/brutefir-1.0o.tar.gz">download version
+1.0o</a>.
+<p>
+The package contains the source-code, you will need a supported
+platform to run it on (Linux is recommended, but FreeBSD or Solaris
+should work out of the box too, it is not as closely maintained
+though). Apart from the basic stuff you must also have FFTW3 installed
+(note that FFTW2, as used by old versions of BruteFIR, won't
+work). FFTW3 must be compiled for both double and single precision.
+<p>
+If you want sound card support, it is recommended to use ALSA on Linux
+platforms, and when that is not available, OSS can be used.
+<p>
+If you want to use the JACK support, you need an up to date version of
+JACK installed.
+<p>
+Be sure that you use an official GCC compiler when compiling
+BruteFIR. One user reported bad sound quality (noise artifacts in the
+BruteFIR output), and it was shown that he had used GCC 2.96 (not an
+official version), that caused errors in the floating point
+calculations of BruteFIR.
+<p>
+The package does not yet contain configure scripts or other nice
+things to make compiling easier. However, with some luck it should
+work simply by typing 'make'. You can also view the Makefile to see
+what compile options there are. If you have any questions, just mail
+me, <a href="mailto:torger@ludd.ltu.se">torger@ludd.ltu.se</a>.
+
+<h2 id="howfast">How fast is it?</h2>
+<p>
+BruteFIR's main feature is that is fast. It's brutally fast. The key
+component making BruteFIR fast is the convolution algorithm described
+above.
+<p>
+<strong>Note:</strong> the test descriptions here are a bit dated, made
+using an old version of BruteFIR. However, the results should provide
+a rough idea of what BruteFIR can do in terms of throughput. The
+example configuration files have been updated to work with the current
+version.
+
+<h3 id="throughput">How high throughput can I get?</h3>
+<p>
+With a <a href="massive_config">massive convolution
+configuration file</a> setting up
+BruteFIR to run 26 filters, each 131072 taps long, each connected to
+its own input and output (that is 26 inputs and outputs), meaning a
+total of 3407872 filter taps, a 1 GHz AMD Athlon with 266 MHz DDR RAM
+gets about 90% processor load, and can successfully run it in real
+time. The sample rate was 44.1 kHz, BruteFIR was compiled with 32 bit
+floating point precision, and the I/O delay was set to 375 ms. The
+sound card used was an RME Audio Hammerfall.
+
+<h3 id="lowdelay">How low I/O delay can I get?</h3>
+<p>
+BruteFIR is mainly designed for high throughput, not low
+delay. However, there is an interest of using BruteFIR for low delay
+convolution anyway, so here are some benchmarks so you know what to
+expect. Partitioned convolution can indeed allow for quite low delay, 
+very low if the processing power is available, and the filters are not
+too long.
+<p>
+Below is an example of a simple cross-talk cancellation
+application running on a 1 GHz AMD Athlon with 266 MHz DDR RAM and an
+RME Audio Hammerfall sound card. You can <a
+href="xtc_config">download the cross-talk cancellation
+configuration file</a> that was used if you want to test
+yourself. There are only four filters and their length are no more
+than 8192 taps (note: the example files included in the package are
+only 4096 taps long, as seen in the updated example configuration
+file), so it is indeed a very light application, which is a
+requirement if you want very low delay, since partitioned convolution
+does not scale very well with low delays (meaning a large number of
+partitions). The sample rate in these tests is 44.1 kHz, and BruteFIR
+was running with 32 bit floating point precision.
+<p>
+<table>
+  <tr>
+    <th>
+      delay in ms
+    </th>
+    <th>
+      processor load
+    </th>
+    <th>
+      partition size
+    </th>
+    <th>
+      number of partitions
+    </th>
+  </tr>
+  <tr>
+    <td>
+      3 ms
+    </td>
+    <td>
+      60%
+    </td>
+    <td>
+      64 samples
+    </td>
+    <td>
+      128
+    </td>
+  </tr>
+  <tr>
+    <td>
+      6 ms
+    </td>
+    <td>
+      30%
+    </td>
+    <td>
+      128 samples
+    </td>
+    <td>
+      64
+    </td>
+  </tr>
+  <tr>
+    <td>
+      12 ms
+    </td>
+    <td>
+      16%
+    </td>
+    <td>
+      256 samples
+    </td>
+    <td>
+      32
+    </td>
+  </tr>
+  <tr>
+    <td>
+      24 ms
+    </td>
+    <td>
+      11%
+    </td>
+    <td>
+      512 samples
+    </td>
+    <td>
+      16
+    </td>
+  </tr>
+  <tr>
+    <td>
+      47 ms
+    </td>
+    <td>
+      8%
+    </td>
+    <td>
+      1024 samples
+    </td>
+    <td>
+      8
+    </td>
+  </tr>
+</table>
+<p>
+As seen in the table, BruteFIR allows for as low delay as 3
+milliseconds, which is the limit of the sound card used, which cannot have
+shorter than 64 sample partitions.
+<p>
+If you want to run BruteFIR to
+achieve high throughput, you should expect to have a delay of at least
+100 ms though (and using no more than 16 partitions or so).
+<p>
+If you try to run BruteFIR with shorter delay than the computer can
+handle, or with too long filters, the program will exit with a broken
+pipe signal. If you get broken pipe only after a while, this is
+probably due to that you have not applied a good low latency patch to
+the kernel (there are bad ones as well), or you have cron jobs running
+or other software that competes for using the processor. For
+reasonable low latency, a low latency kernel can handle other
+processes running, but for as low as 3 milliseconds like in this
+example, you should have a dedicated clean system for running BruteFIR.
+
+
+<h2 id="hardware">Hardware considerations</h2>
+<p>
+<strong>Note:</strong> the hardware referenced here is a bit dated (a
+long time ago the text was written), but apart from that, the text is
+up to date.
+<p>
+What is important for BruteFIR is that the machine has fast memory and
+fast processor. A Pentium 4 with its RDRAM is probably the best choice
+today. However, an Athlon with DDR RAM is not bad either, and
+significantly cheaper. A fast processor on a computer with slow memory
+is what most often causes disappointment. For example, a dual Pentium
+III at 1 GHz with good use of both processors was found to be slower
+than a single processor 1 GHz AMD Athlon with DDR RAM. The problem was
+that the Pentium III had poor memory performance. The stream benchmark <a
+href="brutefir.html#stream">[20]</a> is a good program to use to verify
+the memory bandwidth if you think you get poor BruteFIR performance.
+<p>
+If you use SDRAM you will never get exceptional memory
+bandwidth, however, some tuning of timer settings in the BIOS, or
+overclocking of the memory bus can give you quite decent performance.
+<p>
+When it comes to sound hardware, you should be able to use any card
+that is compatible with ALSA <a
+href="brutefir.html#alsa">[2]</a>. However, it is not very likely that
+the sound card code of BruteFIR will work for all sound cards
+supported by ALSA, although that is the goal. If you get problems with
+your sound card, please send me a mail, and I will do my best to get
+it to work, or even better, try to get it to work yourself and send me
+a patch.
+<p>
+The best sound cards are those which support partition sizes which are
+a powers of two. If that is not the case, BruteFIR must run in input
+poll mode, which is not necessarily less  reliable, but will consume a
+part of the spare processor time.
+<p>
+The worst possible sound card is one which does not support partition
+sizes with a power of two, and can only transfer large sample blocks
+at a time. Then BruteFIR will run unreliably or not at all. 
+<p>
+If you want to avoid problems I recommend RME Audio <a
+href="brutefir.html#rmeaudio">[21]</a> Hammerfall (Light)
+(RME9652 and RME9636) and also cards from the RME Audio Digi96 series
+(RME96), since those are the cards I use myself. The Hammerfall cards
+support up to 26 inputs and 26 outputs, the Digi96 cards support up to
+8 channels. They are not the cheapest cards out there, but these are
+clean professional cards, fully digital with ADAT and S/PDIF inputs and
+outputs, which means you can have high-quality DACs and ADCs outside
+the computer to get the best sonic performance possible.
+<p>
+The Hammerfall cards allow for shorter delay (minimum partition size
+is 64 samples) than the Digi96 series (minimum size 1024 samples).
+
+<h2 id="config">Configuring and running</h2>
+<p>
+When BruteFIR is run for the first time (without parameters), it will
+generate a default configuration file (<code>~/.brutefir_defaults</code>)
+(if not the <code>-nodefault</code> option is used), and then complain
+that it cannot find <code>.brutefir_config</code> in the 
+home directory, which is the default location. The default
+configuration file contains default settings, which is extended and/or
+overridden in the main configuration file. A setting that is specified
+in the default configuration file, is not necessary to be listed in
+the main configuration file.
+<p>
+BruteFIR takes only four parameters, namely the
+filename of the main configuration file, and optionally
+<code>-quiet</code> to suppress title, warnings and informational messages
+at startup, and <code>-nodefault</code> if BruteFIR should read all
+settings from the main configuration file, and finally
+<code>-daemon</code> if it should run as a daemon.
+<p>
+If no parameters are given, the filename given in the default
+configuration file is used. If the filename is "stdin", BruteFIR will
+expect the configuration file to be available on the standard input.
+<p>
+The (default) default configuration file looks like this:
+<p>
+<pre>
+## DEFAULT GENERAL SETTINGS ##
+ 
+float_bits: 32;             # internal floating point precision
+sampling_rate: 44100;       # sampling rate in Hz of audio interfaces
+filter_length: 65536;       # length of filters
+config_file: "~/.brutefir_config"; # standard location of main config file
+overflow_warnings: true;    # echo warnings to stderr if overflow occurs
+show_progress: true;        # echo filtering progress to stderr
+max_dither_table_size: 0;   # maximum size in bytes of precalculated dither
+allow_poll_mode: false;     # allow use of input poll mode
+modules_path: ".";          # extra path where to find BruteFIR modules
+powersave: false;           # pause filtering when input is zero
+monitor_rate: false;        # monitor sample rate
+lock_memory: true;          # try to lock memory if realtime prio is set
+sdf_length: -1;             # subsample filter half length in samples
+convolver_config: "~/.brutefir_convolver"; # location of convolver config file
+ 
+## COEFF DEFAULTS ##
+ 
+coeff {
+        format: "text";     # file format
+        attenuation: 0.0;   # attenuation in dB
+	blocks: -1;         # how long in blocks
+	skip: 0;            # how many bytes to skip
+	shared_mem: false;  # allocate in shared memory
+};
+ 
+## INPUT DEFAULTS ##
+ 
+input {
+        device: "file" {};  # module and parameters to get audio
+        sample: "S16_LE";   # sample format
+        channels: 2/0,1;    # number of open channels / which to use
+        delay: 0,0;         # delay in samples for each channel
+	maxdelay: -1;	    # max delay for variable delays
+	mute: false, false; # mute active on startup for each channel
+};
+ 
+## OUTPUT DEFAULTS ##
+ 
+output {
+        device: "file" {};  # module and parameters to put audio
+        sample: "S16_LE";   # sample format
+        channels: 2/0,1;    # number of open channels / which to use
+        delay: 0,0;         # delay in samples for each channel
+	maxdelay: -1;	    # max delay for variable delays
+	mute: false, false; # mute active on startup for each channel
+        dither: false;      # apply dither
+	merge: false;       # merge discontinuities at coeff change
+};
+ 
+## FILTER DEFAULTS ##
+ 
+filter {
+        process: -1;        # process index to run in (-1 means auto)
+	delay: 0;           # predelay, in blocks
+	crossfade: false;   # crossfade when coefficient is changed
+};
+</pre>
+<p>
+The syntax of the main configuration file is very similar as we will
+see. As we can see, there are five sections in the configuration:
+
+<ul>
+<li>General settings. Here the general parameters for BruteFIR is set
+up.
+<li>Coefficient settings. Parameters for files where-from filter
+coefficients are loaded.
+<li>Input settings. Settings for digital audio inputs.
+<li>Output settings. Settings for digital audio outputs.
+<li>Filter settings. Parameters for the FIR filters.
+</ul>
+
+<p>
+The general syntax rules for the configuration files is easily grasped
+from the default configuration file. The semicolons are important,
+they note the end of a setting, not line breaks, so you may have
+several settings on one line if you like. All characters on a line
+after a # is found are ignored. There are three data types: strings,
+numbers and booleans. Strings are text between quotes, a
+number is either with or without a decimal dot, and a boolean is
+either 'true' or 'false'.
+<p>
+Note that everything is case
+sensitive, so setting names must be written with small
+letters. Although the configuration file examples shown here is nicely
+ordered in sections, it is perfectly alright to mix settings in any
+order you like.
+<p>
+The general settings section in the main configuration file has the
+same syntax as in the default configuration file. The difference is
+that <code>coeff</code>, <code>input</code>, <code>output</code> and
+<code>filter</code> structures can exist in multiples, and are given names and
+more parameters.
+
+<h3 id="config_1">General settings</h3>
+<p>
+Default values of all general settings (except <code>logic</code>) must be
+given in the default configuration file. Any of these settings may be
+overridden in the main configuration file (except
+<code>config_file</code>). These settings are:
+
+
+<pre>
+float_bits: &lt;NUMBER: internal floating point resolution, either 32 or 64&gt;;
+sampling_rate: &lt;NUMBER: sampling rate in Hz&gt;;
+filter_length: &lt;NUMBER: length in samples of the (sub)filters&gt;[,&lt;NUMBER: number of subfilters per filter&gt;];;
+config_file: &lt;STRING: default location of main configuration file&gt;;
+overflow_warnings: &lt;BOOLEAN: echo overflow warnings to stderr&gt;;
+show_progress: &lt;BOOLEAN: echo progress to stderr&gt;;
+max_dither_table_size: &lt;NUMBER: maximum size in bytes of pre-calculated dither&gt;;
+allow_poll_mode: &lt;BOOLEAN: allow input poll mode&gt;;
+modules_path: &lt;STRING: extra path where to find BruteFIR modules&gt;;
+logic: &lt;STRING: logic module name&gt; { &lt;logic module parameters&gt; }[, ...];
+powersave: &lt;BOOLEAN or NUMBER: pause filtering when input is zero&gt;;
+monitor_rate: &lt;BOOLEAN: monitor sample rate, and abort if it changes&gt;;
+lock_memory: &lt;BOOLEAN: try to lock memory if realtime prio is set&gt;;
+sdf_length: &lt;NUMBER: sub-sample delay filter half length in samples&gt;[, &lt;NUMBER: kaiser window beta&gt;];
+convolver_config: &lt;STRING: file to store FFTW wisdom in&gt;;
+benchmark: &lt;BOOLEAN: start in benchmark mode (can only be used in main config file)&gt;;
+safety_limit: &lt;NUMBER: if non-zero max dB in output before aborting&gt;;
+</pre>
+
+<p>
+The <code>filter_length</code> setting specifies how long the filters
+should be. This can be done in two ways. Either by specifying the
+length in one number, which must be a power of two. If so, the
+convolution will be done on the whole filter length. To partition a
+65536 tap filter in 16 parts, you write <code>filter_length:
+4096,16</code>. Partitioned filters can be used to improve performance
+and reduce I/O-delay.
+<p>
+The <code>convolver_config</code> setting specifies where FFTW wisdom should be
+stored, that is optimization information for the FFT
+calculations.
+<p>
+If <code>overflow_warnings</code> is set to true, information about
+overflows will be printed to the screen when they occur. Note that
+overflowed samples are always set to the maximum output value of the
+output device, so there is no actual overflow on the output (unless
+the actual floating point value is overflowed). If overflow occurs, it
+means that the filter is amplifying too much, either through
+its coefficients or through input and output attenuation. Overflow is
+not checked for if the output values are floating point.
+<p>
+If dither is applied to any output, a dither table will be calculated
+when the program is started. It contains uncorrelated random values
+that is used to generate the dither. The more channels that applies
+dither, the larger table is needed, if to keep the dither uncorrelated
+between channels. This table can get quite large memory-wise. If you
+want to limit its size, set <code>max_dither_table_size</code> to a
+value. It should rather not be less than one megabyte though. If it is
+set to zero or negative, the program will itself choose a size.
+<p>
+BruteFIR uses external modules to provide sample I/O, and optionally
+add new logic. It will search a few default directories to find any
+modules that should be loaded, as specified in the configuration. The
+setting <code>modules_path</code> will add an extra directory, which is
+searched first. The value in the created default configuration file
+will be ".", that is the current working directory.
+<p>
+If any logic modules should be loaded, these are listed in the
+<code>logic</code> field, in pairs of module name / module parameters,
+separated with commas. Which logic modules that are available and what
+functionality they provide can be found in the
+<a href="brutefir.html#bflogic">Logic modules</a> section.
+<p>
+If there is any sound card used for input or output (or any other
+sample-clock dependent device), BruteFIR will automatically set its
+delay-sensitive processes to realtime priority, thus you will
+typically need to run the program as root. To maintain realtime
+performance, it is important that there is no memory belonging to the
+program in the swapfile, thus all memory must be locked to RAM. This
+is done if <code>lock_memory</code> is set to true. Note that the memory
+is never locked when realtime priority is not set (that is when there
+are only files used for input and output). <strong>Warning:</strong>
+there seems to be a bug in the Linux kernel which makes the shared
+memory to be locked one time for each process, meaning that when 
+<code>lock_memory</code> is set to true, BruteFIR will seem to consume a
+lot more memory than it should. Also, it makes of course no sense to
+lock memory if your system does not have a swap activated. Due to this
+issue, the best thing to do is to have a system with no swap and avoid
+locking the memory.
+<p>
+The powersave feature if activated, will monitor the inputs, and if an
+input channel provides zero samples, the associated filters will not
+do any processing, since with zero on the input, BruteFIR knows in
+advance that there will be zero on the output. BruteFIR will
+continue run as normal, and filters with non-zero inputs will continue
+to to process normally. As soon as there is non-zero input on a
+suspended filter, it starts processing again. This powersave feature
+is transparent, there will be no convolution errors if it is
+activated. The reason for having it optional is that one may want to
+make performance tests, without the need to feed a meaningful signal
+to BruteFIR.
+<p>
+If analog inputs are used, the input will never be exactly zero, and
+thus the powersave feature will not be triggered. However, if a
+value is specified instead of the boolean (for example
+<code>powersave:&nbsp;-80;</code>), that value is interpreted as the
+lowest level in dB the input signal can be, before BruteFIR will
+consider the input as zero, and trigger powersave. Thus, a noise floor
+can be specified, and then powersave can work together with analog
+inputs.
+<p>
+If benchmark mode is activated (can only be done in the main
+configuration file), performance statistics will be printed on
+screen. Note that due to complex caching effects of modern computers,
+the displayed processing times can look strange, a step that requires
+much more arithmetic operations than another may in certain
+circumstances still be considerably faster, if it has better luck with
+the cache. Since benchmarking measures elapsed time, the computer must
+not be loaded with any other tasks in order to get reliable results.
+<p>
+If a sound card which is used for input cannot be configured to have a
+period size (interrupt interval) equal to or smaller than the
+configured filter (partition) length, or if it is cannot be a power of
+two, BruteFIR must be run in input poll mode. This means that the
+sound card is polled for data, and sound card interrupts are not
+used. BruteFIR will run just as reliably (as long as the sound card
+allows for small transfers) but will consume more of the spare
+processor time. Thus it will look like BruteFIR uses more processor
+than it actually needs to. If more processor time is used for
+filtering, less will be used for polling, thus input poll mode does
+not mean that it is not possible to have as long filters as running in
+normal mode. However, for some applications (for example when the
+spare processor time is used by another vital program), input poll
+mode is not suitable, and by setting the <code>allow_poll_mode</code> to
+false, BruteFIR will exit with an error if input poll mode is
+required.
+<p>
+If subsample delays should be possible to set, the <code>sdf_length</code>
+setting must be larger than zero. It specifies the half length of a
+sub-sample delay filter. A sub-sample delay filter is simply a sinc
+sampled with a sub-sample offset. Thus, when a signal is convolved
+with the filter it is delayed with the corresponding offset. Since a
+sinc signal is infinitely long, it must be windowed. A kaiser window
+is used, default beta is 9.0, but an own value can be specified by
+adding it after a comma (example: <code>sdf_length: 31, 8.5;</code>),
+there is little reason to use other than the default though. The
+distortion caused by the windowing is a soft rolloff at higher
+frequencies, the shape depends on the beta value. There is no phase
+distortion. Since the sub-sample filters are linear phase, they will
+add a pre-response (in practice I/O-delay), which is their half filter
+length, that is the value given after the <code>sdf_length</code>
+setting. If sub-sample delay are used only on inputs or outputs, the
+added pre-response is the same as the <code>sdf_length</code>, if used on
+both (usually not necessary), it will be twice the length. To activate
+sub-sample delay, also a valid <code>subdelay</code> must be specified in
+at least one of the input/output structures. The valid range is -99 to
+99.
+<p>
+The advantage of a long sub-sample filter length is that the rolloff
+in the high frequencies starts later and gets sharper, that is less
+high frequency information is lost. The disadvantage of long
+sub-sample filters is that the required CPU time increases, and the
+added I/O-delay increases. Sub-sample filters are processed separately
+in the frequency domain using FFT, and therefore it is recommended to
+keep <code>sdf_length</code> at a power of two minus one (the actual
+filter length is twice <code>sdf_length</code> plus one), which means that
+as much as possible of the FFT block is used (an <code>sdf_length</code>
+of 16 requires as much CPU time as an <code>sdf_length</code> of 31, since
+the same block length is required). With an <code>sdf_length</code> of 31
+and the default beta of 9.0, and a sample rate of 44100 Hz, the
+response is flat up to 19 kHz, and then a soft rolloff begins which
+reaches -0.20 dB at 20 kHz, which is good enough for most needs. The
+next natural step, 63, keeps a flat response up to about 20500 Hz,
+with -0.20 dB at 21 kHz.
+<p>
+The purpose of the <code>safety_limit</code> setting is to protect your
+ears and expensive speakers, it's active if set to a non-zero
+value. Every output sample is checked and if it exceeds this value (in
+dB) BruteFIR will immediately exit with an error message, before any
+sound is sent to the output.
+
+<h3 id="config_2">General structure syntax</h3>
+
+<pre>
+&lt;structure type name&gt; &lt;STRING: name (list for some) | NUMBER: index&gt; {
+	&lt;field name 1&gt;: &lt;setting 1&gt;;
+	[...]
+};
+</pre>
+
+<p>
+Names of structures (given after the type name) is not given in the
+default configuration file, but must be provided in the main
+configuration file. The name is either a custom string, or an index
+number, which must then be the same as the order of the structure in
+the file, that is the first structure must be indexed 0, the second 1
+and so on. If a string name is given, the index number is given
+automatically (the opposite also applies), and when referring to the
+structure, either the string name or the index number can be used.
+Some structures, namely input and output, may have a
+comma-separated list of names, since the names applies to the channels
+defined in the structure.
+<p>
+After the name, or the structure type name if in the default
+configuration file, There is a left brace ({), and then structure
+fields and their settings, each field/setting pair ending with
+semicolon (;). As for the general settings, field names always end
+with a colon (:). The order of the fields is not important. The
+structure is closed with a right brace (}) and ended with a semicolon.
+
+<h3 id="config_3">Coeff structure</h3>
+
+<pre>
+coeff &lt;STRING: name | NUMBER: index&gt; {
+	filename: &lt;STRING: filename&gt;; | &lt;NUMBER: shmid&gt;/&lt;NUMBER: offset&gt;/&lt;NUMBER: blocks&gt;[,...];
+	format: &lt;STRING: sample format string | "text" | "processed"&gt;;
+	attenuation: &lt;NUMBER: attenuation in dB&gt;;
+	blocks: &lt;NUMBER: length in blocks&gt;;
+	skip: &lt;NUMBER: bytes to skip in beginning of file&gt;;
+	shared_mem: &lt;BOOLEAN: allocate in shared mem&gt;
+};
+</pre>
+
+<p>
+In the default configuration file, the <code>filename</code> field is not
+set, so it must be present in the main configuration file.
+<p>
+The coeff structure defines a set of filter coefficients, which
+becomes a FIR filter. There are several different file formats:
+
+<ul>
+<li><code>"text"</code> coefficients are listed in a text file, one
+coefficient per line. They are parsed with the standard C library
+<code>strtod</code> function.
+<li>A sample format string describing a raw format, for example 16 bit
+little endian integer. The format of this string is described in the
+<a href="brutefir.html#config_4">Input and output structure</a> section.
+<li><code>"processed"</code> coefficients are stored in the format
+BruteFIR uses internally. Attenuation or adapted length cannot be
+applied if this format is used.
+</ul>
+
+<p>
+Note that BruteFIR currently does not provide any way to convert other
+formats to the <code>"processed"</code> format (well actually it does, but
+only through its module API).
+<p>
+The coefficients can be scaled, by setting the attenuation to
+non-zero.
+<p>
+Instead of a filename, comma-separated number groups can be given.
+The first number will be a shared memory ID (man shmat) where the data
+is found, the second number is the offset in bytes into the shared
+memory area where the program starts to read, and the third is how
+many blocks that should be read. A block is a filter segment, that is
+if <code>filter_length</code> is <code>4096, 16</code> one block is 4096
+coefficients, and there can be no more than 16 blocks per coefficient
+set. If not all blocks covered in the first group, there must be
+following number groups to provide the full length. When a shared
+memory segment is given, it is required that the format is
+<code>"processed"</code>.
+<p>
+In some cases, when one wants to test the performance of a certain
+BruteFIR configuration, but don't feel like generating coefficients,
+one can set the filename to <code>"dirac pulse"</code>. Then BruteFIR will
+generate a dirac pulse filter internally and use it as any other
+filter, and thus will cost as much in processing as any other filter
+of the same length. However, if you need a dirac pulse in the real
+case, it makes no sense using this feature, since simply setting the
+coeff field in the filter structure to -1 gives the same effect and
+uses very little processor power (and memory).
+<p>
+The <code>blocks</code> field says how long in filter blocks the coefficient
+set should be. If it is set to -1, the full length is assumed. Note
+that custom lengths are only possible if partitioned convolution is
+employed (quite naturally, since else there will only be one filter
+block covering the full length).
+<p>
+The <code>skip</code> field if given specifies how many bytes in the
+beginning of the file that should be skipped. This can be used to skip
+headers in a file or similar. The field will be ignored if the
+coefficients are not read from file.
+<p>
+The <code>shared_mem</code> field indicates if the coefficient should be
+stored in shared memory. Some modules may require that, such as the
+equalization module.
+
+<h3 id="config_4">Input and output structure</h3>
+
+<pre>
+input &lt;STRING: name | NUMBER: index&gt;[, ...] {
+        device: &lt;STRING: I/O module name&gt; { &lt;I/O module settings&gt; };
+        sample: &lt;STRING: sample format&gt;;
+        channels: &lt;NUMBER: open channels&gt;[/&lt;NUMBER: channel index&gt;[, ...]];
+	delay: &lt;NUMBER: delay in samples&gt;[, ...];
+	subdelay: &lt;NUMBER: additional delay in 1/100th samples (valid range -99 - 99)&gt;[, ...];
+	maxdelay: &lt;NUMBER: maximum delay for dynamic changes&gt;;
+	individual_maxdelay: &lt;NUMBER: maximum delay for dynamic changes&gt;[, ...];;
+	mute: &lt;BOOLEAN: mute channel&gt;[, ...];
+	mapping: &lt;NUMBER: channel index&gt;[, ...];
+};
+
+output &lt;STRING: name | NUMBER: index&gt;[, ...] {
+        device: &lt;same syntax as for the input structure&gt;;
+        sample: &lt;same syntax as for the input structure&gt;;
+        channels: &lt;same syntax as for the input structure&gt;;
+	delay: &lt;same syntax as for the input structure&gt;;
+	subdelay: &lt;NUMBER: additional delay in 1/100th samples (valid range -99 - 99)&gt;[, ...];
+	maxdelay: &lt;same syntax as for the input structure&gt;;
+	individual_maxdelay: &lt;same syntax as for the input structure&gt;;
+	mute: &lt;same syntax as for the input structure&gt;;
+	mapping: &lt;same syntax as for the input structure&gt;;
+	dither: &lt;BOOLEAN: apply dither&gt;;
+	merge: &lt;BOOLEAN: merge discontinuities at coeff change&gt;;
+};
+</pre>
+
+<p>
+All fields for the input and output structures except
+<code>mapping</code>, <code>delay</code> and <code>mute</code>
+must be set in the default configuration file.
+<p>
+The device field specifies the source/destination of the digital
+audio. This is always an I/O module. First the name of the module is
+stated, followed by a its configuration within {}. If the audio is
+read/written from/to a module which does not continue forever (for
+example reading from a file), BruteFIR will finish when the first I/O
+module comes to an end (hopefully an input module, write failure of an
+output module is considered an error).
+<p>
+The sample format should be one of the following strings: 
+
+<ul>
+<li>"S8", signed 8 bit integer.
+<li>"S16_LE", signed 16 bit little endian integer.
+<li>"S16_BE", signed 16 bit big endian integer.
+<li>"S16_4LE", signed 16 bit little endian integer, stored in the high
+bits of 4 bytes.
+<li>"S16_4BE", signed 16 bit big endian integer, stored in the high
+bits of 4 bytes.
+<li>"S24_LE", signed 24 bit little endian integer.
+<li>"S24_BE", signed 24 bit big endian integer.
+<li>"S24_4LE", signed 24 bit little endian integer, stored in the high
+bits of 4 bytes.
+<li>"S24_4BE", signed 24 bit big endian integer, stored in the high
+bits of 4 bytes.
+<li>"S32_LE", signed 32 bit little endian integer.
+<li>"S32_BE", signed 32 bit big endian integer.
+<li>"FLOAT_LE", 32 bit little endian floating point.
+<li>"FLOAT_BE", 32 bit big endian floating point.
+<li>"FLOAT64_LE", 64 bit little endian floating point.
+<li>"FLOAT64_BE", 64 bit big endian floating point.
+<li>"&lt;X&gt;_NE", native endian, &lt;X&gt; is replaced with S16,
+S16_4 etc, and the format will be converted to the LE or BE
+counterpart depending on if the machine is little endian or big
+endian.
+<li>"AUTO", will be converted to one of the LE or BE formats (or S8),
+as decided by the associated I/O module.
+</ul>
+
+<p>
+The common format 16 bit signed little endian found in for example 16
+bit wav-files is thus "S16_LE". The floating point formats can be in
+any range, however all integer formats will be scaled to -1.0 to +1.0
+internally, so if to match an integer format, the range should be -1.0
+to +1.0. There is no overflow checking for floating point formats
+(that is values larger than +1.0 or lesser than -1.0 is not truncated).
+<p>
+The channels field specifies the number of open and used channels of
+the device. If the number of open channels exceed the number of used
+channels, a slash (/) followed by a comma-separated list of channel
+indexes of used channels must be appended. If we for example have a
+eight channel ADAT sound card, but we only want to use the first two,
+we write 8/0,1 as the channels setting. As you see, the lowest channel
+index is zero, not one.
+<p>
+The length of the list of names (given after the structure type name)
+must match or exceed the number of used channels. If there are more
+channels in the head (the logical, or virtual channels) than there are
+available through the device, the specified channels must be mapped
+onto the physical device channels. This is done with the
+<code>mapping</code> field, which simply is a list of indexes, which index
+in the head to map to which physical device channel. Here a simplified
+example:
+
+<pre>
+output 14,15,16 {
+        ...
+        channels: 8/5,4;
+	mapping: 0,1,0;
+};
+</pre>
+
+<p>
+In this example, two channels from the eight channel device are used,
+channels with index 5 and 4. The order of the channel indexes matter,
+physical channel 5 will now be considered the first (index 0) of the
+available physical channels, and 4 the second (index 1). The
+<code>mapping</code> fields tells how to map the channels called 14, 15
+and 16 in the header to those two physical channels. The mapping is in
+the same order as the channels in the header, that is 14 is mapped to
+physical channel index 0 (which is channel 5 on the eight channel
+device), 15 to index 1 (channel 4 on the device), and 16 to index 0,
+that is the logical channels 14 and 16 will mix into the same output
+on the device. In the standard case, where logical channels are the
+same as the amount of channels made available through the
+<code>channels</code> field, a <code>mapping</code> specification is not
+needed. Then the first logical channel is mapped to the first listed
+device channel and so on.
+<p>
+The list of delays specifies how many samples a channel should be
+delayed. This could be used to compensate for speaker positions that
+is either to close or too far away. It could also be used to
+compensate for acasual filters. Delay can be changed in runtime, if
+<code>maxdelay</code> is not set to a negative value. It defines the upper
+bound of delay in samples. When the program is started, delay buffers
+for all channels to match maxdelay is allocated. If it is negative,
+only the precise amount specified by the delay array is allocated.
+<p>
+The setting <code>individual_maxdelay</code> was added later, and works
+the same as <code>maxdelay</code> with the difference that it is specified
+per channel. It is useful to save memory when there are many channels,
+and only some of them need dynamic delay (or considerably larger
+buffer than the others).
+<p>
+If the general setting <code>sdf_length</code> is larger than zero, the
+<code>subdelay</code> setting will take effect. It specifies the
+sub-sample delay per channel in 1/100th of samples (valid range is -99
+to 99). This delay can be changed in runtime. To disable sub-sample
+delay on a channel, set its sub-delay to a negative value outside the
+valid range. Since sub-sample delay consumes CPU time, it is
+recommended to only activate it where necessary. Sub-delay filters
+adds pre-response, and therefore all channels with sub-delay disabled
+will be automatically compensated with an I/O delay to make them
+aligned.
+<p>
+The mute list of booleans, specifies, in order, which channels that
+should be muted from the beginning. The muted channels can later be
+unmuted from the CLI.
+<p>
+If the dither flag is set to true, dither is applied on all used
+channels. Dither is a method to add carefully devised noise to improve
+the resolution. Although most modern recordings contain dither, they
+need to be re-dithered after they have been filtered for best
+resolution. Dither should be applied when the resolution is reduced,
+for example from 24 bits on the input to 16 bits on the
+output. However, one can claim that dither should always be applied,
+since the internal resolution is always higher than the output. When
+BruteFIR is compiled with single precision, it is not possible to
+apply dither to 24 bit output, since the internal resolution is not
+high enough. BruteFIR's dither algorithm is the highly efficient HP
+TPDF dither algorithm (High Pass Triangular Probability Distribution
+Function).
+<p>
+If the merge flag is set to true, discontinuities that may occur when
+coefficients are changed in runtime, is smoothed out with a simple
+merge algorithm. This avoids "clicks" that may occur in the sound when
+coefficients are changed. Note that discontinuities occurs also when
+volume is changed, but that is not merged, since those discontinuities
+are generally not audible or masked by the volume change itself. If
+someone does not agree with that, let me know, and I will make it
+apply the merger at volume changes too.
+
+<h3 id="config_5">Filter structure</h3>
+
+<pre>
+filter &lt;STRING: name | NUMBER: index&gt; {
+        from_inputs: &lt;STRING: name | NUMBER: index&gt;[/&lt;NUMBER:attenuation in dB&gt;][/&lt;NUMBER:multiplier&gt;][, ...];
+        from_filters: &lt;same syntax as from_inputs field&gt;;
+        to_outputs: &lt;same syntax as from_inputs field&gt;;
+        to_filters: &lt;STRING: name | NUMBER: index&gt;[, ...];
+        process: &lt;NUMBER: process index&gt;;
+	coeff: &lt;STRING: name | NUMBER: index&gt;;
+	delay: &lt;NUMBER: pre-delay in blocks&gt;;
+	crossfade: &lt;BOOLEAN: cross-fade when coefficient is changed&gt;;
+};
+</pre>
+
+<p>
+Only the process field should be given in the default
+configuration file.
+<p>
+The filter structure defines where a filter is placed and what its
+parameters are. This is done in a filter:
+
+<ol>
+<li>Possible attenuation is applied to the inputs, where-after they are
+mixed together.
+<li>The mixed-together inputs are filtered.
+<li>The filter output is copied to the output channels, possibly with
+individual attenuation. Attenuation is however not applicable to
+outputs going to other filters.
+</ol>
+
+<p>
+If an output channel exists in several filter structures, the
+filter outputs will be mixed into that channel. Thus, a set of filter
+structures defines how inputs and outputs should be copied, mixed and
+filtered.
+<p>
+With help of the <code>from_filters</code> and <code>to_filters</code> fields,
+filters can be connected to each-other. The only real constraint is
+that there must be no loops. BruteFIR will detect and point out errors
+if such exist in a given filter network. Note that if possible
+coefficients should be pre-convolved rather than put as filters in
+series, since a 2N length filter computes much faster than two
+cascaded N length filters.
+<p>
+The from_inputs, from_filters and to_outputs fields have the same
+syntax. One channel/filter is given as the string name or index
+number, and if attenuation should be applied, it is followed by a
+slash (/) and attenuation in dB. Instead of, or combined with,
+attenuation in dB, a multiplier can be given, a number which all
+samples will be multiplied with. The writing <code>"channel
+1"/6/-1</code> means that channel 1 is attenuated 6 dB and the polarity
+is changed (multiplication with -1). It is also possible to write
+<code>"channel 1"//-0.5</code> which is equivalent to the first example.
+<p>
+If more than one channel should be included, they are separated with
+commas. The <code>to_filters</code> field has the same syntax with the
+exception that attenuation is not allowed.
+<p>
+The process field specifies in which Unix process the filter should be
+run. All filters with the same process index will run in the same
+process. Process index 0 must exist, and if there are more processes
+they should be in series, 0, 1, 2, 3 and so on. This field is
+important if BruteFIR runs on a multi-processor machine. The optimal
+situation is that there is one process per processor, and that each
+process requires the same processor time. Then you will get most out
+of your multi-processor computer. There is one limitation of how
+filters can be distributed between processes: mixing to an output
+channel or a filter input must be done within the same process.
+<p>
+If the process field is set to -1, an automatic but naive load
+balancing will take place, which may or may not be as good as a
+hand-made load balancing.
+<p>
+The coeff field defines which coefficient set that should be used for
+the filter. It could be given as the string name of the set, or as its
+index number. If the index number is set to minus one (-1), there will
+be no filtering in the filter, it will just mix and copy inputs/outputs
+as specified. Note that the length of the coefficient set specifies
+how processor intensive the filter will be.
+<p>
+The delay field specifies how many filter blocks pre-delay there
+should be. Zero or negative means no delay. The maximum allowed delay
+is one block less than full length. Thus, with unpartitioned filtering
+there can be no delay at all. The delay cost is zero both in terms of
+memory and processing.
+<p>
+If the <code>crossfade</code> setting is set to true, there will be a
+cross-fade when the coefficient is changed in runtime, making the
+coefficient change totally seamless. This means that when changing
+coefficient (using the CLI for example), the filter will convolve one
+block with the old coefficient, fade out that and mix it with a fade
+in block with the new coefficient. This means that at the
+time of coefficient change, there will be roughly twice the amount of
+processing for that filter. This processing spike can of course cause
+buffer underflow if running with a sound card and heavy CPU load in
+the normal case. If there for example are 10 filters in a
+configuration (all with crossfade active), and all coefficients are
+changed at the same time, the normal CPU load should not exceed 50%,
+since the spike will roughly require twice the load. However, if the
+coefficients are changed only one filter at a time, only 10% extra
+processing is required compared to the normal case in the example.
+
+<h3 id="config_6">Configuration file example</h3>
+<p>
+Here follows an example of a main configuration file, showing some of
+the aspects of BruteFIR's possibilities. It implements a cross talk
+cancellation filter for a stereo dipole. The two filters are
+placed in two processes get the max out of a dual processor machine. A
+computer with a single processor should if possible keep all filters
+within the same process for best performance. Note that the
+configuration uses the default settings extensively. For example, no general
+settings have been specified apart from the addition of the CLI logic
+module, and in the coeff structures, only the filename field is used.
+
+
+<pre>
+logic: "cli" { port: 3000; };
+
+coeff "direct path" {
+        filename: "direct_path.txt";
+};
+
+coeff "cross path" {
+        filename: "cross_path.txt";
+};
+
+input "left", "right" {
+        device: "file" { path: "/disk0/tmp/music.raw"; };
+        sample: "S16_LE";
+        channels: 2;
+};
+
+output "stereo dipole left", "stereo dipole right" {
+        device: "file" { path: "output01.raw"; };
+        sample: "S16_LE";
+        channels: 2;
+};
+
+filter "left speaker direct path" {
+        inputs: 0/6.0;
+        outputs: 0;
+        process: 0;
+	coeff: "direct path";
+};
+
+filter "left speaker cross path" {
+        inputs: "right"/6.0;
+        outputs: "stereo dipole left";
+        process: 0;
+	coeff: "cross path";
+};
+
+filter "right speaker direct path" {
+        inputs: "right"/6.0;
+        outputs: "stereo dipole right";
+        process: 1;
+	coeff: "direct path";
+};
+
+filter "right speaker cross path" {
+        inputs: "left"/6.0;
+        outputs: "stereo dipole right";
+        process: 1;
+	coeff: 1;
+};
+</pre>
+
+<h2 id="bfio">I/O modules</h2>
+<p>
+I/O modules are used to provide sample input and output for the
+BruteFIR convolution engine. It is entirely up to the I/O module of
+how to produce input samples or store output samples. It could for
+example read input from a sound card, a file, or simply generate 
+noise from a formula.
+<p>
+In the BruteFIR configuration file, an I/O module is specified in each
+input and output structure.
+<p>
+The purpose of having I/O modules instead of building all
+functionality directly into BruteFIR is that it should be easy to extend
+with new functionality, without compromising the core convolution
+engine.
+<p>
+All I/O modules has the extension ".bfio".
+
+<h3 id="bfio_alsa">ALSA sound card I/O (alsa)</h3>
+<p>
+The ALSA I/O module (named "alsa") is used to read and write samples
+from/to sound cards. It supports all BruteFIR sample formats also
+supported by the referenced sound device. The basic configuration is
+simple, only one field, called <code>device</code> need to be set, where
+the associated value is a string which is passed without modification
+to ALSA's device open function. Examples: <code>"alsa" { device: "hw";
+}</code> or <code>"alsa" { device: "hw:1"; }</code>.
+<p>
+In the above examples, the hardware is accessed directly (the "hw"
+prefix), but you can also use ALSA's software modes. That is however
+not recommended, since some functions of BruteFIR, for example
+overflow protection, expects to be at the very last output stage, and
+not before another software layer which may perform for example mixing
+or volume control.
+<p>
+In theory it should also be possible to access files (for example
+wav-files) through ALSA, <code>"alsa" { device: "file:test.wav"; }</code>
+but this does not seem to work currently, and is not recommended,
+since the module assumes that all devices are driven by a sample clock
+(thus is a sound card).
+<p>
+If the ALSA I/O module is used in several input/output structures, all
+referenced sound cards will be linked together using the ALSA
+API. This makes starting and stopping sound cards synchronized, if the
+hardware and driver supports it, if not, the ALSA subsystem tries to
+make starting and stopping is synchronized as it can. However, when
+there are many alsa devices used, this linking can cause the computer
+to lock up, at least it has happened in the past. This is probably due
+to a problem in ALSA, and may have been resolved when you read
+this. However, should you bump into problems, you can disable linking
+by setting <code>link</code> to false (example: <code>"alsa" { device:
+"hw:1"; link: false; }</code>).
+<p>
+Per default, when reading fails due to an overflow, or writing fails
+due to and underflow, BruteFIR will abort. If your computer is heavily
+loaded, and/or partitions are short, and/or other services are running
+on the computer, over/underflow can occur occasionally. In those
+cases, one might rather get occasional clicks in the sound rather than
+a total stop. The ALSA I/O module can hide over/underflow from
+BruteFIR, and thus it will not abort when that occurs. Just set the
+<code>ignore_xrun</code> parameter to true (example: <code>"alsa" { device:
+"hw:1"; ignore_xrun: true; }</code>).
+
+<h3 id="bfio_oss">OSS sound card I/O (oss)</h3>
+<p>
+The OSS I/O module (named "oss") provides sound card I/O through the
+OSS API. It has only one parameter, <code>device</code>, which points out
+the device to open. Example: <code>"oss" { device: "/dev/dsp"; }</code>.
+<p>
+The I/O module supports OSS multi-channel and full duplex modes.
+
+<h3 id="bfio_jack">JACK audio server I/O (jack)</h3>
+<p>
+The JACK I/O module (named "jack") provides BruteFIR with support for
+the low-latency JACK audio server <a
+href="brutefir.html#jack">[23]</a>. JACK is an audio server under
+development, and the goal for the JACK I/O module is that it should be
+compatible with the current CVS version.
+<p>
+To avoid putting I/O-delay into the JACK graph, the JACK buffer size
+should be set to the same as the BruteFIR partition size. It is
+however possible to set the JACK buffer size to a smaller
+value. The I/O-delay in number of JACK buffers as seen by
+following JACK clients will be:
+
+<pre>
+2 * &lt;BruteFIR partition size&gt; / &lt;JACK buffer size&gt; - 2
+</pre>
+
+<p>
+Note that both the JACK buffer size and BruteFIR period size is always
+a power of two.
+<p>
+Currently, the JACK I/O module assumes that jackd is run with the -R
+parameter, at its default client realtime priority which is 9.
+<p>
+The names of the BruteFIR ports will be "brutefir:input-X" for the
+inputs, and "brutefir:output-X", where X is the channel index. The
+JACK client name which is per default "brutefir" can be changed, by
+setting "clientname" (example: <code>clientname: "brutefir-A";</code>). It
+is a global setting, and if used it must be set in the first JACK
+device clause (the first from the top in the configuration file). The
+clientname will change the port name prefix as well (the prefix is the
+client name). If multiple BruteFIR instances should be run, they must
+have different client names, or else the port names will collide.
+<p>
+If the local ports should be connected to other JACK ports at startup,
+the setting <code>ports</code> is used, where the associated string values
+are the names of the ports to connect to. Examples: 
+<code>"jack" { ports: "alsa_pcm:capture_1", "alsa_pcm:capture_2"; }</code>
+for input, and <code>"jack" { ports: "alsa_pcm:playback_1",
+"alsa_pcm:playback_2"; }</code> for output. The port listing must be set
+to the same amount as the number of channels for the device. However,
+empty strings could be used if a specific channel index should not be
+connected, for example: <code>"jack" { ports: "", "alsa_pcm:capture_2";
+}</code> will only connect the second port.
+<p>
+It is also possible to optionally specify the port names to other than
+the default naming, like this: <code>"jack" { ports:
+"alsa_pcm:capture_1"/"in-A"; }</code>, that is adding a slash and
+specifying a name after that, this will replace the default "input-X"
+for inputs and "output-X" for outputs. If a port should not be
+connected but still be named, the first string is empty, like this:
+<code>"jack" { ports: ""/"in-A"; }</code>.
+<p>
+If no ports should be connected, and the client name is left to the
+default, the JACK device clause is empty (<code>"jack" { };</code>).
+<p>
+The sample format for the JACK device should be set to <code>AUTO</code>,
+which will be the JACK sample format (floating point).
+
+<h3 id="bfio_file">Raw PCM file I/O (file)</h3>
+<p>
+The raw PCM file I/O module (named "file") is used to read and write
+samples from/to files. It supports all BruteFIR sample formats and
+reads/writes them directly in raw form, interleaved format. The
+parameter string is in the simplest case the filename. Example:
+<code>"file" { path: "test.pcm"; }</code>. One can also specify how many
+bytes to skip in the beginning for input files, and if to append
+output files. Examples: <code>"file" { path: "test.pcm"; skip: 44;
+}</code> and <code>"file" { path: "test.pcm"; append: true; }</code>.
+<p>
+It is also possible to read from and write to text files (X floating
+point ASCII values per line separated with whitespace, where X is the
+number of channels). Just add the option <code>text: true;</code>. The
+module will convert to/from 64 bit floating point, and thus requires
+that sample format (or use <code>AUTO</code>).
+<p>
+If the file I/O module is used for input, the input file can be
+looped, by setting <code>loop</code> to true.
+<p>
+By using <code>/dev/stdin</code> like this <code>"file" { path:
+"/dev/stdin"; }</code>, BruteFIR will read data from standard input, so
+it is then possible to do things like
+<code>mpg123 -s test.mp3 | brutefir</code>.
+
+<h3 id="bfio_own">Writing your own I/O module</h3>
+<p>
+This will probably never be documented. The best way is to look at the
+source code to see how it is done.
+
+<h2 id="bflogic">Logic modules</h2>
+
+<h3 id="bflogic_cli">Command line interface (cli)</h3>
+<p>
+The CLI logic module (named "cli") provides a command line
+interface available through telnet, a local socket, a pipe, or a
+serial line. The CLI is used for changing settings in runtime,
+which is of course only suitable when BruteFIR is used in
+realtime. It can be used interactively by hand, for example by
+connecting to it through telnet. It is also suitable for scripting
+BruteFIR, or using it as a means of inter-process communication if
+BruteFIR is used as the convolution engine for another program.
+<p>
+The context sensitive <code>port</code> field specifies which
+interface will be used as follows:
+
+<ul>
+<li><code>port: &lt;INTEGER: TCP port number&gt;;</code> the CLI will
+listen on the given port number for incoming telnet clients.
+<li><code>port: &lt;STRING: "/dev/" ...&gt;;</code> when the string starts
+with "/dev/" the CLI assumes a serial device (such as "/dev/ttyS0" on
+Linux) is pointed out, and opens it as a serial port, with the default
+line speed 9600 baud, if not the <code>line_speed</code> field is used
+specifying another speed.
+<li><code>port: &lt;STRING: name of local socket&gt;;</code> any other
+string not starting with "/dev/" is handled as the file name for a
+local socket, and the CLI will create and listen for incoming
+connections on the given path. If the path exists, it will be
+replaced.
+<li><code>port: &lt;INTEGER: read end file descriptor&gt;, &lt;INTEGER:
+write end file descriptor&gt;;</code> the CLI will assume that the given
+file descriptors are already opened and ready for use, and will attach
+the read end to CLI input, and the write end to CLI output. This
+interface is suitable as inter-process communication when BruteFIR is
+integrated into another program, and is started through fork() and
+exec().
+</ul>
+
+<p>
+The CLI does not have much terminal functionality to speak of, and is
+thus a bit cumbersome to use interactively. It reads a whole line at a
+time, and can interpret backspace, but that is about it. There is no
+echo functionality so the connecting client needs to handle that
+(telnet does, and terminal software for serial lines usually have a
+function to enable local echo).
+<p>
+Instead of specifying a port, one can specify a string of commands,
+which will be run in a loop as a script. Example: <code>"cli" { script:
+"cfc 0 0;; sleep 10;; cfc 0 1;; sleep 10"; }</code>. The script may span
+several lines. Each line is carried out atomically (this is also true
+for command line mode), so if there are several commands on a single
+line, separated with semicolon, they will be performed atomically (an
+atomic set of statements). The exception is when an empty statement is
+put in the line (just a semicolon), like in the script example, this
+will work as a line break, and thus separate atomic sets of
+statements.
+<p>
+A typical use for atomic set of statements is to change filter
+coefficients and volume at the same time.
+<p>
+The <code>sleep</code> function in the CLI allows for sleeping in seconds,
+milliseconds or blocks. One block is exactly the filter length in
+samples, and if partitioned, it is the length of the partition. Block
+sleep can only be used in script mode.
+<p>
+When in script mode, the first atomic statements will be executed
+just before the first block is processed, then the block is processed
+(and sent to the output), and then the next set of atomic statements
+is run. That is, each set of atomic statements is performed before the
+corresponding block is processed. The next atomic statement set is not
+performed until the next block is about to be processed.
+<p>
+The block sleep command (only works in script mode) works such that
+the sleep is commenced at the next block. The statement
+<code>sleep&nbsp;b1;</code> will thus cause the next block to be
+skipped. Note that since one block passes for each atomic statement
+set, a single line with only <code>sleep&nbsp;b1;</code> will skip two
+blocks, not one, since one block is consumed when parsing the sleep
+command, and the other is skipped by the sleep duration. That is to
+skip only one block, either use <code>sleep&nbsp;b0;</code> alone, or use 
+<code>sleep&nbsp;b1</code> as the last statement together with other
+statements in an atomic statement set (recommended).
+<p>
+Sleep in seconds and milliseconds will start the timer when the
+command is issued (at the start of the block if in a script), and
+continue with the next command after at least the given time has
+passed. If run in a script, the timer is polled at the start of each
+block, and the next command is then executed at the start of the first
+block where the timer has expired.
+<p>
+If several sleep commands are executed in the same atomic statement
+set in a script, only the last will take effect, and will be executed
+only when all other commands in the set have been processed. To avoid
+confusion, it is thus recommended to employ sleep commands either
+alone, or as the last in the atomic statement set.
+<p>
+If the field <code>echo</code> is set to true, the CLI commands will be
+echoed back to the user (the whole line at a time). This is off per
+default.
+<p>
+When connected and you type "help" at the prompt, you will
+get the following output:
+
+<pre>
+Commands:
+
+lf -- list filters.
+lc -- list coefficient sets.
+li -- list inputs.
+lo -- list outputs.
+lm -- list modules.
+
+cfoa -- change filter output attenuation.
+        cfoa &lt;filter&gt; &lt;output&gt; &lt;attenuation|Mmultiplier&gt;
+cfia -- change filter input attenuation.
+        cfia &lt;filter&gt; &lt;input&gt; &lt;attenuation|Mmultiplier&gt;
+cffa -- change filter filter-input attenuation.
+        cffa &lt;filter&gt; &lt;filter-input&gt; &lt;attenuation|Mmultiplier&gt;
+cfc  -- change filter coefficients.
+        cfc &lt;filter&gt; &lt;coeff&gt;
+cfd  -- change filter delay. (may truncate coeffs!)
+        cfd &lt;filter&gt; &lt;delay blocks&gt;
+cod  -- change output delay.
+        cod &lt;output&gt; &lt;delay&gt; [&lt;subdelay&gt;]
+cid  -- change input delay.
+        cid &lt;input&gt; &lt;delay&gt; [&lt;subdelay&gt;]
+tmo  -- toggle mute output.
+        tmo &lt;output&gt;
+tmi  -- toggle mute input.
+        tmi &lt;input&gt;
+imc  -- issue input module command.
+        imc &lt;index&gt; &lt;command&gt;
+omc  -- issue output module command.
+        omc &lt;index&gt; &lt;command&gt;
+lmc  -- issue logic module command.
+        lmc &lt;module&gt; &lt;command&gt;
+
+sleep -- sleep for the given number of seconds [and ms], or blocks.
+         sleep 10 (sleep 10 seconds).
+	 sleep b10 (sleep 10 blocks).
+	 sleep 0 300 (sleep 300 milliseconds).
+abort -- terminate immediately.
+tp    -- toggle prompt.
+ppk   -- print peak info, channels/samples/max dB.
+rpk   -- reset peak meters.
+upk   -- toggle print peak info on changes.
+rti   -- print current realtime index.
+quit  -- close connection.
+help  -- print this text.
+
+Notes:
+
+- When entering several commands on a single line,
+  separate them with semicolons (;).
+- Inputs/outputs/filters can be given as index
+  numbers or as strings between quotes ("").
+</pre>
+
+<p>
+Most commands are simple and don't need to be further
+explained. Naturally, any changes will lag behind as long as
+the I/O delay is. The exception is the mute and change delay
+commands, they will lag behind as long as the period size of the sound
+card is, which most often is smaller than the program's total I/O
+delay. However, when there is a virtual channel mapping, the mute and
+delay will be lagged as well.
+<p>
+The <code>imc</code>, <code>omc</code> and <code>lmc</code> commands are used to
+give commands to I/O modules and logic modules in run-time. To find
+out which modules that are loaded and which indexes they have, use the
+command <code>lm</code>. Not all modules support run-time commands though.
+<p>
+Changing attenuations with <code>cffa</code>, <code>cfia</code> and
+<code>cfoa</code> can be done with dB numbers or simply by giving a
+multiplier, which then is prefixed with <code>m</code>, like this <code>cfoa
+0 0 m-0.5</code>. Changing the attenuation with dB will not change the sign
+of the current multiplier.
+
+<h3 id="bflogic_eq">Run-time equalizer</h3>
+<p>
+The equalizer logic module takes control over one or more coefficient
+sets, and renders equalizer filters to them, as specified by the
+user. This can be done in the initial configuration, and also updated
+in runtime, through the CLI.
+<p>
+The startup configuration can look like this:
+
+<pre>
+  "eq"  {
+		debug_dump_filter: "/tmp/rendered-%d";
+		{
+			coeff: 0, 1;
+			#bands: "ISO octave";
+			#bands: "ISO 1/3 octave";
+			bands: 100, 200, 500;
+			magnitude: 20/-3.2, 100/8.5;
+			phase: 20/0, 100/180;
+		};
+		{
+			coeff: "eq-1";
+			bands: "ISO octave";
+			magnitude: 31.5/-3.2, 125/8.5;
+			phase: 31.5/3.2;
+		};
+	};
+</pre>
+
+<p>
+If you want to analyze the rendered filters, the
+<code>debug_dump_filter</code> setting specifies a file name where the
+rendered coefficients will be written. It must contain %d, which will
+be replaced by the coefficient index. Then follows equalizers. Each
+specify which coefficient index (or name) it should render the
+equalizer filter to. These must be allocated and must be stored in
+shared memory, for example like this:
+<p>
+<pre>
+coeff 0 {
+        filename: "dirac pulse";
+	shared_mem: true;
+	blocks: 4;
+};
+</pre>
+
+<p>
+The dirac pulse will be replaced by the rendered filter. Each
+equalizer has a set of frequency bands (max 128), they can be manually
+specified, or use the ISO octave band presets. Optionally, magnitude
+(in dB) and phase (in degrees) settings can be specified. The
+frequency value must then match one of the given bands.
+<p>
+If you specify two filters, the rendering will be double-buffered,
+meaning that the eq module will keep one coefficient active in the
+filter(s), and render to the other, and switch when ready. This means
+that there is no risk of playing an incomplete equalizer, which can cause
+some noise (usually in the form of a beep), thus it is recommended to
+use double-buffered mode if the equalizer will be altered in
+runtime. In the filter configuration and when referring to the
+equalizer in the CLI, the first of the two coefficients should then be
+used.
+<p>
+In run-time, equalizers can be modified through the CLI. An example:
+<code>lmc eq 0 mag 20/-10, 4000/10</code> will set the magnitude to -10 dB
+at 20 Hz and +10 dB at 4000 Hz for equalizer for coefficient 0. Instead
+of <code>mag</code>, <code>phase</code> can be given. The command <code>lmc eq
+"eq-1" info</code> will list the current settings for the equalizer
+stored in the coefficient called "eq-1".
+<p>
+The more heavily loaded the computer is by convolution, the longer
+time it will take to render the new equalizer. If the coefficient set it
+renders to is very short, and the magnitude and phase response is very
+detailed (sharp edges etc) it will not be able to adapt to it fully.
+
+<h3 id="bflogic_own">Writing your own logic module</h3>
+<p>
+This will probably never be documented. Just look at the source code
+and see how it is done.
+
+<h2 id="tuning">Tuning</h2>
+
+<h3 id="tuning_1">Realtime index</h3>
+<p>
+The program calculates a realtime index which can be shown through the
+CLI, or will be printed periodically to the screen if the
+show_progress flag is set. The realtime index is a floating point
+value. When it is 1.0, 100% of the available processing power must be
+used at all times to be able to achieve realtime performance. If it is
+larger than 1.0, it means that with the current configuration,
+BruteFIR will not manage realtime performance.
+<p>
+If your configuration is too demanding for realtime, you should shorten
+the filters (or remove channels) until the realtime index is very
+close below 1.0, perhaps 0.95. This way you make full use of your
+computer. However, if you have multiple processors, it is not as
+simple. The realtime index will show how much is needed from the most
+loaded processor, but leaves a proper load balancing to you. So,
+devise your configuration carefully if you have multiple
+processors. The number of input and output channels and the filter
+length is what steals processor time. The number of filters, dither,
+delay, mixing and attenuation is very cheap in comparison.
+<p>
+When testing with realtime indexes above 1.0, inputs and
+outputs must of course be files. For performance testing, you could
+use "/dev/zero" for input and "/dev/null" for output. Also note that
+it takes some time for the index to stabilize.
+<p>
+The realtime index typically matches the processor load, if running
+with a sound card. However, if input poll mode is employed, real time
+index can be considerably lower than the processor load, since input
+polling is performed in the spare processor time.
+
+<h3 id="tuning_2">FFTW wisdom</h3>
+<p>
+When BruteFIR runs for the first time, it will generate FFTW wisdom,
+which takes some time. FFTW wisdom is benchmarking information which
+tells the FFTW library how to run FFT the most efficient way on the
+given computer. Since the information is hardware and binary
+dependent, the file should be removed when hardware is
+changed/upgraded or BruteFIR is recompiled. A wisdom file that was not
+generated on the hardware BruteFIR is running on, or not by the binary
+that is run, may yield sub-optimal performance. When BruteFIR is
+calculating FFTW wisdom, the computer should not be running other
+processor-demanding software.
+<p>
+Naturally, it is very important that FFTW was compiled with the
+correct optimization flags to achieve optimal performance.
+<p>
+The wisdom is loaded used and updated each time BruteFIR is run. Each
+time BruteFIR uses a partition length it has not used before (and thus
+there is no wisdom available), it will need to generate new wisdom,
+which will take some time.
+
+<h3 id="tuning_3">Low latency patch</h3>
+<p>
+If you are going to use BruteFIR in realtime, it is strongly
+recommended that you patch your kernel to reduce latency, or else the
+program may fail to keep up when a cron-job or a screen saver
+starts. The Linux kernel's latency problems has been reduced in the
+2.4 kernel, but it is still not satisfactory without the patch applied.
+<p>
+For the 2.4 kernel, Andrew Morton's low latency patches are
+recommended <a href="brutefir.html#schedlat">[24]</a>.
+<p>
+The new 2.6 kernel does have a low-latency setting in the kernel
+configuration, which should be activated. Although no extra patches
+should be required for a 2.6 kernel in the normal case, there still
+are low-latency patches out there for really demanding situations.
+
+<h3 id="tuning_4">Sample clock problems</h3>
+<p>
+If you use digital input and output, as I would recommend, you may get
+problems if the sound card is not configured properly. It is very
+important that the input and output sample clock use the same clock as
+reference. Or else, micro-differences between the input and output
+sample clock will make BruteFIR's IO buffers to slide apart, and
+eventually make the program stop. Usually there is an option to set
+the digital sound card's sample clock to 'slave'.
+<p>
+If you have analog input or output or both, you cannot get this
+problem (unless you use several different sound cards, then it will
+fail due to differences in clocking).
+<p>
+Digital sound cards that work in slave mode allows that the sample
+clock is changed in runtime. Usually, this is not what one want for
+BruteFIR, since the filters are designed for only one sample
+rate. Therefore BruteFIR can be configured to exit if it detects a
+sample clock different from the one mentioned in the configuration
+file.
+
+<h3 id="tuning_5">Double precision or not</h3>
+<p>
+BruteFIR can run with 32 or 64 bit floating point internal
+resolution. Traditionally, 32 bit is called "single precision", and 64
+bit "double precision". The <code>float_bits</code> setting is used to
+change resolution. Per default, BruteFIR runs in 32 bit.
+<p>
+Depending on processor used, you may lose assembler optimizations
+when running in 64 bit. Also, memory bandwidth used by BruteFIR will
+naturally double, which reduces performance. Thus, although 64 bit and
+32 bit operations are generally equally fast, due to increased memory
+usage, BruteFIR needs 30 - 50% extra processor time, not counting
+additional effects if assembler optimizations are lost.
+<p>
+When do you need double precision? If you are picky enough on sound
+quality that you would require dither on 24 bit output, then you need
+double precision. For most audio work however, 32 bit precision is
+enough.
+
+<h3 id="tuning_6">Choosing number of partitions</h3>
+<p>
+There is no formula for calculating the optimal number of partitions
+to get maximum throughput. It varies between hardware platforms, so
+trial and error is the only working method. More than about 16
+partitions are generally not recommended though.
+<p>
+If you are using partitioned filters to reduce the I/O-delay for
+realtime filtering, make sure that it does not get too low. If
+I/O-delay is too low, the sound card can get overflowed/underflowed
+causing the program to exit with a broken pipe signal.
+
+<h3 id="tuning_7">Realtime issues</h3>
+<p>
+Extreme low latencies, such as 64 sample partitions, will probably not
+work for long periods of time, even with a low latency patched kernel.
+<p>
+The processor cannot be loaded more than typically 85% for safe
+realtime operation. For very low latencies, this number could go down
+to 70%. The reason for this is that computing time will vary somewhat,
+that is how modern computers work, and to be able to cope with the
+maximum computing times, some spare processor time must be left.
+
+<h2 id="features">Request features</h2>
+<p>
+Which new features that get into BruteFIR are decided by its users. If
+you need a feature, let me know, and I'll see what I can do (and want
+to do).
+
+<h2 id="references">References</h2>
+
+<ol>
+
+<li id="amd"><em>Advanced Micro Devices, Inc. website</em>. <a
+href="http://www.amd.com">http://www.amd.com</a>.<br>
+Makers of the Athlon processor.
+
+<li id="alsa">A. Bagnara, J. Kysela et al <em>ALSA, Advanced
+Linux Sound Architecture</em>. <a
+href="http://www.alsa-project.org">http://www.alsa-project.org</a>.<br>
+A powerful and flexible audio applications API developed primarily for Linux.
+
+<li id="djbfft">D.J. Bernstein <em>djbfft</em>. <a
+href="http://cr.yp.to/djbfft.html">http://cr.yp.to/djbfft.html</a>.<br>
+A compact FFT library implemented in C, faster than most, including FFTW.
+
+<li id="borrallo_otero">J. M. P. Borallo, M. G. Otero <em>On
+the implementation of a partitioned block frequency domain adaptive
+filter (PBFDAF) for long acoustic echo cancellation</em>. Elsevier Signal
+Processing, vol 27 No 3 June 1992, page 301-315.
+
+<li id="cooley_tukey">J. W. Cooley, J. W. Tukey <em>An
+Algorithm for the Machine Computation of the Complex Fourier
+Series</em>. Mathematics of Computation, Vol. 19, April 1965,
+pp. 297-301.
+
+<li id="gpl">Free Software Foundation <em>GNU General
+Public License</em>. <a
+href="http://www.gnu.org/copyleft">http://www.gnu.org/copyleft</a>.<br>
+One of the most common free software licenses. Its main
+purpose is to make sure that the software is kept free and open source.
+
+<li id="fftw">M. Frigo, S. G. Johnson <em>FFTW</em>. <a
+href="http://www.fftw.org">http://www.fftw.org</a>.<br>
+A fast and full-featured FFT library implemented in C. Called "Fastest
+Fourier Transform in the West".
+
+<li id="frigo_johnson">M. Frigo, S. G. Johnson<em> FFTW: An
+Adaptive Software Architecture for the FFT</em>. Proceedings of the
+International Conference on Acoustics, Speech, and Signal Processing,
+Vol. 3, 1998, pp. 1381-1384.
+
+<li id="gcc"><em>GNU Compiler Collection</em>. <a
+href="http://gcc.gnu.org">http://gcc.gnu.org</a>.<br>
+A free software multi-platform compiler supporting the programming
+languages C, C++, Objective C and Fortran.
+
+<li id="intel"><em>Intel Corporation website</em>. <a
+href="http://www.intel.com">http://www.intel.com</a>.<br>
+Makers of the Pentium processor.
+
+<li id="linux"><em>Linux Online website</em>. <a
+href="http://www.linux.org">http://www.linux.org</a>.<br>
+Linux is a free Unix-type operating system originally created by Linus
+Torvalds with the assistance of developers around the world.
+
+<li id="sommen_1">P. C. W. Sommen <em>Adaptive Filtering
+Methods</em>. Ph. D. dissertation, Tech. Univ. Eindhoven, Eindhoven,
+The Netherlands, 1992.
+
+<li id="sommen_2">P. C. W. Sommen <em>Partitioned frequency
+domain adaptive filters</em>. Proc Asilomar Conf. Signals, Systems and
+Computers, 1989, pp. 676 - 681.
+
+<li id="soo_pang_1">J. S. Soo, K. K. Pang <em>A new structure
+for block FIR adaptive digital filters</em>. Proc. IREECON, vol 38,
+pp. 364 - 367, 1987.
+
+<li id="soo_pang_2">J. S. Soo, K. K. Pang <em>Multidelay
+block frequency adaptive filter</em>, IEEE Trans. Acoust. Speech
+Signal Process., Vol. ASSP-38, No. 2, February 1990.
+
+<li id="stockham">T. G. Stockham Jr. <em>High-speed convolution
+and correlation</em>. AFIPS Proc. 1966 Spring Joint Computer Conf.,
+Vol 28, Spartan Books, 1966, pp. 229 - 233.
+
+<li id="kulp">B. D. Kulp <em>Digital Equalization using
+Fouring Transform Techniques</em>. AES preprint 2694, 1988.
+
+<li id="nwfiir">A. Torger <em>NWFIIR Audio Tools</em>. <a
+href="http://www.ludd.ltu.se/~torger/filter.html">http://www.ludd.ltu.se/~torger/filter.html</a>.<br>
+A set of tools for measuring and processing impulse responses, room
+equalisation being the target application.
+
+<li id="nsp"><em>Intel Signal Processing Library</em>. <a
+href="http://developer.intel.com/software/products/perflib/spl/index.htm">http://developer.intel.com/software/products/perflib/spl/index.htm</a>.<br>
+
+<li id="stream"><em>STREAM: Sustainable Memory Bandwidth in
+High Performance Computers</em>. <a href="http://www.cs.virginia.edu/stream/">
+http://www.cs.virginia.edu/stream/</a>.<br>
+A portable and simple memory benchmark program.
+
+<li id="rmeaudio"><em>RME Audio</em>. <a
+href="http://www.rme-audio.com">http://www.rme-audio.com</a>.
+
+<li id="drc">D. Sbragion <em>Digital Room Correction</em>. <a
+href="http://freshmeat.net/projects/drc/">http://freshmeat.net/projects/drc</a>.<br>
+A program which generates room correction FIR filters to be used in
+HiFi systems.
+
+<li id="jack">P. Davis et al <em>JACK audio server</em>. <a
+href="http://jackit.sourceforge.net/">http://jackit.sourceforge.net/</a>.<br>
+A low-latency audio server, written primarily for the GNU/Linux
+operating system.
+
+<li id="schedlat">A. Morton <em>Linux Scheduling Latency</em>. <a
+href="http://www.zip.com.au/~akpm/linux/schedlat.html">http://www.zip.com.au/~akpm/linux/schedlat.html</a>.<br>
+A collection of notes and tools related to an effort to decrease the
+typical scheduling latency of the 2.4.x kernel. 
+
+<li id="oss"><em>Open Sound System</em>. <a
+href="http://www.opensound.com">http://www.opensound.com</a>.<br>
+A highly portable sound card API available on a large variation of
+(Unix) platforms.
+
+</ol>
+<br>
+<br>
+<br>
+<br>
+<hr>
+<em>(c) Copyright 2001 - 2006, 2009 - 2016 <a href="mailto:torger@ludd.ltu.se">Anders Torger</a></em>
+</body>
+</html>

@@ -1,0 +1,444 @@
+BruteFIR v1.0o                                                    August 9, 2016
+	 * Applied some minor fixes reported by Debian package maintainer.
+
+BruteFIR v1.0n                                                    August 9, 2016
+	 * Minor code cleanups, no functional change.
+	 * Don't set the executable flag of bfio and bflogic modules (security).
+
+BruteFIR v1.0m                                                 November 27, 2013
+	 * Fixed SSE2 bug introduced in 1.0l.
+	 * Added safety_limit feature to protect speakers.
+	 * Fixed a rare race condition on multi-core.
+	 * More sample format fixing, removed S16_4*, changed S24_4* to
+	   represent low bits in sample, so it matches ALSA formats. If
+	   you used S24_4LE in earlier versions you should now use S32_LE.
+
+BruteFIR v1.0l                                                   October 6, 2013
+	 * Made the code compile well on x86-64.
+	 * Replaced legacy assembler code with new SSE/SSE2 C code,
+	   3DNow support dropped.
+	 * Fixed filter indexing bug in the 'cffa' CLI command.
+	 * S24_LE now maps to Alsa SND_PCM_FORMAT_S24_3LE and S24_4LE to
+	   SND_PCM_FORMAT_S24_LE (same for BE of course). Also added possibility
+	   to use Alsa syntax "S24_3LE" in config file (means same as the old
+	   "S24_LE").
+	 * Refreshed JACK I/O module to make up to date with current API
+	   versions.
+
+BruteFIR v1.0k                                                    March 31, 2009
+	* Refreshed ALSA and JACK I/O modules to make them up to date with
+	  current API versions.
+
+BruteFIR v1.0j                                                     March 5, 2009
+	* Fixed a memory leak in the CLI.
+
+BruteFIR v1.0i                                                   October 8, 2006
+	* Adjusted how sleeping works in CLI script mode.
+	* Minor sleep/script parse bug fixes in CLI logic module.
+	* Minor ALSA I/O module bug fix.
+	* No longer complain when trying to change static delays to same value.
+
+BruteFIR v1.0h                                                     July 12, 2006
+	* Added subsample delay feature
+	* Added support for naming JACK ports.
+	* Added support for text format in file I/O module.
+	* Adjusted realtime priority logic modules (lowered it compared to the
+	  filter process.
+	* output_timed logic module callbacks now works.
+	* Getting inplace plans from convolver_fftplan() now works.
+
+BruteFIR v1.0g                                                    March 30, 2006
+	* Fixed bug in input mixer causing garbled result when inputs exceeded
+	  four.
+	* Fixed minor delay setting bug.
+
+BruteFIR v1.0f                                                   August 11, 2005
+	* Improved filter configuration error messages.
+	* Fixed filter parse bug.
+
+BruteFIR v1.0e                                                     June 28, 2005
+	* Made it compile with GCC 4.0
+
+BruteFIR v1.0d                                                     June 12, 2005
+	* Fixed a fatal file descriptor bug introduced in v1.0b, causing
+	  problems with multiple inputs/outputs.
+	* Added 'priority' parameter to JACK I/O module and made some minor
+	  adjustments.
+	* Fixed ALSA I/O module bug, causing it to get stuck in infinit loop on
+	  some hardware.
+	* Fixed minor CLI config parsing bug concerning the 'port' field.
+
+BruteFIR v1.0c                                                   January 4, 2005
+	* Ooops, CLI module did not accept '\r' in v1.0b, fixed that.
+
+BruteFIR v1.0b                                                 November 21, 2004
+	* JACK I/O module now allows for multiple BruteFIR instances, and it
+	  no longer necessary to connect to external ports at startup.
+	* Serial line and pipe support for the CLI module.
+	* Bug fix in equaliser rendering, which was triggered in some situations
+	  (thanks to Tero Kontkanen for the bug fix).
+	* Fixed directory creation in install target in the Makefile.
+	* Fixed typo in CLI module help text.
+	* Some code cleanups.
+
+BruteFIR v1.0a                                                    August 7, 2004
+	* Got rid of BF_MAXCOEFFS (that is no longer any coeff limit).
+	* The CLI module will now try to remove an existing local socket when
+	  it is restarted.
+	* Updated the example files xtc_config and massive_config, and included
+	  two example coefficient files.
+
+BruteFIR v1.0                                                     April 21, 2004
+	* An OSS I/O module was added.
+	* Powersave now supports analog inputs (set a noise level).
+	* Fixed some ugly castings and other stuff causing compiler warnings.
+	* Fixed -fPIC likning issue.
+	* Fixed I/O subsystem bug which caused full duplex file descriptors to
+	  fail (used by the new OSS I/O module).
+	* Now it is possible to compile on FreeBSD and Solaris again.
+        * Clearer license statement (no license change though, still GPL).
+
+BruteFIR v0.99n                                                February 22, 2004
+	* Removed merge function, it was not good enough.
+	* Added crossfade function which makes what the merge function did but
+	  considerably better. The drawback is that roughly twice the CPU time
+	  is required per filter at coefficient change (only when crossfade is
+	  active of course).
+	* Added a new benchmark config, bench5_config, which is a copy of
+	  bench2_config but with crossfade activated and a script using it, so
+	  the crossfade cost (ends up in the convolve column) can easily be
+	  benchmarked.
+	* Do not use posix_memalign() in buggy glibc versions.
+	* Corrected ALSA pcm linking code.
+
+BruteFIR v0.99m                                                 January 17, 2004
+	* Fixed merge config bug (only activated if dither was activated too).
+	* If the CLI runs in script mode, it is run directly from the filter
+	  process for better timing precision, and it is now possible to sleep
+	  in blocks (sleep b10; will skip ten blocks).
+	* Removed truncation/extension warning when loading coefficients from
+          files, and made loading more efficient (don't load whole file, only
+          as much as to fill the coefficient space).
+	* Fixed rare deadlock bug which could be triggered at startup.
+        * Updated ALSA code to support 1.0 version of the API.
+	* Replaced OOM killer hack with /proc/meminfo tracker.
+
+BruteFIR v0.99l                                                 October 26, 2003
+	* Added discontinuity merger function, which hides clicks that may occur
+          when coefficients are changed in runtime.
+	* Added skip feature to coeff loading, to skip given amount of bytes in
+	  the beginning when loading a filter from file.
+	* Fixed load balancing info bug.
+
+BruteFIR v0.99k                                                  August 10, 2003
+	* Added daemon mode.
+	* Fixed buffer allocation bug for fftw3 plan creation.
+	* Fixed ALSA I/O module logging bug.
+	* Fixed another load balancing bug.
+	* Fixed array overrun read bug.
+	* Fixed power save bug which could cause noise output.
+
+BruteFIR v0.99j                                                    July 11, 2003
+	* Migrated to FFTW3
+	* Support for 32 bit and 64 bit precision in the same binary (use
+	  the new float_bits setting).
+	* Buffer underflows/overflows can optionally be ignored in the ALSA
+	  I/O module, by using the new ignore_xrun setting.
+	* Improved powersave function, filters will now be turned off on
+	  an individual basis.
+	* Issue a warning if realtime priority could not be set, instead of
+	  aborting. A good behaviour in situations where root access is not
+	  feasible.
+	* Support for a benchmark mode (use the new benchmark setting).
+	* Included some sample benchmark configuration files.
+	* ALSA card linking can be disabled with the new link setting for the
+	  ALSA I/O module. This is only to be used as a work-around if problems
+	  are experienced when linking is used (on per default).
+	* Delay buffer can now optionally be specified per virtual channel
+	  with the new setting individual_maxdelay. The old maxdelay setting
+	  can still be used and is interpreted as before.
+	* Added version check for loadable modules
+	* Added loop option to the file I/O module (for looping input).
+	* Now setting proper magnitudes at equaliser edges in equaliser module.
+	* FFTW wisdom is now extended cumulatively (as it should).
+	* Fixed string parsing bug.
+	* Fixed input mute bug.
+	* Fixed bug in the automatic load balancer.
+	* Fixed tausworthe random state init bug.
+	* Some fixes to compile nicely with GCC 3.3.
+
+BruteFIR v0.99i                                                February 11, 2003
+	* Fixed lots of stupid mistakes made in previous release.
+
+BruteFIR v0.99h                                                 February 9, 2003
+	* Added new sample native endian (NE) sample formats.
+	* Support for auto sample format (only JACK I/O module so far)
+	* Real-time index and overflow detection now works with callback I/O.
+	* Mixing blocking input with callback output now works.
+	* Added a simple automatic load balancer for multiple CPUs.
+
+BruteFIR v0.99g                                                 February 2, 2003
+	* Added support for callback I/O.
+	* Added JACK I/O module.
+	* Proper synchronised start of CLI script.
+	* Added 'echo' option to CLI module, for printing commands to console.
+	* Fixed multiple input devices input mute bug.
+	* Setting suid now works again.
+	* Configuration file can contain international characters again.
+	* Fixed broken pipe start bug with multiple alsa output devices.
+	* Fixed broken syntax error handling in CLI module.
+
+BruteFIR v0.99f                                                  January 5, 2003
+	* Peak meter more exact, writes -inf instead of +0.0 when there is
+	  zero output.
+	* Peak meter now works for floating point output.
+	* Removed obsolete configuration file parse warning.
+
+BruteFIR v0.99e                                                December 25, 2002
+	* Added debug trace code for debugging buffer over/underflows.
+	* Added support for having shorter filter partitions than the sound card
+	  hardware supports natively.
+	* Various latency improvements, should be less risk for underflow now.
+	  Thanks to Denis Sbragion for testing on ice1712 hardware.
+	* Added optional "input poll mode", which provides support for strange
+	  hardware period sizes on some sound cards, and the possibility to
+	  run with shorter software period size than the hardware supports.
+	* Added '-nodefault' option which will make BruteFIR ignore the default
+	  configuration file.
+	* Properly terminate if one process is lost due to the computer is out
+	  of memory or similar.
+	* Try to terminate nicely when the computer runs out of memory, and
+	  give a correct error code if that happens.
+	* It is now possible to have more than 31 bands in the equaliser module
+	  (bug fixed by Andreas Johansson).
+	* Real-time index now works with sound cards again.
+	* Removed bfconf_lexical.c (flex output) which mistakingly has been
+	  included in the distributions.
+	* Improved configuration file parser. It is now faster, and can accept
+	  very large strings (with line breaks), and floating point values with
+	  exponent (example -2.0e-05).
+	* It is now possible to sleep in millisecond resolution in the CLI
+	  module.
+	* Sample clock drift check removed (did not work with new code). May
+	  be added later.
+
+BruteFIR v0.99d                                                November 28, 2002
+	* Improved real-time index, much simpler and more reliable algorithm.
+	* Improved filter rendering performance in equaliser module.
+	* Fixed ALSA I/O module bug causing it not to work with odd sound card
+	  period sizes (for example ice1712 sound cards).
+	* Added a powersave feature, which will suspend convolution when there
+	  is zero input.
+
+BruteFIR v0.99c                                                 October 10, 2002
+	* Added double buffer support to the equaliser module.
+	* Added simple script support to the CLI module.
+	* Fixed format conversion errors (on the read side) for S24_LE and
+	  S24_BE.
+	* Fixed a couple of config file parsing bugs.
+	* Corrected a slight synchronisation problem between input and output.
+	* Reduced risk of buffer underflow at startup.
+	* Fixed bug (outdated input buffers) when changing coefficients in
+	  partitioned convolution when coefficients are of different lengths.
+
+BruteFIR v0.99b                                               September 12, 2002
+	* Fixed bug which caused buffer underflow in ALSA I/O module when
+	  software buffer is larger than hardware buffer.
+	* Linking problem with ALSA module resolved.
+
+BruteFIR v0.99a                                                  August 25, 2002
+	* Attach coefficient shared memory segments with read/write permissions
+	  at all times in order to allow modules such as "eq" to operate on
+	  them.
+	* Fixed array overrun bug seen with some virtual channel configurations
+	* Improved handling of piped commands in the "eq" module.
+
+BruteFIR v0.99                                                    August 4, 2002
+	* Fixed I/O delay ("fixed" as in constant, not as in "fixed a bug").
+	  For properly designed sound cards, the I/O delay will always be
+	  exactly twice the filter block length.
+	* An equaliser module is now included. Equalisation can be changed in
+	  runtime through the CLI.
+	* Slight change in configuration file format in order to support
+	  advanced configuration of modules.
+	* Some bug fixes.
+
+BruteFIR v0.98e                                                    July 26, 2002
+	* Added the possibility to scale input/outputs with negative values
+
+BruteFIR v0.98d                                                    July 21, 2002
+	* Fixed scaling bug in coefficient parser
+	* Fixed sample rate set problem in ALSA code
+
+BruteFIR v0.98c                                                    June 14, 2002
+	* Fixed mixbuffer assignment bug (caused looping sound with some
+	  filter configurations)
+	* Fixed large integer parsing bug
+	* Added runtime FFTW link check to see if the common mistake linking
+	  32 bit BruteFIR with 64 bit FFTW (or the other way around) has been
+	  made.
+
+BruteFIR v0.98b                                                      May 5, 2002
+	* Native SSE2 support for Pentium 4 processors
+	* Added monitor_rate option
+	* Better Makefile
+	* Compiles and runs on Solaris on Sparc
+	* Code style more strict
+	* Compiles cleanly with gcc3
+	* Yet another exit program bug fix
+
+BruteFIR v0.98a                                                   April 16, 2002
+	* Fixed bug which sometimes left a stray process after exit
+	* Improved real-time index calculation to handle SMP properly
+	* Measure sample rate and exit if it is altered during runtime
+	* The program now has meaningful exit codes (exited due to sample rate
+	  change, out of memory, buffer underflow etc)
+
+BruteFIR v0.98                                                    March 25, 2002
+	* Support for virtual channels (new mapping field in input and output
+	  structures)
+	* Support for muting input channels (also in CLI, new 'tmi' command)
+	* Support for the old skip and append parameters in bfio_file module
+	* Fixed error message passing bug in ALSA code	
+	* Fixed double close bug
+
+BruteFIR v0.97d                                                December 20, 2001
+	* Fixed mute array bug (channels could be muted without saying so)
+	* Added support for -quiet parameter to suppress title and warnings
+	
+BruteFIR v0.97c                                                December 17, 2001
+        * ALSA I/O module now accepts raw ALSA device names as module parameter.
+	  If you want to do the same thing as before, just at "hw:" at the
+	  start of the string, forming "alsa"/"hw:0,0" for example.
+	  
+BruteFIR v0.97b                                                December 16, 2001
+	* Added new sample formats S24_4LE/BE and S16_4LE/BE
+	* Fixed I/O module load bug (if two types of modules was mixed, the
+	  program crashed)
+	* Fixed integer overflow bug for 32 bit formats (caused clipping to
+	  fail with disasterous results: a loud tone instead of proper
+	  clipping on overflow)
+	* Fixed overflow update bug
+	* Fixed missing error message bug in ALSA I/O module
+	* Added check for dither feasibility
+	
+BruteFIR v0.97a                                                December 14, 2001
+	* Fixed dither bug (if dither not activated, the program crashed)
+	* Fixed default file parse bug (channel fields without '/' lead to
+	  crash)
+	* Fixed mute array parse bug (all output structures shared the same
+	  mute array)
+	* Support for short delay arrays in the configuration files, now they
+	  are extended with zeros (instead of calling it a parse error)
+
+BruteFIR v0.97                                                  December 9, 2001
+	* Major architectural change: all sample I/O moved to external modules,
+	  support for adaptive filtering and other things through logic 
+	  modules.
+	* ALSA and raw PCM support now in I/O modules.
+	* CLI is in a logic module.
+	* Changed sample format strings, example: "16s2l0" is now "S16_LE".
+	* Added support for floating point raw pcm formats.
+	* A few minor bugfixes
+
+BruteFIR v0.96a                                               September 27, 2001
+	* Fixed minor configuration parse bugs.
+	* Added "dirac pulse" feature.
+	* Added proper signal handler for termination of the program.
+	* Fixed file write bug that could cause last part of output file to
+	  be zero.
+	* Added automatic detection of processor capabilities.
+
+BruteFIR v0.96                                                   August 20, 2001
+	* It is now possible to make filter networks, that is put filters in
+	  series, and so on, as long as no loops are made.
+	* Variable length filters (actually variable length coefficient sets).
+	* Predelay per filter setting.
+	* Fixed mute setting bug.
+	* Fixed severe digital audio setup bug.
+	
+BruteFIR v0.95b                                                    July 18, 2001
+        * Thanks to Doug Kelly a severe bug (block bounds violation) in the 
+	  conversion from 32 bit to floating point format was found and fixed.
+	* Realtime priorites of the processes was changed, in order to keep
+	  the CLI responsive even in realtime operation. This may be bad for 
+	  extremely low latencies (sub 100 ms), haven't tested that. It is 
+	  utterly necessary for higher latencies though.
+		  
+BruteFIR v0.95a                                                     June 3, 2001
+        * Fixed severe bug in raw filter reading (caused core dump with long
+	  filters).
+	* Added lock_memory parameter, so the mlock call can be controlled (it
+	  is unnecessary to run mlock when there is no swap, and mlock can think
+	  it is out of memory when lots of shared memory is used(?) ).
+	
+BruteFIR v0.95                                                      May 26, 2001
+	* Updated ALSA support, non-interleaved hardware (like RME9652) is now
+	  supported.
+	* Updated and added some CLI commands.
+	* Added support for delay changes in runtime.
+	* Added support for giving shared memory references for coefficient
+	  sets, which is useful when using BruteFIR from another program.
+	* Fixed severe bug which caused choppy sound when combining files with
+	  sound cards for inputs/outputs.
+	* Improved the Makefile.
+	  
+BruteFIR v0.94a                                                   April 11, 2001
+        * Fixed a severe bug in the ALSA support code, which caused BruteFIR to 
+	  report "Hardware does not support enough fragments" together with
+	  common sound cards.
+
+BruteFIR v0.94                                                     April 8, 2001
+        * New convolution algorithm which allows for even higher output. Hand-
+          coded assembler optimisations for SSE and 3DNow are included (also 
+          for x87, but that code is naive and slow).
+        * Now it is possible to mute channels from the CLI.
+        * Configuration file can be read from stdin (filename = stdin)
+        * Some bugfixes.
+
+BruteFIR v0.93                                                     March 3, 2001
+	* I/O-delay reduction algorithm implmented.
+	
+BruteFIR v0.92                                                 February 17, 2001
+	* Fixed bug causing long delays not to work.
+	* ALSA support updated.
+	* Made double precision compilation the default.
+	
+BruteFIR v0.91a                                                 January 30, 2001
+	* Fixed a major bug, channels could be lost when running in more
+	  than one process, which could for example result in mono playback.
+	
+BruteFIR v0.91                                                  January 28, 2001
+	* ALSA support updated
+	* Added nosound target to makefile 'make brutefir_nosound'
+	* Mixing and volume now applied in the frequency domain, which leads to
+	  large performance improvements for common configurations
+	* Improved realtime reliability through better process synchronisation
+	  and setting processes to realtime priority
+	* Some code cleanups
+	
+BruteFIR v0.9                                                   January 15, 2001
+	* ALSA support implemented (ALSA v0.6, that is the CVS version)
+	* Isolated FFT and sound card interfaces so it should be simple to port
+	  to use other FFT libraries / sound card APIs.
+	* Some code cleanups
+
+BruteFIR v0.6                                                   January 13, 2001
+	* Dither support implemented (high pass TPDF)
+	* Sample requantisation now works as a proper mid-tread requantiser
+	* Optimised delay buffer handling when delays are short
+	* Fixed minor bugs in sample format parsing/conversion
+	* Some code cleanups
+
+BruteFIR v0.52                                                   January 8, 2001
+	* Now conversion to and from all supported raw sample formats should be 
+	  complete and correct for both little and big endian architectures.
+
+BruteFIR v0.51                                                   January 7, 2001
+	* Added customisable delay for input and output channels
+	* Removed some meaningless settings from configuration
+	* Added printout of I/O-delay approximation
+	* Fixed file ending bug
+	
+BruteFIR v0.5                                                    January 6, 2001
+	* Initial release. No ALSA support yet.

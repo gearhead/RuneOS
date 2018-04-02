@@ -1,0 +1,14 @@
+
+BruteFIR
+================================================================================
+
+This is the source code for a generic FIR filter (convolution) engine,
+licensed under the GNU General Public License version 2.0.
+
+The documentation is found on the web,
+http://www.ludd.ltu.se/~torger/brutefir.html
+
+A copy of the web page is included in this archive, but the one found on the
+web may be more up to date.
+
+Anders Torger, torger@ludd.ltu.se

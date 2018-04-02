@@ -1,0 +1,16 @@
+[Unit]
+Description=Snapcast server
+After=network-online.target
+Requires=network-online.target
+After=avahi-daemon.service
+Requires=avahi-daemon.service
+
+[Service]
+EnvironmentFile=-/etc/default/snapserver
+Type=forking
+ExecStart=/usr/bin/snapserver -d $USER_OPTS $SNAPSERVER_OPTS
+PIDFile=/var/run/snapserver/pid
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

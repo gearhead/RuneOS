@@ -1,0 +1,51 @@
+sampling_rate: 44100;
+filter_length: 64,64;
+show_progress: true;
+
+## COEFFS ##
+
+coeff "direct path" {
+        filename: "directpath.txt";
+};
+
+coeff "cross path" {
+        filename: "crosspath.txt";
+};
+
+input "left", "right" {
+        device: "alsa" { device: "hw:0"; };
+        sample: "S24_LE";
+	channels: 26/24,25;
+};
+
+output "left", "right" {
+        device: "alsa" { device: "hw:0"; };
+        sample: "S24_LE";
+	channels: 26/24,25;
+	dither: true;
+};
+
+filter "left speaker direct path" {
+        from_inputs: "left";
+        to_outputs: "left";
+	coeff: "direct path";
+};
+
+filter "left speaker cross path" {
+        from_inputs: "right";
+        to_outputs: "left";
+	coeff: "cross path";
+};
+
+filter "right speaker direct path" {
+        from_inputs: "right";
+        to_outputs: "right";
+	coeff: "direct path";
+};
+
+filter "right speaker cross path" {
+        from_inputs: "left";
+        to_outputs: "right";
+	coeff: "cross path";
+};
+

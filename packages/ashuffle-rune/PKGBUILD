@@ -8,7 +8,7 @@ pkgdesc="Ashuffle is an application for automatically shuffling your mpd library
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url="https://github.com/Joshkunz/ashuffle"
 license=('MIT')
-depends=('mpd-rune' 'libmpdclient')
+depends=('libmpdclient')
 makedepends=('clang' 'git')
 source=('ashuffle-rune::git+https://github.com/Joshkunz/ashuffle'
         'ashuffle.service')

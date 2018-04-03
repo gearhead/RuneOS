@@ -19,8 +19,8 @@ source=(shairport-sync-$pkgver.zip::https://github.com/mikebrady/shairport-sync/
 	useradd.patch::https://github.com/mikebrady/shairport-sync/commit/15c376ad57629dad16f1120dbf4c080f7de48475.patch)
 sha1sums=('SKIP'
           'd51485f3857529b70a29b38814ea60e7dde54ca8'
-	  '705558f866cc0c0a0a16087892656bd4a99318a9'
-          '343d9f46eec6d53b4e46f0210a19b3754535043e'
+          '3570913bb937001224989d82d0acfb549509e01e'  
+          '5b4b6ea59e2fa26b480ea477daa58749571810a8'
 	  'b806f9cd3eeaf8585a51d79c7b5681e3d3e4748a'
 	  '0d216ac98a7c390476c79732e7361c4e66651340')
 

@@ -8,7 +8,7 @@ After=network.target network-online.target
 
 [Service] 
 ExecStartPre=/usr/bin/mkdir -p /var/run/shairport
-ExecStart=/usr/bin/shairport-sync -c /etc/shairport-sync.conf --name="RuneAudio (AirPlay)" -- -d hw:0.0
+ExecStart=/usr/bin/shairport-sync -c /etc/shairport-sync.conf
 User=shairport-sync 
 Group=shairport-sync 
 

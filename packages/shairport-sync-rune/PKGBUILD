@@ -20,7 +20,7 @@ source=(shairport-sync-$pkgver.zip::https://github.com/mikebrady/shairport-sync/
 sha1sums=('SKIP'
           'd51485f3857529b70a29b38814ea60e7dde54ca8'
           '3570913bb937001224989d82d0acfb549509e01e'  
-          'a72a837696d09068b80a952a198dba6620c1e577'
+          '5b4b6ea59e2fa26b480ea477daa58749571810a8'
 	  'b806f9cd3eeaf8585a51d79c7b5681e3d3e4748a'
 	  '0d216ac98a7c390476c79732e7361c4e66651340')
 

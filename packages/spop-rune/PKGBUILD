@@ -25,10 +25,10 @@ package() {
     cd "$srcdir"/spop
     mkdir "${pkgdir}"/etc/
     mkdir "${pkgdir}"/etc/spop
-    mkdir "${pkgdir}"/lib/
-    mkdir "${pkgdir}"/lib/systemd/
-    mkdir "${pkgdir}"/lib/systemd/system/
     cp "${startdir}"/spopd.conf "${pkgdir}"/etc/spop/
-    cp "${startdir}"/spopd.service "${pkgdir}"/lib/systemd/system/
     make -j4 PREFIX="${pkgdir}"/usr install
+    #mkdir "${pkgdir}"/lib/
+    #mkdir "${pkgdir}"/lib/systemd/
+    mkdir "${pkgdir}"/usr/lib/systemd/system/
+    cp "${startdir}"/spopd.service "${pkgdir}"/usr/lib/systemd/system/spopd.service
 }

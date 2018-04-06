@@ -28,7 +28,7 @@ source=("http://www.musicpd.org/download/${_pkgname}/${pkgver%.*}/${_pkgname}-${
 	'0001-Extend-MPD-0.19.21-DSD-support.patch')
 sha1sums=('27dd903f4f7c0f5ffeb85e6820c02d2b82485572'
           'f4d5922abb69abb739542d8e93f4dfd748acdad7'
-          'b4939d0f2c2c7da89e1be6faed496e788c9603e6'          
+          '0f819ae8b167233294f4dbf025e06a548c36e335'          
 	  'efca5b90d50b168a9d657b44208a3bc72da7ed0d')
 backup=('etc/mpd.conf')
 install=install

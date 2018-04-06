@@ -1,0 +1,207 @@
+sampling_rate: 44100;
+filter_length: 8192,8;
+benchmark: true;
+modules_path: ".";
+logic: "cli" { echo: false;
+	script:
+"cfc 0 0; cfc 1 0; cfc 2 0; cfc 3 0; cfc 4 0; cfc 5 0; cfc 6 0; cfc 7 0; cfc 8 0; cfc 9 0; cfc 10 0; cfc 11 0; cfc 12 0; cfc 13 0; cfc 14 0; cfc 15 0; cfc 16 0; cfc 17 0; cfc 18 0; cfc 19 0; cfc 20 0; cfc 21 0; cfc 22 0; cfc 23 0; cfc 24 0; cfc 25 0;
+cfc 0 -1; cfc 1 -1; cfc 2 -1; cfc 3 -1; cfc 4 -1; cfc 5 -1; cfc 6 -1; cfc 7 -1; cfc 8 -1; cfc 9 -1; cfc 10 -1; cfc 11 -1; cfc 12 -1; cfc 13 -1; cfc 14 -1; cfc 15 -1; cfc 16 -1; cfc 17 -1; cfc 18 -1; cfc 19 -1; cfc 20 -1; cfc 21 -1; cfc 22 -1; cfc 23 -1; cfc 24 -1; cfc 25 -1;";
+};
+convolver_config: ".fftw3wisdom";
+
+coeff 0 { filename: "dirac pulse"; };
+
+input 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 {
+        device: "file" { path: "/dev/zero"; };
+        sample: "S24_4LE";
+        channels: 26;
+};
+
+output 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 {
+        device: "file" { path: "/dev/null"; };
+        sample: "S24_4LE";
+        channels: 26;
+        dither: false;
+};
+
+filter 0 {
+	crossfade: true;
+	from_inputs: 0;
+	to_outputs: 0;
+	coeff: 0;
+};
+
+filter 1 {
+	crossfade: true;
+	from_inputs: 1;
+	to_outputs: 1;
+	coeff: 0;
+};
+
+filter 2 {
+	crossfade: true;
+	from_inputs: 2;
+	to_outputs: 2;
+	coeff: 0;
+};
+
+filter 3 {
+	crossfade: true;
+	from_inputs: 3;
+	to_outputs: 3;
+	coeff: 0;
+};
+
+filter 4 {
+	crossfade: true;
+	from_inputs: 4;
+	to_outputs: 4;
+	coeff: 0;
+};
+
+filter 5 {
+	crossfade: true;
+	from_inputs: 5;
+	to_outputs: 5;
+	coeff: 0;
+};
+
+filter 6 {
+	crossfade: true;
+	from_inputs: 6;
+	to_outputs: 6;
+	coeff: 0;
+};
+
+filter 7 {
+	crossfade: true;
+	from_inputs: 7;
+	to_outputs: 7;
+	coeff: 0;
+};
+
+filter 8 {
+	crossfade: true;
+	from_inputs: 8;
+	to_outputs: 8;
+	coeff: 0;
+};
+
+filter 9 {
+	crossfade: true;
+	from_inputs: 9;
+	to_outputs: 9;
+	coeff: 0;
+};
+
+filter 10 {
+	crossfade: true;
+	from_inputs: 10;
+	to_outputs: 10;
+	coeff: 0;
+};
+
+filter 11 {
+	crossfade: true;
+	from_inputs: 11;
+	to_outputs: 11;
+	coeff: 0;
+};
+
+filter 12 {
+	crossfade: true;
+	from_inputs: 12;
+	to_outputs: 12;
+	coeff: 0;
+};
+
+filter 13 {
+	crossfade: true;
+	from_inputs: 13;
+	to_outputs: 13;
+	coeff: 0;
+};
+
+filter 14 {
+	crossfade: true;
+	from_inputs: 14;
+	to_outputs: 14;
+	coeff: 0;
+};
+
+filter 15 {
+	crossfade: true;
+	from_inputs: 15;
+	to_outputs: 15;
+	coeff: 0;
+};
+
+filter 16 {
+	crossfade: true;
+	from_inputs: 16;
+	to_outputs: 16;
+	coeff: 0;
+};
+
+filter 17 {
+	crossfade: true;
+	from_inputs: 17;
+	to_outputs: 17;
+	coeff: 0;
+};
+
+filter 18 {
+	crossfade: true;
+	from_inputs: 18;
+	to_outputs: 18;
+	coeff: 0;
+};
+
+filter 19 {
+	crossfade: true;
+	from_inputs: 19;
+	to_outputs: 19;
+	coeff: 0;
+};
+
+filter 20 {
+	crossfade: true;
+	from_inputs: 20;
+	to_outputs: 20;
+	coeff: 0;
+};
+
+filter 21 {
+	crossfade: true;
+	from_inputs: 21;
+	to_outputs: 21;
+	coeff: 0;
+};
+
+filter 22 {
+	crossfade: true;
+	from_inputs: 22;
+	to_outputs: 22;
+	coeff: 0;
+};
+
+filter 23 {
+	crossfade: true;
+	from_inputs: 23;
+	to_outputs: 23;
+	coeff: 0;
+};
+
+filter 24 {
+	crossfade: true;
+	from_inputs: 24;
+	to_outputs: 24;
+	coeff: 0;
+};
+
+filter 25 {
+	crossfade: true;
+	from_inputs: 25;
+	to_outputs: 25;
+	coeff: 0;
+};

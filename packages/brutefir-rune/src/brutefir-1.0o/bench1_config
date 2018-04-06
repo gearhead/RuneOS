@@ -1,0 +1,58 @@
+sampling_rate: 44100;
+filter_length: 8192,8;
+benchmark: true;
+modules_path: ".";
+convolver_config: ".fftw3wisdom";
+
+coeff 0 { filename: "dirac pulse"; };
+coeff 1 { filename: "dirac pulse"; };
+coeff 2 { filename: "dirac pulse"; };
+coeff 3 { filename: "dirac pulse"; };
+coeff 4 { filename: "dirac pulse"; };
+coeff 5 { filename: "dirac pulse"; };
+
+input 0, 1 {
+  device: "file" { path: "/dev/zero"; };
+  sample: "S24_4LE";
+  channels: 2;
+};
+
+output 0, 1 {
+  device: "file" { path: "/dev/null"; };
+  sample: "S24_4LE";
+  dither: false;
+  channels: 2;
+};
+
+
+filter 0 {
+  from_filters: 2, 5;
+  to_outputs: 0;
+  coeff: 0;
+};
+filter 1 {
+  from_filters: 3, 4;
+  to_outputs: 1;
+  coeff: 1;
+};
+filter 2 {
+  from_inputs: 0;
+  to_filters: 0;
+  coeff: 2;
+};
+filter 3 {
+  from_inputs: 0;
+  to_filters: 1;
+  coeff: 3;
+};
+filter 4 {
+  from_inputs: 1;
+  to_filters: 1;
+  coeff: 4;
+};
+filter 5 {
+  from_inputs: 1;
+  to_filters: 0;
+  coeff: 5;
+};
+

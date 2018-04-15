@@ -1,3 +1,0 @@
-post_install() {
-  echo "Enable with: systemctl enable brcm43438.service"
-}

@@ -1,0 +1,21 @@
+  -> patching: add support for Audiophonics I-Sabre K2M
+patching file arch/arm/boot/dts/overlays/Makefile
+Hunk #1 succeeded at 132 (offset 15 lines).
+patching file 
+arch/arm/boot/dts/overlays/audiophonics-i-sabre-k2m-overlay.dts
+patching file sound/soc/bcm/Kconfig
+Hunk #1 succeeded at 188 with fuzz 1 (offset -6 lines).
+patching file sound/soc/bcm/Makefile
+Hunk #1 succeeded at 36 (offset -1 lines).
+Hunk #2 succeeded at 63 (offset -2 lines).
+patching file sound/soc/bcm/i-sabre-k2m.c
+patching file sound/soc/codecs/Kconfig
+Hunk #1 succeeded at 219 (offset 14 lines).
+Hunk #2 succeeded at 1152 with fuzz 2 (offset 80 lines).
+patching file sound/soc/codecs/Makefile
+Hunk #1 FAILED at 216.
+1 out of 1 hunk FAILED -- saving rejects to file 
+sound/soc/codecs/Makefile.rej
+patching file sound/soc/codecs/i-sabre-codec.c
+patching file sound/soc/codecs/i-sabre-codec.h
+

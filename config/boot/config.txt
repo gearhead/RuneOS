@@ -45,10 +45,10 @@
 #dtoverlay=pi3-miniuart-bt-overlay
 
 ## RuneAudio HDMI & 3,5mm jack
-dtparam=audio=off
+dtparam=audio=on
 
 ## RuneAudio I2S-Settings
-dtoverlay=iqaudio-dacplus
+#dtoverlay=none
 
 # Uncomment to enable the lirc-rpi module
 # Params: gpio_out_pin             GPIO pin for output (default "17")

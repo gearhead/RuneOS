@@ -13,12 +13,12 @@ pkgbase=samba
 pkgname=('samba4-rune')
 provides=('samba')
 conflicts=('samba')
-pkgver=4.7.6
+pkgver=4.8.1
 pkgrel=1
 arch=('x86_64' 'armv6h' 'armv7h')
 url="http://www.samba.org"
 license=('GPL3')
-makedepends=('python2' 'docbook-xsl' 'pkg-config' 'libbsd' 'db' 'popt' 'libcups' 
+makedepends=('python2' 'docbook-xsl' 'pkg-config' 'libbsd' 'db' 'popt' 
              'readline' 'tevent' 'acl' 'libldap' 'libcap' 'ldb>=1.1.15' 'krb5' 'pam' 'systemd' 
              'gamin' 'gnutls>=2.4.1' 'talloc' 'tdb' 'dbus' 'libaio' 'perl-parse-yapp' 'jansson')
 source=(http://us1.samba.org/samba/ftp/stable/${pkgbase}-${pkgver}.tar.gz
@@ -43,7 +43,7 @@ prepare() {
   cd samba-${pkgver}
   # this patch needed for 4.7.5 and 4.7.6 so it will compile without ADS
   # Does not work with 4.8.0
-  patch -p1 < "${startdir}"/0001-libads-Fix-the-build-without-ads.patch
+#  patch -p1 < "${startdir}"/0001-libads-Fix-the-build-without-ads.patch
 }
 
 build() {
@@ -74,6 +74,7 @@ _samba4_pdb_modules=pdb_tdbsam,pdb_ldap,pdb_ads,pdb_smbpasswd,pdb_wbc_sam,pdb_sa
 _samba4_auth_modules=auth_unix,auth_wbc,auth_server,auth_netlogond,auth_script,auth_samba4
  cd ${srcdir}/samba-${pkgver}
   ./configure --enable-fhs \
+              --disable-cups \
               --prefix=/usr \
               --sbindir=/usr/bin \
               --libdir=/usr/lib \
@@ -97,7 +98,7 @@ _samba4_auth_modules=auth_unix,auth_wbc,auth_server,auth_netlogond,auth_script,a
 
               # Add this to the options once it's working...
                #--with-system-mitkrb5 /opt/heimdal
-  make
+  make -j2  # added j2 to speed compilation? kg
   make DESTDIR="${_pkgsrc}/" install
 
   # This gets skipped somehow
@@ -167,7 +168,7 @@ install=samba.install
   install -D -m644 ${srcdir}/samba-${pkgver}/examples/LDAP/samba.schema ${pkgdir}/usr/share/doc/samba/examples/LDAP/samba.schema
   # create /var/run/samba
 }
-md5sums=('0253021a45c479cec1e135b004a0177a'
+md5sums=('3cdb976a892bc036bfb61eeb97f68450'
          'SKIP'
          '5697da77590ec092cc8a883bae06093c'
          '96f82c38f3f540b53f3e5144900acf17'

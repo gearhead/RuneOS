@@ -42,7 +42,7 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
 md5sums=('eb40f85dcd2d483b55a0cfb5f65108d8'
          '7c6b37a1353caccf6d3786bb4161c218'
          '60bc3624123c183305677097bcd56212'
-         '9f0c2301c4f1f89a34afd95ac14d235f'
+         'cf1397fb0038ed21d31268c63094f109'
          '552c43bf6c0225bc213b31ee942b7000'
          '982f9184dfcfbe52110795cf73674334'
 # added from ropieee kernel
@@ -74,8 +74,8 @@ prepare() {
   msg2 "patching: kernel native DSD quirks"
   patch -Np1 -i ../usb-dsd-quirks_1.patch
 
-  msg2 "patching: add support for Audiophonics I-Sabre K2M"
-  patch -Np1 -i ../i-sabre-k2m_1.patch
+  #msg2 "patching: add support for Audiophonics I-Sabre K2M"
+  #patch -Np1 -i ../i-sabre-k2m_1.patch
   
 # end patches for dsd and 384k
 

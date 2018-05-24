@@ -3,7 +3,8 @@
 _cfgdir=/etc/nginx
 _tmpdir=/var/run
 pkgname=nginx-rune
-pkgver=1.12.2
+#pkgver=1.12.2
+pkgver=1.14.0
 pkgrel=1
 pkgdesc="NGiNX HTTP server (RuneAudio)"
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
@@ -19,7 +20,7 @@ source=("http://nginx.org/download/nginx-${pkgver}.tar.gz"
         'nginx.logrotate'
         'nginx.conf')
 
-sha1sums=('6b41d63befa4f52b0724b533e6292a6671b71fdc'
+sha1sums=('016ab1a12c9a0c9444f9073e4300223ffd6fadbe'
           'df6dd84b41f5127fec39216d578cfbbe1815699f'
           '0544990b5d323fa46fc3caca66b1e0f6cda280bd'
           '1e5632cec8c83c777ad221de09cb24382a5716aa')
@@ -54,6 +55,8 @@ build() {
         --http-scgi-temp-path=${_tmpdir}/scgi \
         --http-uwsgi-temp-path=${_tmpdir}/uwsgi \
 	--with-http_gzip_static_module \
+        --with-http_stub_status_module \
+        --with-http_ssl_module \
         --without-mail_pop3_module \
 	--without-mail_imap_module \
 	--without-mail_smtp_module \

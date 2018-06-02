@@ -11,7 +11,7 @@
 
 pkgname=mpd-rune
 _pkgname=mpd
-pkgver=0.20.18
+pkgver=0.20.20
 pkgrel=1
 pkgdesc='Flexible, powerful, server-side application for playing music. Archphile version with native dsd support.'
 url='http://www.musicpd.org/'
@@ -24,12 +24,10 @@ conflicts=('mpd')
 replaces=('mpd')
 source=("http://www.musicpd.org/download/${_pkgname}/${pkgver%.*}/${_pkgname}-${pkgver}.tar.xz"
         'tmpfiles.d'
-	'mpd.conf'
-	'0001-Extend-MPD-0.19.21-DSD-support.patch')
-sha1sums=('2a6bbfa2281c92adf1a8d6f584da539ea65e4f0c'
+	'mpd.conf')
+sha1sums=('95b5feb53ebbc043ee2934eb2d239e6a3f6cd775'
           'f4d5922abb69abb739542d8e93f4dfd748acdad7'
-          '0f819ae8b167233294f4dbf025e06a548c36e335'          
-	  'efca5b90d50b168a9d657b44208a3bc72da7ed0d')
+          '0f819ae8b167233294f4dbf025e06a548c36e335')
 backup=('etc/mpd.conf')
 install=install
 CXXFLAGS="-fpermissive -O2"

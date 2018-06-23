@@ -122,7 +122,51 @@ max_usb_current=1
 # memory options
 gpu_mem=16
 
-# Overclocking options
+## Some overclocking settings, govenor is set to ondemand as standard
+## The values below are valid for the B+ and Zero models
+## Overclocking should not be needed for the 2B, 3B and 3B+ models
+## See your documentation for A and B models
+
+## None
+#arm_freq=700
+#core_freq=250
+#sdram_freq=400
+#over_voltage=0
+
+## Modest
+#arm_freq=800
+#core_freq=300
+#sdram_freq=400
+#over_voltage=0
+
+## Medium - fast enough for normal (MPD) use, airplay may need more capacity
+#arm_freq=900
+#core_freq=333
+#sdram_freq=450
+#over_voltage=2
+
+## High
+#arm_freq=950
+#core_freq=450
+#sdram_freq=450
+#over_voltage=6
+
+## Turbo
+#arm_freq=1000
+#core_freq=500
+#sdram_freq=500
+#over_voltage=6
+
+## General CPU settings
+# Setting force turbo on (=1) always invalidates waranty regardless of other settings
+# Altenative is turbo on demand (=0), this is alredy set as standard
 force_turbo=1
+#force_turbo=0
+# Lowering max CPU temperature from 85 (standard) to 70 or 75 degrees gives some protection when (force) turbo is set
+# If the max temp is reached the cpu will autmatically be throttled back
+#temp_limit=70
+# Boot delay sometimes needs to be set to higher values when overclocking is enabled
+# Default boot delay is 1 second, 3B+ needs a delay of 2
+boot_delay=2
 
 initramfs initramfs-linux.img followkernel

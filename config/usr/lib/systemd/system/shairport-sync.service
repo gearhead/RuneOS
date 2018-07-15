@@ -6,11 +6,13 @@ After=avahi-daemon.service
 Wants=network-online.target
 After=network.target network-online.target
 
-[Service] 
+[Service]
 ExecStartPre=/usr/bin/mkdir -p /var/run/shairport
-ExecStart=/usr/bin/shairport-sync -c /etc/shairport-sync.conf --name="RuneAudio (AirPlay)" -- -d hw:0.0
-User=shairport-sync 
-Group=shairport-sync 
+ExecStart=/usr/bin/shairport-sync -c /etc/shairport-sync.conf
+User=shairport-sync
+Group=shairport-sync
+Restart=always
+RestartSec=5
 
-[Install] 
-WantedBy=multi-user.target 
+[Install]
+WantedBy=multi-user.target

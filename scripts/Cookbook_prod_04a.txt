@@ -1,12 +1,12 @@
 #!/bin/bash
 ########################################
-# RuneAudio v0.4-beta cookbook         #
+# RuneAudio v0.5-beta cookbook         #
 # written by: Orion (production image) #
-# edited for 2017 kernel by Gearhead   #
-# HW platform: RaspberryPi (01)	    #
+# edited for 2018 kernel by Gearhead   #
+# HW platform: RaspberryPi B1 and B2   #
 ########################################
 # install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide, choose syslinux bootloader
-
+# all rune packages are shown with armv6h for the B1/PiZero, substitute armv7h for the B2/3
 # general system update
 pacman -Syu --noconfirm
 
@@ -16,15 +16,14 @@ pacman -R cryptsetup jfsutils lvm2 man-db man-pages reiserfsprogs haveged
 # install git support (22.47 MiB)
 pacman -S git --noconfirm
 
-# install NTP package (3.87 MiB)
-pacman -S ntp --noconfirm
+# install chrony
+pacman -S chrony
 
 # first time sync
-ntpdate pool.ntp.org
+chronyd -q 'pool pool.ntp.org iburst'
 
 # install Redis (1.53 MiB)
 pacman -S redis --noconfirm
-
 
 #########################################
 ### -- additional system libraries -- ###
@@ -37,7 +36,6 @@ pacman -S libjpeg --noconfirm
 
 # install apr-util (nginx req.) (1.63 MiB) 
 pacman -S apr-util --noconfirm
-
 
 ##########################
 ### -- system tools -- ###
@@ -82,7 +80,6 @@ pacman -S libxml2 --noconfirm
 # install yasm (2.80 MiB)
 pacman -S yasm --noconfirm
 
-
 ##############################
 ### -- filesystem tools -- ###
 ##############################
@@ -109,7 +106,6 @@ pacman -S curlftpfs --noconfirm
 # http://ignorantguru.github.com/udevil/#polling
 pacman -S udevil --noconfirm
 
-
 #########################
 ### -- AUDIO stack -- ###
 #########################
@@ -128,7 +124,6 @@ cd /var/www
 
 # clone RuneUI git repo
 git clone -b 0.5b https://github.com/gearhead/RuneUI.git .
-
 
 ##############################
 # -- setup filesystem ACL -- #
@@ -188,6 +183,7 @@ pacman -S libmicrohttpd --noconfirm
 pacman -S libpulse --noconfirm
 pacman -S perl-uri --noconfirm
 
+
 # ----->>>> DOWNLOAD PACKAGES FROM RuneOS REPO <<<<----- #
 
 # get packages somehow
@@ -197,19 +193,19 @@ cd /usr/local/src/
 
 # install ffmpeg-rune
 pacman -Sd --nodeps libva
-pacman -U ffmpeg-rune-2.8.8-3-armv6h.pkg.tar.xz --noconfirm
+pacman -U ffmpeg-rune-3.4.1-3-armv6h.pkg.tar.xz --noconfirm
 
 # install mpd-rune
-pacman -U mpd-rune-0.20.6-1-armv6h.pkg.tar.xz --noconfirm
+pacman -U mpd-rune-0.20.20-1-armv6h.pkg.tar.xz --noconfirm
 
 # install mpdscribble-rune
-pacman -U mpdscribble-0.22-6-armv6h.pkg.tar.xz --noconfirm
+pacman -U mpdscribble-0.22-8-armv6h.pkg.tar.xz --noconfirm
 
 # install nginx-rune
-pacman -U nginx-rune-1.11.3-6-armv6h.pkg.tar.xz --noconfirm
+pacman -U nginx-rune-1.14.0-6-armv6h.pkg.tar.xz --noconfirm
 
 # install php-rune
-pacman -U php-rune-5.5.29-2-armv6h.pkg.tar.xz --noconfirm
+pacman -U php-rune-5.6.33-1-armv6h.pkg.tar.xz --noconfirm
 
 # install phpredis-rune
 pacman -U phpredis-rune-2.2.7-2-armv6h.pkg.tar.xz --noconfirm
@@ -221,27 +217,43 @@ pacman -U phpiredis-rune-1.0.0.3-armv6h.pkg.tar.xz --noconfirm
 
 # cannot get this to compile
 # install samba4-rune
-#pacman -U samba4-rune-4.6.2-1-armv6h.pkg.tar.xz --noconfirm
+pacman -U samba4-rune-4.8.1-1-armv6h.pkg.tar.xz --noconfirm
 
-# install shairport-rune
-pacman -U shairport-rune-1.1.1-1-armv6h.pkg.tar.xz --noconfirm
+# install shairport-sync-rune
+pacman -U shairport-sync-rune-3.1.7-1-armv6h.pkg.tar.xz --noconfirm
+pacman -U alac-0.r21.1588be3-1-armv7h.pkg.tar.xz
 
-#install libupnp-rue
-pacman -U libupnp-rune-20170329-1-armv6h.pkg.tar.xz --noconfirm
+#install libupnp-rune
+pacman -U libupnp-rune-20180123-1-armv6h.pkg.tar.xz --noconfirm
 
 # install upmpdcli-rune
-pacman -U upmpdcli-rune-0.13.1-20170330-armv6h.pkg.tar.xz --noconfirm
+pacman -U upmpdcli-rune-1.2.15-3-armv6h.pkg.tar.xz --noconfirm
 
 # install ashuffle
-pacman -U ashuffle-rune-1.0-20170328-armv6h.pkg.tar.xz --noconfirm
+pacman -U ashuffle-rune-0.22-6-armv6h.pkg.tar.xz --noconfirm
 
 # instapp spotify
 pacman -U libspotify-12.1.103-3-armv6h.pkg.tar.xz --noconfirm
-pacman -U spop-rune-0.0.3-20160128-armv6h.pkg.tar.xz  --noconfirm
+# armv7 takes a different package - libspotify-12.1.51-3-armv7h.pkg.tar.xz
+pacman -U spop-rune-0.0.4-1-armv6h.pkg.tar.xz  --noconfirm
 
 # install hfs support
 pacman -U hfsprogs-rune-332.25-10-armv6h.pkg.tar.xz --noconfirm
 pacman -U hfsutils-rune-3.2.6-5-armv6h.pkg.tar.xz --noconfirm
+
+#install webUI for alsa mixer
+pacman -U amixer-webui-0.r55.cedaebb-1-armv6h.pkg.tar.xz
+
+# install snapcast
+pacman -U snapcast-0.14.0-1-armv6h.pkg.tar.xz
+
+# Install bluetooth components
+pacman -U bluez-utils-compat-5.49-1-armv6h.pkg.tar.xz
+pacman -U bluez-alsa-git-v1.2.0.r64.g9045edb-1-armv6h.pkg.tar.xz
+pacman -U pi-bluetooth-1-1-armv6h.pkg.tar.xz
+
+# Install patched kernel for 384k and DSD
+linux-raspberrypi-dsd-384k-4.14.34-1-armv6h.pkg.tar.xz
 
 # ----->>>> INSTALL Go Daddy Intermediate CA (Jamendo) <<<<----- #
 

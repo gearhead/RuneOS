@@ -1,13 +1,26 @@
 Many things have changed since 0.3. Frank released a 0.4b version
-This is based on that version. There have been edits to the script
+This image is based on that version. There have been edits to the build script
 It is mostly up to date. 
 
-April 2018
-Updated nginx, php, ffmpeg, samba and upmpdcli to current released versions
-Patched kernel for 384k support as well as DSD support
-Packages compiled with openssl1.1 support
-Added webUI for alsamixer (as per Frank's 0.4 version)
+August 2018
+Full upgrade of all Linux packages
+Patched kernel (4.14.34-1) for 384k support as well as DSD support
+Updated nginx, ffmpeg, samba and upmpdcli to current released versions
+Rebuilt and updated MPD to current released version with SoXr support
+(MPD 0.20 has DSD support so no patching required for DSD as per 0.19.x)
+Built and added Shairport-sync with metadata, SoXr, alec and convolution support
+PHP 5.6.33 patched with openssl 1.1 support (last version of PHP5)
+Created package and added webUI for alsamixer (as per Frank's 0.4 version) 
 Removed Shairport
 Added Shairport-sync
+Removed Midori
+Added Chromium
+Removed Ntpd
+Added Chrony
 Added bluetooth support - can pair devices via CLI
 Added bluetooth alsa support
+Pi1 (armv6h) and Pi2 (armv7h) images are built with the same components
+exceptions:
+Pi1: No Chromium or X11
+Pi1: libspotify 12.1.103 
+Pi2: libspotify 12.1.51

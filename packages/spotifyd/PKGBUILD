@@ -1,7 +1,7 @@
 # Maintainer: Varakh <varakh@varakh.de>
 
 pkgname=spotifyd-bin
-pkgver=0.2.1
+pkgver=0.2.2
 pkgrel=1
 depends=('alsa-lib')
 arch=('armv6h' 'armv7h' 'x86_64')

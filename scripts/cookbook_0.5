@@ -252,6 +252,10 @@
 	
 	# install php-rune
 	pacman -U php-rune-5.6.33-1-armv6h.pkg.tar.xz --noconfirm
+	# error: failed to commit transaction (conflicting files)
+	# php-rune: /var/run exists in filesystem (owned by filesystem)
+	# Errors occurred, no packages were upgraded.
+	# packagefile is broken, needs to be fixed, added --force to try
 	
 	# install phpredis-rune
 	pacman -U phpredis-rune-2.2.7-2-armv6h.pkg.tar.xz --noconfirm
@@ -264,7 +268,18 @@
 	# cannot get this to compile
 	# install samba4-rune
 	pacman -U samba4-rune-4.8.1-1-armv6h.pkg.tar.xz --noconfirm
+	# appears to use python2, Look at Arch pkgfile to see if this has been upgraded to use python3
+	# also will not install due to other packages which are installed
 	
+	#error: failed to commit transaction (conflicting files)
+	# samba4-rune: /usr/include/samba-4.0/wbclient.h exists in filesystem (owned by libwbclient)
+	# samba4-rune: /usr/lib/libwbclient.so.0 exists in filesystem (owned by libwbclient)
+	# samba4-rune: /usr/lib/libwbclient.so.0.14 exists in filesystem (owned by libwbclient)
+	# samba4-rune: /usr/lib/pkgconfig/wbclient.pc exists in filesystem (owned by libwbclient)
+	# samba4-rune: /usr/lib/samba/libreplace-samba4.so exists in filesystem (owned by libwbclient)
+	# samba4-rune: /usr/lib/samba/libwinbind-client-samba4.so exists in filesystem (owned by libwbclient)
+	# Errors occurred, no packages were upgraded.
+
 	# install shairport-sync-rune
 	pacman -U shairport-sync-rune-3.1.7-1-armv6h.pkg.tar.xz --noconfirm
 	pacman -U alac-0.r21.1588be3-1-armv7h.pkg.tar.xz
@@ -280,7 +295,9 @@
 	
 	# instapp spotify
 	pacman -U libspotify-12.1.103-3-armv6h.pkg.tar.xz --noconfirm
+	# does not install
 	# armv7 takes a different package - libspotify-12.1.51-3-armv7h.pkg.tar.xz
+	
 	pacman -U spop-rune-0.0.4-1-armv6h.pkg.tar.xz  --noconfirm
 	
 	# install hfs support
@@ -292,12 +309,24 @@
 	
 	# install snapcast
 	pacman -U snapcast-0.14.0-1-armv6h.pkg.tar.xz
+	# not built or installed, yet
 	
 	# Install bluetooth components
 	pacman -U bluez-utils-compat-5.49-1-armv6h.pkg.tar.xz
 	pacman -U bluez-alsa-git-v1.2.0.r64.g9045edb-1-armv6h.pkg.tar.xz
-	pacman -U pi-bluetooth-1-1-armv6h.pkg.tar.xz
 	
+	# Add those lines to /etc/dbus-1/system.d/bluetooth.conf
+	# <policy user="bluealsa">
+	#  <allow send_destination="org.bluez"/>
+	#</policy>
+	# Users can use this service when they are members of the "audio" group.
+
+	pacman -U pi-bluetooth-1-1-armv6h.pkg.tar.xz
+	Enable with: systemctl enable brcm43438.service
+	# To enable this at startup, you have to edit
+	# /etc/bluetooth/main.conf
+	# AutoEnable=true
+
 	# Install patched kernel for 384k and DSD
 	linux-raspberrypi-dsd-384k-4.14.34-1-armv6h.pkg.tar.xz
 	
@@ -308,14 +337,33 @@
 	
 	# update SSL certs database
 	trust extract-compat -v
+	# responds with this:
+	(p11-kit:2062) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2062) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2063) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2063) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2064) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2064) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2065) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2065) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2066) extract_certificate: skipping certificate without a value
+(p11-kit:2066) extract_certificate: skipping certificate without a value
+(p11-kit:2066) extract_certificate: skipping certificate without a value
+(p11-kit:2066) extract_certificate: skipping certificate without a value
+(p11-kit:2066) extract_certificate: skipping certificate without a value
+(p11-kit:2066) extract_certificate: skipping certificate without a value
+(p11-kit:2066) extract_certificate: skipping certificate without a value
+(p11-kit:2455) extract_certificate: skipping certificate that doesn't match trust flags
+(p11-kit:2455) extract_certificate: skipping certificate that doesn't match trust flags
+
 	
 	## Done to here w/o rune pkgs
 	
 	# ----->>>> SYSTEM CONFIGURATION <<<<----- #
 	
 	# install RuneAudio system tweaks
-	cp -Rv /var/www/app/config/_os/etc/* /etc
-	rm /etc/profile.d/proxy.sh 
+	#cp -Rv /var/www/app/config/_os/etc/* /etc
+	#rm /etc/profile.d/proxy.sh 
 	cp -R /var/www/app/config/_os/usr/* /usr
 	rm -rf /etc/security/limits.d/
 	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
@@ -333,6 +381,7 @@
 	systemctl disable systemd-logind
 	systemctl mask systemd-logind
 	
+	# did not enable these - looking at the runeui reset, first
 	# enable php
 	systemctl enable php-fpm
 	
@@ -351,6 +400,8 @@
 	
 	# enable rune_shutdown
 	systemctl enable rune_shutdown
+	#
+	# finished here on out
 	
 	# link Orion Optimize script
 	ln -s /srv/http/command/orion_optimize.sh /usr/sbin/

@@ -158,31 +158,32 @@
 
 	# stop auditd from spamming dmesg
 	# add audit=0 to cmdline.txt
-	
-	# setup log directory
-	rm -r /var/log/*
-	mkdir /var/log/runeaudio
-	echo "logs            /var/log		tmpfs nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
-	echo "rune-logs       /var/log/runeaudio	tmpfs nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
-	# set up temp directories
-	mkdir /var/tmp
-	mkdir /var/www/tmp
-	echo "var-tmp         /var/tmp		tmpfs nodev,nosuid,noatime,mode=1777,size=5M 0       0" >> /etc/fstab
-	echo "http-tmp        /srv/http/tmp	tmpfs nodev,nosuid,noatime,mode=1777,size=5M,uid=http,gid=http 0       0" >> /etc/fstab
-	
-	mount -a
+
 		
 	cd /var/www
 	
 	# clone RuneUI git repo
-	git clone -b 0.5b https://github.com/gearhead/RuneUI.git .
+	git clone -b 0.5b https://github.com/gearhead/RuneUI.git /var/www
 		
 	# install motd
 	cp /var/www/app/config/_os/etc/motd /etc/
 	cp /var/www/app/config/_os/etc/issue /etc/
 		
 	# setup colorls
-	cp /var/www/app/config/_os/etc/bash.bashrc /etc/car rc.l	
+	cp /var/www/app/config/_os/etc/bash.bashrc /etc/bash.bashrc	
+		
+	# setup log directory
+	rm -r /var/log/*
+	mkdir /var/log/runeaudio
+	echo "logs            /var/log			tmpfs nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
+	echo "rune-logs       /var/log/runeaudio		tmpfs nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
+	# set up temp directories
+	mkdir /var/tmp
+	mkdir /var/www/tmp
+	echo "var-tmp         /var/tmp		tmpfs nodev,nosuid,noatime,mode=1777,size=5M 0       0" >> /etc/fstab
+	echo "http-tmp        /srv/http/tmp		tmpfs nodev,nosuid,noatime,mode=1777,size=5M,uid=http,gid=http 0       0" >> /etc/fstab
+	
+	mount -a
 	
 	# setup webserver directory
 	chown -R http.http /srv/http/
@@ -238,13 +239,13 @@
 	pacman -S parted --noconfirm
 	
 	# random number generator
-	pacman -S haveged --noconfirm
+	#pacman -S haveged --noconfirm
 	
-	# install python2 flask fpor web based alsamixer
+	# install python2 flask for web based alsamixer
 	pacman -S python2-flask --noconfirm
 	
 	# install cronie
-	pacman -S cronie
+	pacman -S cronie --noconfirm
 	
 	# ----->>>> DOWNLOAD PACKAGES FROM RuneOS REPO <<<<----- #
 	
@@ -340,7 +341,7 @@
 	# Install bluetooth components
 	pacman -U bluez-utils-compat-5.49-1-armv6h.pkg.tar.xz
 	pacman -U bluez-alsa-git-v1.2.0.r64.g9045edb-1-armv6h.pkg.tar.xz
-	
+	pacman -U pi-bluetooth
 	# Add those lines to /etc/dbus-1/system.d/bluetooth.conf
 	# <policy user="bluealsa">
 	#  <allow send_destination="org.bluez"/>
@@ -387,10 +388,11 @@
 	
 	# ----->>>> SYSTEM CONFIGURATION <<<<----- #
 	
+	Got to here 9/25 kg
 	# install RuneAudio system tweaks
 	#cp -Rv /var/www/app/config/_os/etc/* /etc
 	#rm /etc/profile.d/proxy.sh 
-	cp -R /var/www/app/config/_os/usr/* /usr
+	#cp -R /var/www/app/config/_os/usr/* /usr
 	rm -rf /etc/security/limits.d/
 	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	ln -s /etc/nginx/nginx-dev.conf /etc/nginx/nginx.conf

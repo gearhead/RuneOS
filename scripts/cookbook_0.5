@@ -349,7 +349,7 @@
 	# Users can use this service when they are members of the "audio" group.
 
 	pacman -U pi-bluetooth-1-1-armv6h.pkg.tar.xz
-	Enable with: systemctl enable brcm43438.service
+	Enable with: 
 	# To enable this at startup, you have to edit
 	# /etc/bluetooth/main.conf
 	# AutoEnable=true
@@ -382,22 +382,60 @@
 (p11-kit:2066) extract_certificate: skipping certificate without a value
 (p11-kit:2455) extract_certificate: skipping certificate that doesn't match trust flags
 (p11-kit:2455) extract_certificate: skipping certificate that doesn't match trust flags
-
-	
-	## Done to here w/o rune pkgs
 	
 	# ----->>>> SYSTEM CONFIGURATION <<<<----- #
-	
-	Got to here 9/25 kg
+
 	# install RuneAudio system tweaks
 	#cp -Rv /var/www/app/config/_os/etc/* /etc
 	#rm /etc/profile.d/proxy.sh 
 	#cp -R /var/www/app/config/_os/usr/* /usr
 	rm -rf /etc/security/limits.d/
-	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
-	ln -s /etc/nginx/nginx-dev.conf /etc/nginx/nginx.conf
 	
+	# set up Rune config files# Reset the service and configuration files to the distribution standard
+cp /var/www/app/config/defaults/chrony.conf /etc/chrony.conf
+cp /var/www/app/config/defaults/hostapd.conf /etc/hostapd/hostapd.conf
+cp /var/www/app/config/defaults/journald.conf /etc/systemd/journald.conf
+cp /var/www/app/config/defaults/mpdscribble.conf /etc/mpdscribble.conf
+rm -f /etc/nginx/nginx.conf
+cp /var/www/app/config/defaults/nginx-prod.conf /etc/nginx/nginx-prod.conf
+ln -s /etc/nginx/nginx-prod.conf /etc/nginx/nginx.conf
+cp /var/www/app/config/defaults/50x.html /etc/nginx/html/50x.html
+cp /var/www/app/config/defaults/nsswitch.conf /etc/nsswitch.conf
+cp /var/www/app/config/defaults/php-fpm.conf /etc/php/php-fpm.conf
+cp /var/www/app/config/defaults/redis.conf /etc/redis.conf
+cp /var/www/app/config/defaults/shairport-sync.conf /etc/shairport-sync.conf
+rm -f /etc/samba/*.conf
+cp /var/www/app/config/defaults/smb-dev.conf /etc/samba/smb-dev.conf
+cp /var/www/app/config/defaults/smb-prod.conf /etc/samba/smb-prod.conf
+ln -s /etc/samba/smb-prod.conf /etc/samba/smb.conf
+cp /var/www/app/config/defaults/spopd.conf /etc/spop/spopd.conf
+cp /var/www/app/config/defaults/upmpdcli.conf /etc/upmpdcli.conf
+cp /var/www/app/config/defaults/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+cp /var/www/app/config/defaults/fstab /etc/fstab
+cp /var/www/app/config/defaults/hosts /etc/hosts
+cp /var/www/app/config/defaults/start_chromium.sh /etc/X11/xinit/start_chromium.sh
+cp /var/www/app/config/defaults/ashuffle.service /usr/lib/systemd/system/ashuffle.service
+cp /var/www/app/config/defaults/avahi_runeaudio.service /etc/avahi/services/runeaudio.service
+cp /var/www/app/config/defaults/local-browser.service /usr/lib/systemd/system/local-browser.service
+cp /var/www/app/config/defaults/php-fpm.service /usr/lib/systemd/system/php-fpm.service
+cp /var/www/app/config/defaults/redis.service /usr/lib/systemd/system/redis.service
+cp /var/www/app/config/defaults/rune_PL_wrk.service /usr/lib/systemd/system/rune_PL_wrk.service
+cp /var/www/app/config/defaults/rune_SSM_wrk.service /usr/lib/systemd/system/rune_SSM_wrk.service
+cp /var/www/app/config/defaults/rune_SY_wrk.service /usr/lib/systemd/system/rune_SY_wrk.service
+cp /var/www/app/config/defaults/shairport-sync.service /usr/lib/systemd/system/shairport-sync.service
+cp /var/www/app/config/defaults/spopd.service /usr/lib/systemd/system/spopd.service
+cp /var/www/app/config/defaults/udevil.service /usr/lib/systemd/system/udevil.service
+cp /var/www/app/config/defaults/upmpdcli.service /usr/lib/systemd/system/upmpdcli.service
 	
+# set up services and stop them
+systemctl unmask systemd-journald
+systemctl disable ashuffle mpd mpdscribble nmbd smbd udevil upmpdcli hostapd shairport-sync local-browser rune_SSM_wrk rune_PL_wrk dhcpcd systemd-timesyncd php-fpm ntpd bluetooth
+systemctl enable avahi-daemon haveged nginx redis rune_SY_wrk sshd systemd-resolved systemd-journald chronyd
+systemctl stop ashuffle mpd spopd smbd nmbd shairport-sync local-browser rune_SSM_wrk rune_PL_wrk rune_SY_wrk upmpdcli bluetooth
+#
+	
+	# enable bluetooth
+	systemctl enable brcm43438.service
 	
 	# disable RNGD - not installed
 	#systemctl disable rngd
@@ -415,21 +453,21 @@
 	systemctl enable amixer-webui brcm43438 cronie
 
 	# did not enable these - looking at the runeui reset, first
-	# enable php
-	systemctl enable php-fpm
+	# enable php done from rune_SY
+	#systemctl enable php-fpm
 	
 	# enable nginx
 	systemctl enable nginx
 	
 	# enable mpd
-	systemctl enable mpd
+	# systemctl enable mpd
 	
 	# enable redis
 	systemctl enable redis
 	
 	# enable RuneAudio background workers
-	systemctl enable rune_PL_wrk
-	systemctl enable rune_SY_wrk
+	#systemctl enable rune_PL_wrk
+	#systemctl enable rune_SY_wrk
 	
 	# enable rune_shutdown
 	cp /var/www/app/config/_os/usr/lib/systemd/system/rune_shutdown.service /usr/lib/systemd/system/
@@ -447,10 +485,9 @@
 	mkdir /mnt/MPD/NAS
 	mkdir /mnt/MPD/LocalStorage
 	chown -R mpd.audio /mnt/MPD
-	
+
 	# reboot system
 	reboot
-
 	
 	#Log in and repair filesystem
 	#rm -rf /var/run /var/lock && pacman -S filesystem

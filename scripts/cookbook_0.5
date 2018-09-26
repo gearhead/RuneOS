@@ -306,6 +306,7 @@
 	pacman -S libmpcdec
 	pacman -S openal
 	pacman -S libvdpau
+	pacman -S smbclient
 	
 	# install shairport-sync-rune
 	pacman -U shairport-sync-rune-3.1.7-1-armv6h.pkg.tar.xz --noconfirm
@@ -477,6 +478,10 @@ systemctl stop ashuffle mpd spopd smbd nmbd shairport-sync local-browser rune_SS
 	
 	# link Orion Optimize script
 	ln -s /srv/http/command/orion_optimize.sh /usr/sbin/
+	
+	./var/www/db/redis_datastore_setup reset
+	./var/www/command/refresh_ao
+	chomd a+x /var/www/command/*
 	
 	# create /mnt directory structure
 	mkdir /mnt/MPD

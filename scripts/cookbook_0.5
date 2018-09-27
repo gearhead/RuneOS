@@ -393,7 +393,7 @@
 	rm -rf /etc/security/limits.d/
 	
 	# set up Rune config files# Reset the service and configuration files to the distribution standard
-cp /var/www/app/config/defaults/chrony.conf /etc/chrony.conf
+#cp /var/www/app/config/defaults/chrony.conf /etc/chrony.conf
 cp /var/www/app/config/defaults/hostapd.conf /etc/hostapd/hostapd.conf
 cp /var/www/app/config/defaults/journald.conf /etc/systemd/journald.conf
 cp /var/www/app/config/defaults/mpdscribble.conf /etc/mpdscribble.conf
@@ -475,6 +475,11 @@ systemctl stop ashuffle mpd spopd smbd nmbd shairport-sync local-browser rune_SS
 	cp /var/www/app/config/_os/usr/lib/systemd/system/rune_shutdown.service /usr/lib/systemd/system/
 	systemctl enable rune_shutdown
 	#
+	
+	# enable alsamixer on 8080
+	ln -s /usr/bin/python2 /usr/bin/python
+	systemctl enable amixer-webui.service
+	
 	# finished here on out
 	
 	# link Orion Optimize script

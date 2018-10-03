@@ -494,7 +494,7 @@ systemctl stop ashuffle mpd spopd smbd nmbd shairport-sync local-browser rune_SS
 	
 	./var/www/db/redis_datastore_setup reset
 	./var/www/command/refresh_ao
-	chomd a+x /var/www/command/*
+	chmod a+x /var/www/command/*
 	
 	# create /mnt directory structure
 	mkdir /mnt/MPD

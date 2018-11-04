@@ -1,0 +1,41 @@
+nano /etc/sudoers
+
+>> add janui ALL = (ALL) ALL
+
+mkdir /home/lirc-rune
+cd /home/lirc-rune
+
+>> copy files to /home/lirc-rune
+
+updpkgsums
+
+chmod -R 777 /home/lirc-rune
+userdel janui
+groupdel janui
+groupadd -r janui
+useradd -r -d /home/janui -g janui janui
+mkdir /home/janui
+cd /home
+pacman -Syy
+pacman -S confuse libftdi libusb-compat
+pacman -S autoconf automake binutils bison fakeroot flex gcc make gettext groff m4 patch which attr glibc pkg-config
+whoami
+su - janui
+
+whoami
+cd /home/lirc-rune
+makepkg -sf
+exit
+
+>> copy the files to the PC
+
+pacman -Rs autoconf automake binutils bison fakeroot flex gcc make groff m4 patch which
+pacman -Rs confuse libftdi libusb-compat perl-locale-gettext help2man
+chmod -R 777 /home/lirc-rune
+userdel janui
+groupdel janui
+rmdir /home/janui
+rm -r /home/lirc-rune
+nano /etc/sudoers
+
+>> remove janui ALL = (ALL) ALL

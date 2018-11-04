@@ -139,6 +139,9 @@
 	# install ALSA utils (9.66 MiB)
 	pacman -S alsa-utils --noconfirm
 	
+	# install 
+	pacman -S celt --noconfirm
+	
 	# install SOX (3.08 MiB)
 	pacman -S sox --noconfirm
 	
@@ -537,3 +540,17 @@ systemctl stop ashuffle mpd spopd smbd nmbd shairport-sync local-browser rune_SS
 	
 	#edit php config to be line Pi2
 	#edit /etc/redis.ini to match pi2
+	
+	# comparison to pi1 image calls for these packages to be installed
+#pacman -S dbus-glib dnsmasq
+#pacman -S gdk-pixbuf2
+#pacman -S libao
+#pacman -S iniparser
+#pacman -S dconf wavpack, libasyncns, jansson, json-glib, procinfo-ng, wget 
+#pacman -S perl-encode-locale perl-file-listing perl-html-parser perl-html-tagset
+#pacman -S perl-http-cookies perl-http-daemon perl-http-date perl-http-message perl-http-negotiate perl-io-html
+#pacman -S perl-libwww perl-lwp-mediatypes perl-net-http perl-parse-yapp perl-try-tiny perl-www-robotrules
+#find . -name "*.*" | xargs file | grep "CRLF"
+
+
+

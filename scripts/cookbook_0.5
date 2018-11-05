@@ -287,6 +287,7 @@
 	# php-rune: /var/run exists in filesystem (owned by filesystem)
 	# Errors occurred, no packages were upgraded.
 	# packagefile is broken, needs to be fixed, added --force to try
+	# !!! got to here Need to re-build php to install cleanly !!!
 	
 	# install phpredis-rune
 	pacman -U phpredis-rune-2.2.7-2-armv6h.pkg.tar.xz --noconfirm
@@ -546,7 +547,9 @@ systemctl stop ashuffle mpd spopd smbd nmbd shairport-sync local-browser rune_SS
 #pacman -S gdk-pixbuf2
 #pacman -S libao
 #pacman -S iniparser
-#pacman -S dconf wavpack, libasyncns, jansson, json-glib, procinfo-ng, wget 
+# next line does not exist...
+#pacman -S dconf wavpack, libasyncns, jansson, json-glib, procinfo-ng
+
 #pacman -S perl-encode-locale perl-file-listing perl-html-parser perl-html-tagset
 #pacman -S perl-http-cookies perl-http-daemon perl-http-date perl-http-message perl-http-negotiate perl-io-html
 #pacman -S perl-libwww perl-lwp-mediatypes perl-net-http perl-parse-yapp perl-try-tiny perl-www-robotrules

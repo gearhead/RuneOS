@@ -26,7 +26,7 @@
 	echo "runeaudio" >> /etc/hostname
 	
 	# uninstall unecessary packages
-	pacman -R  jfsutils lvm2 man-db man-pages reiserfsprogs haveged
+	pacman -R  jfsutils lvm2 man-db man-pages reiserfsprogs
 	
 	# install git support (22.47 MiB)
 	pacman -S git --noconfirm
@@ -52,6 +52,12 @@
 	# install apr-util (nginx req.) (1.63 MiB) 
 	pacman -S apr-util --noconfirm
 	
+	# Jansson
+	pacman -S jansson --noconfirm
+	
+	# pixpuf - image loading library
+	pacman -S gdk-pixbuf2 --noconfirm
+	pacman -S libnotify 
 	##########################
 	### -- system tools -- ###
 	##########################
@@ -78,7 +84,7 @@
 	pacman -S wireless_tools --noconfirm
 	
 	# install wpa_supplicant (1.43 MiB)
-	pacman -S wpa_supplicant --noconfirm
+	pacman -S wpa_supplicant wpa_actiond --noconfirm
 	
 	# install hostapd (0.85 MiB)
 	pacman -S hostapd --noconfirm
@@ -97,6 +103,7 @@
 	
 	# install nss-mdns
 	pacman -S nss-mdns --noconfirm
+	pacman -S nss nspr --noconfirm
 	
 	##############################
 	### -- filesystem tools -- ###
@@ -144,6 +151,9 @@
 	
 	# install SOX (3.08 MiB)
 	pacman -S sox --noconfirm
+	
+	# wavpack libao
+	pacman -S wavpack, libao -noconfirm
 	
 	############################
 	### -- install RuneUI -- ###
@@ -237,10 +247,12 @@
 	
 	pacman -S jsoncpp --noconfirm
 	pacman -S libmicrohttpd --noconfirm
-	
-	#pacman -S libpulse --noconfirm
+	# perl modules
 	pacman -S perl-uri --noconfirm
-	
+	pacman -S perl-encode-locale perl-file-listing perl-html-parser perl-html-tagset
+	pacman -S perl-http-cookies perl-http-daemon perl-http-date perl-http-message perl-http-negotiate perl-io-html
+	pacman -S perl-libwww perl-lwp-mediatypes perl-net-http perl-parse-yapp perl-try-tiny perl-www-robotrules
+
 	# install smartmontools
 	pacman -S smartmontools --noconfirm
 	
@@ -350,6 +362,7 @@
 	# not built or installed, yet
 	
 	# Install bluetooth components
+	pacman -S bluez --noconfirm
 	pacman -U bluez-utils-compat-5.49-1-armv6h.pkg.tar.xz
 	pacman -U bluez-alsa-git-v1.2.0.r64.g9045edb-1-armv6h.pkg.tar.xz
 	pacman -U pi-bluetooth
@@ -536,12 +549,17 @@ systemctl stop ashuffle mpd spopd smbd nmbd shairport-sync local-browser rune_SS
 	# reboot system
 	reboot
 	
-	#Log in and repair filesystem
-	#rm -rf /var/run /var/lock && pacman -S filesystem
-	
-	#edit php config to be line Pi2
-	#edit /etc/redis.ini to match pi2
-	
+#pacman -S zita-alsa-pcmi zita-resampler
+# pacman -S dialog
+# pacman -S libasyncns json-glib 
+# dconf glib-networking gsettings-desktop-schemas libsoup libomxil-bellagio
+
+
+#find . -name "*.*" | xargs file | grep "CRLF"
+# hciattach-rpi3 is not in the packages directory
+# diff -y installed_scr.txt installed_kit.txt | colordiff
+
+####### ARRRRGH! it's back!!! no boot
 	# comparison to pi1 image calls for these packages to be installed
 #pacman -S dbus-glib dnsmasq
 #pacman -S gdk-pixbuf2

@@ -3,7 +3,7 @@ This image is based on that version. There have been edits to the build script
 It is mostly up to date. 
 
 August 2018
-Full upgrade of all Linux packages
+Full upgrade of all Linux packages as of April 2018 (including fixes for known vulnerabilities)
 Patched kernel (4.14.34-1) for 384k support as well as DSD support
 Updated nginx, ffmpeg, samba and upmpdcli to current released versions
 Rebuilt and updated MPD to current released version with SoXr support

@@ -1,47 +1,48 @@
-# Maintainer: Elia Cereda <eliacereda+arch at gmail dot com>
+# Maintainer: Anatol Pomozov <anatol.pomozov@gmail.com>
 
 pkgname=shairport-sync-rune
-pkgver=3.1.7
+_pkgname=shairport-sync
+pkgver=3.2.2
 pkgrel=1
-pkgdesc='Emulates an AirPort Express for the purpose of streaming music from iDevices - Rune'
+pkgdesc='Emulates an AirPort Express for the purpose of streaming music from iTunes and compatible iPods and iPhones'
 url='https://github.com/mikebrady/shairport-sync'
-arch=(i686 x86_64 armv6h armv7h)
-license=('custom')
-backup=(etc/conf.d/shairport-sync)
-install='shairport-sync.install'
-depends=(alsa-lib libdaemon openssl avahi popt libsoxr libconfig)
-makedepends=(git)
+arch=(armv6h armv7h x86_64)
+license=(GPL)
+backup=(etc/shairport-sync.conf)
+depends=(openssl avahi libsoxr popt alsa-lib libconfig libpulse)
+makedepends=(xmltoman)
 source=(shairport-sync-$pkgver.zip::https://github.com/mikebrady/shairport-sync/archive/$pkgver.zip
-	shairport-sync.install
-	shairport-sync.service
-	shairport-sync.conf
-	shairport-sync.sysusers
-	useradd.patch::https://github.com/mikebrady/shairport-sync/commit/15c376ad57629dad16f1120dbf4c080f7de48475.patch)
+        shairport-sync.sysusers
+        useradd.patch::https://github.com/mikebrady/shairport-sync/commit/15c376ad57629dad16f1120dbf4c080f7de48475.patch)
 sha1sums=('SKIP'
-          'd51485f3857529b70a29b38814ea60e7dde54ca8'
-          '3570913bb937001224989d82d0acfb549509e01e'  
-          '5b4b6ea59e2fa26b480ea477daa58749571810a8'
-	  'b806f9cd3eeaf8585a51d79c7b5681e3d3e4748a'
-	  '0d216ac98a7c390476c79732e7361c4e66651340')
+          'b806f9cd3eeaf8585a51d79c7b5681e3d3e4748a'
+          '0d216ac98a7c390476c79732e7361c4e66651340')
 
 prepare() {
   cd shairport-sync-$pkgver
-  patch -R < ../useradd.patch  
+  # Revert adding users with 'make install'. We have a separate *.install script for it.
+  patch -R < ../useradd.patch
 }
 
 build() {
   cd shairport-sync-$pkgver
+
   autoreconf -i -f
-#  ./configure --with-metadata --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-apple-alac --prefix="$pkgdir/usr"
-  ./configure --prefix="$pkgdir/usr" --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-dns_sd --with-metadata --with-stdout --with-pipe --with-convolution --with-apple-alac
+#  ./configure --prefix=/usr --sysconfdir=/etc --with-alsa --with-pa --with-avahi --with-ssl=openssl --with-soxr --with-dns_sd --with-pkg-config \
+#	--with-systemd --with-configfiles
+  ./configure --prefix=/usr --sysconfdir=/etc --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-dns_sd --with-pkg-config \
+	--with-metadata --with-stdout --with-pipe --with-convolution --with-apple-alac --with-systemd --with-configfiles
 
   make
+
+  sed 's|/usr/local/bin/|/usr/bin/|' -i scripts/shairport-sync.service
 }
 
 package() {
-  install -D -m644 shairport-sync.service "$pkgdir"/usr/lib/systemd/system/shairport-sync.service
-  install -D -m644 shairport-sync.conf "$pkgdir"/etc/shairport-sync.conf
   cd shairport-sync-$pkgver
-  install -D -m664 LICENSES "$pkgdir"/usr/share/licenses/$pkgname/LICENSE 
-  make install
+  make DESTDIR="$pkgdir" install
+  install -D -m644 "$srcdir"/shairport-sync.sysusers "$pkgdir"/usr/lib/sysusers.d/shairport-sync.conf
+  install -D -m664 LICENSES "$pkgdir"/usr/share/licenses/$_pkgname/LICENSE
+  rm "$pkgdir"/etc/shairport-sync.conf.sample
 }
+

@@ -2,8 +2,8 @@
 # Development: https://github.com/nicolasff/phpredis
  
 pkgname=phpredis-rune
-pkgver=2.2.7
-pkgrel=2
+pkgver=4.2.0
+pkgrel=1
 pkgdesc="A PHP extension for Redis"
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url="https://github.com/nicolasff/phpredis"
@@ -31,4 +31,3 @@ package() {
     echo "extension=redis.so" > "${ininame}"
     install -vDm644 "${ininame}" "$pkgdir/${inifile}"
 }
-

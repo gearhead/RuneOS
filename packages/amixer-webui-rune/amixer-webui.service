@@ -7,7 +7,7 @@ After=audio.target
 
 [Service]
 WorkingDirectory=/usr/share/amixer-webui
-ExecStart=/usr/bin/python2 /usr/share/amixer-webui/alsamixer_webui.py
+ExecStart=/usr/bin/python /usr/share/amixer-webui/alsamixer_webui.py
 # ExecStart=/usr/bin/python2 /usr/share/amixer-webui/alsamixer_webui.py -p8080
 ExecReload=/usr/bin/kill -HUP $MAINPID
 KillMode=process

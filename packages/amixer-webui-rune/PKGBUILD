@@ -1,0 +1,42 @@
+pkgname=amixer-webui-rune
+_pkgname=amixer-webui
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="a web interface to alsamxer"
+url="https://github.com/JiriSko/amixer-webui"
+arch=('armv6h' 'armv7h')
+license=('MIT')
+depends=('alsa-utils' 'rsync')
+makedepends=('python' 'python-pip' 'git')
+provides=('amixer-webui')
+conflicts=('amixer-webui')
+source=("$pkgname::https://github.com/JiriSko/amixer-webui/archive/v$pkgver-rc.zip")
+sha256sums=('SKIP')
+
+#pkgver() {
+#  cd "$_pkgname"-"$pkgver"
+#  printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+#}
+
+prepare() {
+  cd "$_pkgname"-"$pkgver"-rc
+}
+
+build() {
+  cd "${srcdir}"/"$_pkgname"-"$pkgver"-rc
+  make -j4
+}
+
+package() {
+  cd "$srcdir"/"$_pkgname"-"$pkgver"-rc
+  make -j4 package
+  cp -r "$srcdir"/"$_pkgname"-"$pkgver"-rc/production/deb-package/* "$pkgdir"/
+  mkdir "$pkgdir"/etc
+  #cp "$srcdir"/"$_pkgname"/amixer-webui.conf "$pkgdir"/etc/
+  cp "$startdir/amixer-webui.conf" "$pkgdir"/etc/
+  mkdir "$pkgdir"/usr/lib/
+  mkdir "$pkgdir"/usr/lib/systemd/
+  mkdir "$pkgdir"/usr/lib/systemd/system/
+  install -Dm 644 "$startdir/$_pkgname.service" \
+	                "$pkgdir/usr/lib/systemd/system/$_pkgname.service"
+}

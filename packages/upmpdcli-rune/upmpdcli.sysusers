@@ -1,0 +1,3 @@
+u upmpdcli - "UPnP to MPD Interface" /var/lib/upmpdcli
+g upmpdcli
+m upmpdcli audio

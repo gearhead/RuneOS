@@ -2,8 +2,8 @@
 
 pkgname=upmpdcli-rune
 _pkgname=upmpdcli
-pkgver=1.2.15
-pkgrel=3
+pkgver=1.4.2pre
+pkgrel=1
 pkgdesc="an UPnP front-end to the Music Player Daemon"
 url="http://www.lesbonscomptes.com/upmpdcli/"
 license=('GPL2')
@@ -20,6 +20,16 @@ install=upmpdcli.install
 build() {
 
   cd "$srcdir/$_pkgname-$pkgver"
+# from Arch PKGFILE
+
+  # this is temporary - should be fixed in the git repo
+  chmod u+x autogen.sh
+
+  msg "Run autogen.sh"
+  ./autogen.sh
+
+# end
+
   ./configure --prefix=/usr --sysconfdir=/etc
   make
 }
@@ -31,4 +41,5 @@ package() {
   cp ${startdir}/upmpdcli.conf ${pkgdir}/etc/
   cp ${startdir}/runeaudio.png ${pkgdir}/usr/share/upmpdcli/icon.png
   install -Dm644  ${startdir}/upmpdcli.service ${pkgdir}/usr/lib/systemd/system/upmpdcli.service
+  install -Dm644  ${startdir}/upmpdcli.sysusers "$pkgdir"/usr/lib/sysusers.d/upmpdcli.conf
 }

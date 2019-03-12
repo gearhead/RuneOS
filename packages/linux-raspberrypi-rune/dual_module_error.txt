@@ -1,0 +1,34 @@
+  LD [M]  sound/soc/bcm/snd-soc-allo-piano-dac-plus.o
+  CC [M]  sound/soc/bcm/allo-katana-codec.o
+  LD [M]  sound/soc/bcm/snd-soc-allo-katana-codec.o
+  CC [M]  sound/soc/bcm/pisound.o
+  LD [M]  sound/soc/bcm/snd-soc-pisound.o
+  CC [M]  sound/soc/bcm/fe-pi-audio.o
+  LD [M]  sound/soc/bcm/snd-soc-fe-pi-audio.o
+  CC [M]  sound/soc/bcm/rpi-simple-soundcard.o
+  LD [M]  sound/soc/bcm/snd-soc-rpi-simple-soundcard.o
+  CC [M]  sound/soc/bcm/rpi-wm8804-soundcard.o
+  LD [M]  sound/soc/bcm/snd-soc-rpi-wm8804-soundcard.o
+  CC [M]  sound/soc/bcm/i-sabre-k2m.o
+sound/soc/bcm/i-sabre-k2m.c:28:10: fatal error: i-sabre-k2m-codec.h: No such file or directory
+ #include "i-sabre-k2m-codec.h"
+          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+distcc[29646] ERROR: compile sound/soc/bcm/i-sabre-k2m.c on 192.168.2.101 failed                          
+distcc[29646] (dcc_build_somewhere) Warning: remote compilation of 'sound/soc/bcm/i-sabre-k2m.c' 
+failed, retrying locally
+distcc[29646] Warning: failed to distribute sound/soc/bcm/i-sabre-k2m.c to 192.168.2.101, running 
+locally instead
+sound/soc/bcm/i-sabre-k2m.c:28:10: fatal error: i-sabre-k2m-codec.h: No such file or directory
+ #include "i-sabre-k2m-codec.h"
+          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+distcc[29646] ERROR: compile sound/soc/bcm/i-sabre-k2m.c on localhost failed                              
+make[3]: *** [scripts/Makefile.build:304: sound/soc/bcm/i-sabre-k2m.o] Error 1                            
+make[2]: *** [scripts/Makefile.build:544: sound/soc/bcm] Error 2                                          
+make[1]: *** [scripts/Makefile.build:544: sound/soc] Error 2                                              
+make: *** [Makefile:1047: sound] Error 2
+==> ERROR: A failure occurred in build().
+    Aborting...
+
+

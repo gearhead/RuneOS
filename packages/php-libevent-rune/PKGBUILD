@@ -1,7 +1,7 @@
 # Maintainer: Simone De Gregori <simone@sistema.fm>
 # Development: http://pecl.php.net/package/libevent
  
-pkgname=php-libevent
+pkgname=php-libevent-rune
 pkgver=0.1.0
 pkgrel=2
 pkgdesc="This extension is a wrapper for libevent - event notification library."

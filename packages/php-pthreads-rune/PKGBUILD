@@ -1,8 +1,9 @@
 # Maintainer: Simone De Gregori <orion@runeaudio.com>
 # Development: https://github.com/krakjoe/pthreads
  
-pkgname=php-pthreads
-pkgver=2.0.11
+pkgname=php-pthreads-rune
+#pkgver=3.1.6
+pkgver=3.2.0
 pkgrel=1
 pkgdesc="Object Orientated API that allows user-land multi-threading in PHP"
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')

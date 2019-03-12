@@ -4,7 +4,7 @@
 pkgname=mpdscribble-rune
 pkglabel=mpdscribble
 pkgver=0.22
-pkgrel=8
+pkgrel=14
 pkgdesc='An mpd client which submits track info to last.fm'
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url='http://mpd.wikia.com/wiki/Client:Mpdscribble'

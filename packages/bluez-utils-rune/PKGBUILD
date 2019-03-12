@@ -4,9 +4,9 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 # Contributor: Geoffroy Carrier <geoffroy@archlinux.org>
 
-pkgname='bluez-utils-compat'
+pkgname='bluez-utils-rune'
 _pkgbase='bluez'
-pkgver=5.49
+pkgver=5.50
 pkgrel=1
 url="http://www.bluez.org/"
 arch=('i686' 'x86_64' 'armv7h' 'armv6h')
@@ -19,7 +19,7 @@ replaces=('bluez-hcidump' 'bluez<=4.101')
 makedepends=('dbus' 'libical' 'systemd')
 source=(https://www.kernel.org/pub/linux/bluetooth/${_pkgbase}-${pkgver}.tar.{xz,sign})
 # see https://www.kernel.org/pub/linux/bluetooth/sha256sums.asc
-sha256sums=('33301d7a514c73d535ee1f91c2aed1af1f2e53efe11d3ac06bcf0d7abed2ce95'
+md5sums=('8e35c67c81a55d3ad4c9f22280dae178'
             'SKIP')
 validpgpkeys=('E932D120BC2AEC444E558F0106CA9F5D1DCF2659') # Marcel Holtmann <marcel@holtmann.org>
 

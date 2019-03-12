@@ -1,6 +1,0 @@
-post_install() {
-  echo "Enable with: systemctl enable brcm43438.service"
-  echo '# To enable this at startup, you have to edit'
-  echo '# /etc/bluetooth/main.conf'
-  echo 'AutoEnable=true'
-}

@@ -38,7 +38,7 @@ package() {
   cd "$srcdir/$_pkgname-$pkgver"
   make DESTDIR="$pkgdir" install
   mkdir -p ${pkgdir}/etc/
-  cp ${startdir}/upmpdcli.conf ${pkgdir}/etc/
+  cp ${startdir}/upmpdcli.conf-rune ${pkgdir}/etc/
   cp ${startdir}/runeaudio.png ${pkgdir}/usr/share/upmpdcli/icon.png
   install -Dm644  ${startdir}/upmpdcli.service ${pkgdir}/usr/lib/systemd/system/upmpdcli.service
   install -Dm644  ${startdir}/upmpdcli.sysusers "$pkgdir"/usr/lib/sysusers.d/upmpdcli.conf

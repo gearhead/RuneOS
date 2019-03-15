@@ -7,7 +7,7 @@ url="https://github.com/JiriSko/amixer-webui"
 arch=('armv6h' 'armv7h')
 license=('MIT')
 depends=('alsa-utils' 'rsync')
-makedepends=('python' 'python-pip' 'git')
+makedepends=('python2' 'python2-pip' 'git')
 provides=('amixer-webui')
 conflicts=('amixer-webui')
 source=("$pkgname::https://github.com/JiriSko/amixer-webui/archive/v$pkgver-rc.zip")
@@ -19,7 +19,10 @@ sha256sums=('SKIP')
 #}
 
 prepare() {
-  cd "$_pkgname"-"$pkgver"-rc
+#  cd "$_pkgname"-"$pkgver"-rc
+  cd "${srcdir}"/"$_pkgname"-"$pkgver"-rc
+   sed -i '48 s/self.equal/self.card/g' alsamixer_webui.py 
+  
 }
 
 build() {
@@ -39,4 +42,6 @@ package() {
   mkdir "$pkgdir"/usr/lib/systemd/system/
   install -Dm 644 "$startdir/$_pkgname.service" \
 	                "$pkgdir/usr/lib/systemd/system/$_pkgname.service"
+  rm -rf "$pkgdir"/DEBIAN/
+  rm "$pkgdir"/usr/share/amixer-webui/amixer-webui
 }

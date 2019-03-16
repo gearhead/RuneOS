@@ -11,16 +11,17 @@
 	pacman -Syu --noconfirm
 	
 	# uninstall unecessary packages
-	pacman -R cryptsetup jfsutils lvm2 man-db man-pages reiserfsprogs haveged
+	pacman -R jfsutils lvm2 man-db man-pages reiserfsprogs
 	
 	# install git support (22.47 MiB)
 	pacman -S git --noconfirm
 	
 	# install chrony
-	pacman -S chrony
+	#pacman -S chrony
+	removed this requirement
 	
 	# first time sync
-	chronyd -q 'pool pool.ntp.org iburst'
+	#chronyd -q 'pool pool.ntp.org iburst'
 	
 	# install Redis (1.53 MiB)
 	pacman -S redis --noconfirm
@@ -101,6 +102,9 @@
 	# install ftpfs (0.06 MiB)
 	pacman -S curlftpfs --noconfirm
 	
+	# midnight commander
+	pacman -S mc --noconfirm
+	
 	# install USB automount daemon (0.34 MiB)
 	# >>> REMEMBER to enable kernel polling when using devmon without udisks:
 	# http://ignorantguru.github.com/udevil/#polling
@@ -123,13 +127,14 @@
 	cd /var/www
 	
 	# clone RuneUI git repo
-	git clone -b 0.5b https://github.com/gearhead/RuneUI.git .
+	git clone -b 0.6b_OS https://github.com/gearhead/RuneUI.git .
 	
 	##############################
 	# -- setup filesystem ACL -- #
 	##############################
 	# setup tmpfs directory
-	chmod 777 /run
+	# chmod 777 /run
+	didn't do this as I am unsure if the permissions need to be changed
 	
 	# setup webserver directory
 	chown -R http.http /srv/http/
@@ -180,7 +185,7 @@
 	pacman -S jsoncpp --noconfirm
 	pacman -S libmicrohttpd --noconfirm
 	
-	pacman -S libpulse --noconfirm
+	#pacman -S libpulse --noconfirm
 	pacman -S perl-uri --noconfirm
 	
 	
@@ -192,11 +197,13 @@
 	# ----->>>> INSTALL RuneOS packages <<<<----- #
 	
 	# install ffmpeg-rune
-	pacman -Sd --nodeps libva
-	pacman -U ffmpeg-rune-3.4.1-3-armv6h.pkg.tar.xz --noconfirm
+	#pacman -Sd --nodeps libva
+	#pacman -U ffmpeg-rune-3.4.1-3-armv6h.pkg.tar.xz --noconfirm
 	
 	# install mpd-rune
-	pacman -U mpd-rune-0.20.20-1-armv6h.pkg.tar.xz --noconfirm
+	#pacman -U mpd-rune-0.20.20-1-armv6h.pkg.tar.xz --noconfirm
+	
+	pacman -S ffmpeg mpd --noconfirm
 	
 	# install mpdscribble-rune
 	pacman -U mpdscribble-0.22-8-armv6h.pkg.tar.xz --noconfirm
@@ -217,7 +224,9 @@
 	
 	# cannot get this to compile
 	# install samba4-rune
-	pacman -U samba4-rune-4.8.1-1-armv6h.pkg.tar.xz --noconfirm
+	#pacman -U samba4-rune-4.8.1-1-armv6h.pkg.tar.xz --noconfirm
+	
+	pacman -S samba --noconfirm
 	
 	# install shairport-sync-rune
 	pacman -U shairport-sync-rune-3.1.7-1-armv6h.pkg.tar.xz --noconfirm
@@ -233,9 +242,9 @@
 	pacman -U ashuffle-rune-0.22-6-armv6h.pkg.tar.xz --noconfirm
 	
 	# instapp spotify
-	pacman -U libspotify-12.1.103-3-armv6h.pkg.tar.xz --noconfirm
+	#pacman -U libspotify-12.1.103-3-armv6h.pkg.tar.xz --noconfirm
 	# armv7 takes a different package - libspotify-12.1.51-3-armv7h.pkg.tar.xz
-	pacman -U spop-rune-0.0.4-1-armv6h.pkg.tar.xz  --noconfirm
+	#pacman -U spop-rune-0.0.4-1-armv6h.pkg.tar.xz  --noconfirm
 	
 	# install hfs support
 	pacman -U hfsprogs-rune-332.25-10-armv6h.pkg.tar.xz --noconfirm
@@ -266,10 +275,10 @@
 	# ----->>>> SYSTEM CONFIGURATION <<<<----- #
 	
 	# install RuneAudio system tweaks
-	cp -Rv /var/www/app/config/_os/etc/* /etc
-	rm /etc/profile.d/proxy.sh 
-	cp -R /var/www/app/config/_os/usr/* /usr
-	rm -rf /etc/security/limits.d/
+	#cp -Rv /var/www/app/config/_os/etc/* /etc
+	#rm /etc/profile.d/proxy.sh 
+	#cp -R /var/www/app/config/_os/usr/* /usr
+	#rm -rf /etc/security/limits.d/
 	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	ln -s /etc/nginx/nginx-dev.conf /etc/nginx/nginx.conf
 	
@@ -277,22 +286,23 @@
 	#systemctl disable rngd
 	
 	# disable systemd-journald
-	systemctl disable systemd-journald
-	systemctl mask systemd-journald
-	systemctl mask systemd-journal-flush.service
+	#systemctl disable systemd-journald
+	#systemctl mask systemd-journald
+	#systemctl mask systemd-journal-flush.service
+	# don't do this as a journal may be helpful for now
 	
 	# disable systemd-logind
 	systemctl disable systemd-logind
 	systemctl mask systemd-logind
 	
 	# enable php
-	systemctl enable php-fpm
+	#systemctl enable php-fpm
 	
 	# enable nginx
 	systemctl enable nginx
 	
 	# enable mpd
-	systemctl enable mpd
+	#systemctl enable mpd
 	
 	# enable redis
 	systemctl enable redis
@@ -303,6 +313,10 @@
 	
 	# enable rune_shutdown
 	systemctl enable rune_shutdown
+	
+	#if armv7+
+	systemctl enable bootsplash
+	systemctl disable getty@tty1
 	
 	# link Orion Optimize script
 	ln -s /srv/http/command/orion_optimize.sh /usr/sbin/
@@ -322,4 +336,15 @@
 	#rm -rf /var/run /var/lock && pacman -S filesystem
 	
 	#edit php config to be line Pi2
-	#edit /etc/redis.ini to match pi2
+	#edit /etc/redis.ini to match pi2 
+	
+	allow ssh root login ( vi /etc/ssh/sshd_config and append PermitRootLogin yes )
+	remove alarm login
+	passwd -d alarm
+	then remove alarm from /etc/passwd and /etc/group
+	verify that the config files in UI match the newer program versions
+	
+	X11 - for armv7 or higher
+	start_midori needs chmod 777
+	needs xf86-video-fbdev xorg-xserver xorg-xinit xorg-xset startup-notification
+	also libmatchbox and matchbox-window-manager

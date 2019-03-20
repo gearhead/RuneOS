@@ -46,6 +46,9 @@
 	# install wget (3.05 MiB)
 	pacman -S wget --noconfirm
 	
+	# install sudo
+	pacman -S sudo --noconfirm
+	
 	###########################
 	### -- network tools -- ###
 	###########################
@@ -154,7 +157,9 @@
 	mkdir /var/log/runeaudio
 	echo "logs            /var/log                tmpfs           nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
 	echo "rune-logs       /var/log/runeaudio      tmpfs           nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
-	
+	echo "var-tmp         /var/tmp tmpfs nodev,nosuid,noatime,mode=1777,size=5M 0       0" >> /etc/fstab
+	echo "http-tmp        /srv/http/tmp tmpfs nodev,nosuid,noatime,mode=1777,size=5M,uid=http,gid=http 0       0" >> /etc/fstab
+
 	# install motd
 	cp /var/www/app/config/defaults/motd /etc/
 	cp /var/www/app/config/defaults/issue /etc/
@@ -335,6 +340,11 @@
 	systemctl enable bootsplash
 	systemctl disable getty@tty1
 	
+	# copy udevil sservice
+	mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
+	cp /var/www/app/config/defaults/udevil.service /usr/lib/systemd/system/
+	systemctl enable udevil
+	
 	# link Orion Optimize script
 	ln -s /srv/http/command/orion_optimize.sh /usr/sbin/
 	
@@ -353,6 +363,8 @@
 	#rm -rf /var/run /var/lock && pacman -S filesystem
 	# sometimes the link from /run to /var/run gets hosed, repair it if it is gone
 	
+	# if you want a pretty console, edit /etc/locale.gen, select a language
+	# and run locale-gen
 	
 	# if using local browser - for armv7 or higher
 	chmod 755 /etc/X11/xinit/start_midori.sh

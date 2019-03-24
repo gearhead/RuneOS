@@ -31,7 +31,7 @@ build() {
 
 package() {
   cd "$srcdir"/"$_pkgname"
-  make -j4 DESTDIR="${pkgdir}/usr" install
+  make -j4 DESTDIR="${pkgdir}" install
   # copy systemd files
   install -Dm 644 "$srcdir/$_pkgname/systemd/plymouth-lite-halt.service" \
 	"$pkgdir/usr/lib/systemd/system/plymouth-lite-halt.service"

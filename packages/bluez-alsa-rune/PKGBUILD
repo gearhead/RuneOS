@@ -14,10 +14,11 @@ source=("$pkgname::https://github.com/Arkq/bluez-alsa/archive/v$pkgver.zip"
 	bluealsa.service
 	bluealsa.tmpfiles
 	bluealsa.sysusers)
-md5sums=('SKIP'
+md5sums=('5e22d50acf45acd7da9031f077bd61cb'
          'cf4fb625e446f0e0ab60e7795b764043'
-         '3a1e1f2ed2dda1fc28f9dbc6c55b095c'
+         'e049cc166f97f281bec3a43175849bdc'
          'd77dd60a98613682a149b6e4e32bc5bc')
+
 install=bluealsa.install
 #pkgver() {
 #	cd "$_pkgname"-"$pkgver"

@@ -310,11 +310,14 @@
 	systemctl disable systemd-logind
 	systemctl mask systemd-logind
 	
+	# disable systemd-networkd
+	systemctl disable systemd-networkd
+	
 	# enable nginx
 	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
 	cp /var/www/app/config/defaults/nginx-prod.conf /etc/nginx/
 	mkdir /etc/nginx/html
-	cp /var/www/app/config/defaults/50x.html /etc/nginx/
+	#cp /var/www/app/config/defaults/50x.html /etc/nginx/
 	ln -s /etc/nginx/nginx-prod.conf /etc/nginx/nginx.conf
 	systemctl enable nginx
 	
@@ -340,7 +343,7 @@
 	systemctl enable bootsplash
 	systemctl disable getty@tty1
 	
-	# copy udevil sservice
+	# copy udevil service
 	mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
 	cp /var/www/app/config/defaults/udevil.service /usr/lib/systemd/system/
 	systemctl enable udevil

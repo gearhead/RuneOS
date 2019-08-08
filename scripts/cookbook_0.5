@@ -26,8 +26,7 @@
 	
 	# install Redis (1.53 MiB)
 	pacman -S redis --noconfirm
-	# this is now a standard package as is php-igbinary which is installed
-	pacman -S php-redis --noconfirm 
+
 	
 	#########################################
 	### -- additional system libraries -- ###
@@ -252,6 +251,9 @@
 	nginx-rune-1.16.0-1-armv7h.pkg.tar.xz
 	
 	#PHP
+	pacman -S php-fpm --noconfirm
+	# this is now a standard package as is php-igbinary which is installed
+	pacman -S php-redis --noconfirm 
 	#php-rune-5.6.40-1-armv7h.pkg.tar.xz
 	# this needs to be forced as it is looking at /var/run for something. Must fix package
 	#php-libevent-rune-0.1.0-2-armv7h.pkg.tar.xz

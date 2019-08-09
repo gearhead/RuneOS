@@ -300,8 +300,9 @@
 	
 	# ----->>>> INSTALL Go Daddy Intermediate CA (Jamendo) <<<<----- #
 	
-	cp -Rv /var/www/app/config/defaults/usr/share/ca-certificates /usr/share/
-	cp -Rv /var/www/app/config/defaults/etc/ca-certificates /etc/
+	#cp -Rv /var/www/app/config/defaults/usr/share/ca-certificates /usr/share/
+	#cp -Rv /var/www/app/config/defaults/etc/ca-certificates /etc/
+	
 	
 	# update SSL certs database
 	trust extract-compat -v
@@ -362,6 +363,9 @@
 	mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
 	cp /var/www/app/config/defaults/usr/lib/systemd/system/udevil.service /usr/lib/systemd/system/
 	systemctl enable udevil
+	
+	# enable alas mixer weg interface
+	systemctl enable amixer-webui
 	
 	# link Orion Optimize script
 	ln -s /srv/http/command/orion_optimize.sh /usr/sbin/

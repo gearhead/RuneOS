@@ -330,10 +330,12 @@
 	#if armv7+
 	cp /var/www/app/config/defaults/usr/lib/systemd/system/bootsplash.service /usr/lib/systemd/system/
 	systemctl enable bootsplash
-	systemctl disable getty@tty1
+	# this next line makes it so you cannot log in
+	#systemctl disable getty@tty1
 	
 	# copy udevil service
 	mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
+	cp /var/www/app/config/defaults/etc/udevil/udevil.conf /etc/udevil/
 	cp /var/www/app/config/defaults/usr/lib/systemd/system/udevil.service /usr/lib/systemd/system/
 	systemctl enable udevil
 	
@@ -362,8 +364,11 @@
 	# and run locale-gen
 	
 	# if using local browser - for armv7 or higher
-	cp /var/www/app/config/defaults/etc/X11/xinit/start_midori.sh /etc/X11/xinit
-	chmod 755 /etc/X11/xinit/start_midori.sh
+	mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
+	cp /var/www/app/config/defaults/etc/X11/xinit/xinitrc /etc/X11/xinit
+	cp /var/www/app/config/defaults/etc/X11/Xwrapper.config /etc/X11
+	cp /var/www/app/config/defaults/etc/X11/start_midori.sh /etc/X11
+	chmod 755 /etc/X11/start_midori.sh
 	
 	# reset and initialize the image
 	./var/www/commands/image_reset_script.sh

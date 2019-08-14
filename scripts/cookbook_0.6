@@ -60,6 +60,9 @@
 	# install ethtool (0.25 MiB)
 	pacman -S ethtool --noconfirm
 	
+	# install netctl
+	pacman -S netcth --noconfirm
+	
 	# install avahi (2.30 MiB)
 	pacman -S avahi --noconfirm
 	
@@ -276,7 +279,6 @@
 	#cp -Rv /var/www/app/config/defaults/usr/share/ca-certificates /usr/share/
 	#cp -Rv /var/www/app/config/defaults/etc/ca-certificates /etc/
 	
-	
 	# update SSL certs database
 	#trust extract-compat -v
 	
@@ -287,7 +289,6 @@
 	#cp -R /var/www/app/config/_os/usr/* /usr
 	mv /boot/config.txt /boot/config.txt.backup
 	cp /var/www/app/config/defaults/boot/config.txt /boot/
-	
 	
 	# disable systemd-journald
 	#systemctl disable systemd-journald
@@ -301,6 +302,9 @@
 	
 	# disable systemd-networkd
 	systemctl disable systemd-networkd
+	
+	# enable eth0 or you cannot connect to it after boot
+	netctl enable eth0
 	
 	# enable nginx
 	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup

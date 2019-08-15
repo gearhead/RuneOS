@@ -1,37 +1,36 @@
-# Maintainer: Anatol Pomozov <anatol.pomozov@gmail.com>
-
 pkgname=shairport-sync-rune
 _pkgname=shairport-sync
-pkgver=3.2.2
+pkgver=3.3.2
 pkgrel=1
 pkgdesc='Emulates an AirPort Express for the purpose of streaming music from iTunes and compatible iPods and iPhones'
 url='https://github.com/mikebrady/shairport-sync'
-arch=(armv6h armv7h x86_64)
+arch=('x86_64' 'armv6h' 'armv7h')
 license=(GPL)
 backup=(etc/shairport-sync.conf)
 depends=(openssl avahi libsoxr popt alsa-lib libconfig libpulse)
 makedepends=(xmltoman)
 source=(shairport-sync-$pkgver.zip::https://github.com/mikebrady/shairport-sync/archive/$pkgver.zip
         shairport-sync.sysusers
-        useradd.patch::https://github.com/mikebrady/shairport-sync/commit/15c376ad57629dad16f1120dbf4c080f7de48475.patch)
-sha1sums=('SKIP'
+        remove_useradd.patch)
+sha1sums=('b459a724193ff0cda3ee09ace398834f121bf153'
           'b806f9cd3eeaf8585a51d79c7b5681e3d3e4748a'
-          '0d216ac98a7c390476c79732e7361c4e66651340')
+          '2cdd711a21a74748137d2e3894fb0fcb189c41e2')
 
 prepare() {
   cd shairport-sync-$pkgver
-  # Revert adding users with 'make install'. We have a separate *.install script for it.
-  patch -R < ../useradd.patch
+
+  patch -p1 < ../remove_useradd.patch
 }
 
 build() {
   cd shairport-sync-$pkgver
 
   autoreconf -i -f
-#  ./configure --prefix=/usr --sysconfdir=/etc --with-alsa --with-pa --with-avahi --with-ssl=openssl --with-soxr --with-dns_sd --with-pkg-config \
-#	--with-systemd --with-configfiles
-  ./configure --prefix=/usr --sysconfdir=/etc --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-dns_sd --with-pkg-config \
-	--with-metadata --with-stdout --with-pipe --with-convolution --with-apple-alac --with-systemd --with-configfiles
+#  ./configure --prefix=/usr --sysconfdir=/etc --with-alsa --with-pa --with-avahi --with-stdout --with-pipe\
+#	 --with-ssl=openssl --with-soxr --with-dns_sd --with-pkg-config --with-systemd --with-configfiles
+  ./configure --prefix=/usr --sysconfdir=/etc --with-alsa --with-avahi --with-ssl=openssl\
+	 --with-soxr --with-dns_sd --with-pkg-config --with-metadata --with-stdout --with-pipe\
+	 --with-convolution --with-apple-alac --with-systemd --with-configfiles
 
   make
 
@@ -45,4 +44,3 @@ package() {
   install -D -m664 LICENSES "$pkgdir"/usr/share/licenses/$_pkgname/LICENSE
   rm "$pkgdir"/etc/shairport-sync.conf.sample
 }
-

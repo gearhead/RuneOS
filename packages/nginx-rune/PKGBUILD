@@ -4,7 +4,8 @@ _cfgdir=/etc/nginx
 _tmpdir=/var/run
 pkgname=nginx-rune
 #pkgver=1.12.2
-pkgver=1.14.2
+#pkgver=1.14.2
+pkgver=1.16.0
 pkgrel=1
 pkgdesc="NGiNX HTTP server (RuneAudio)"
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
@@ -20,11 +21,10 @@ source=("http://nginx.org/download/nginx-${pkgver}.tar.gz"
         'nginx.logrotate'
         'nginx.conf')
 
-sha1sums=('4b4df8786b44e79cffd2e002a070e27fd774a17f'
-          '6a9c5dbeb2ca1431972ce8ca2c282cef0f2cc132'
-          '0544990b5d323fa46fc3caca66b1e0f6cda280bd'
-          '1e5632cec8c83c777ad221de09cb24382a5716aa')
-
+sha256sums=('4fd376bad78797e7f18094a00f0f1088259326436b537eb5af69b01be2ca1345'
+            '11dde3df4ef501b84a7a8610628dd4865ff535ebb5d9e7467fd8c5ea3e45b6f2'
+            'a493c299218ff4ef84447cce4efc3271a4517510ccf071c5e6efe97c47394750'
+            'd7633ea1d8bf77ca03b7c34512e93850c142e7d6ebca479ec56acfbf1cf93d93')
 build() {
 	cd "${srcdir}"
 	msg "Fetching nginx-push-stream-module"

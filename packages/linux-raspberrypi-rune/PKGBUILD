@@ -6,13 +6,11 @@ buildarch=20
 
 pkgname=linux-raspberrypi-rune
 pkgbase=linux-raspberrypi
-#_commit=78eb13b25d5e53b3e3b8031ddc4eb2049a0e9cd0
-#_commit=089ae6dda1d91d39f21e223a6413d552be798bce
-_commit=b40edce4d946218457aa65902c9baf313f670591
+_commit=f1c1b67b26ed3cb789037d1c844d4105deaa3cfd
 _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="Raspberry Pi dsd/384k"
-pkgver=4.19.29
+pkgver=4.19.65
 pkgrel=1
 arch=('armv6h' 'armv7h')
 url="http://www.kernel.org/"
@@ -22,7 +20,8 @@ options=('!strip')
 source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'config.txt'
         'cmdline.txt'
-        'config'
+        'config.v6'
+        'config.v7'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
@@ -30,13 +29,15 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'kernel-usb-native-dsd-quirks.patch'
         'kernel-alsa-support-for-384khz-sample-rates.patch'
         'kernel-sound-pcm512x-add-support-for-352k8.patch'
-        'kernel-sound-pcm5102a-add-support-for-384k.patch'
-        '0001-add-sabre_k2m-module.patch'
-        '0001-add-sabre_q2m-module.patch')
-md5sums=('f65307a16fe0b4757f43028c918a826e'
+        'kernel-sound-pcm5102a-add-support-for-384k.patch')
+#        '0001-add-sabre_k2m-module.patch'
+#        '0001-add-sabre_q2m-module.patch')
+
+md5sums=('fb400f652b008c6f2ee7f35c49d0b9e5'
          '7c6b37a1353caccf6d3786bb4161c218'
          '60bc3624123c183305677097bcd56212'
-         '05f7ba2a244231e878606bce7df76c53'
+         'e31dc44baa55d1b48b961305b041d9f2'
+         '3ecd61aeb9bc5f6e057de613e7972668'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '69e1db90d78f691dc446fe2ab94727eb'
@@ -44,18 +45,27 @@ md5sums=('f65307a16fe0b4757f43028c918a826e'
          'ec4c46e4c02d4d5e7cb667a958451adb'
          'ec0778debc64a779fb674aa1231d5a58'
          'defaeb558fb6ef21d55b4cd7a9e1d51f'
-         '0c7adc3f558065e2f2343b973830a51e'
-	 'dc59b8222437277a2241f09c11b5889d'
-	 '0a062d03495d0f3010c0ad3568be1deb')
+         '0c7adc3f558065e2f2343b973830a51e')
+#         'dc59b8222437277a2241f09c11b5889d'
+#         '0a062d03495d0f3010c0ad3568be1deb')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
 
-  cat "${srcdir}/config" > ./.config
+  #cat "${srcdir}/config" > ./.config
+  if [[ $CARCH == "armv6h" ]]; then
+    cp "${srcdir}/config.v6" .config
+  else
+    cp "${srcdir}/config.v7" .config
+  fi
 
   msg2 "patching: 384k support"
+  msg2 "Patch 1"
   patch -Np1 -i ../kernel-alsa-support-for-384khz-sample-rates.patch
-  patch -Np1 -i ../kernel-sound-pcm512x-add-support-for-352k8.patch
+  msg2 "Patch2"
+# added in 4.19.46-2
+#  patch -Np1 -i ../kernel-sound-pcm512x-add-support-for-352k8.patch
+  msg2 "Patch3"
   patch -Np1 -i ../kernel-sound-pcm5102a-add-support-for-384k.patch
 
   msg2 "patching: kernel USB native DSD quirks"
@@ -63,10 +73,10 @@ prepare() {
   patch -Np1 -i ../kernel-usb-native-dsd-quirks.patch
 
 # These patches do not build modules as desired
-  msg2 " adding sabre k2m kernel module patch"
+#  msg2 " adding sabre k2m kernel module patch"
 #  patch -Np1 -i ../0001-add-sabre_k2m-module.patch
 
-  msg2 " adding sabre q2m kernel module patch"
+#  msg2 " adding sabre q2m kernel module patch"
 #  patch -Np1 -i ../0001-add-sabre_q2m-module.patch
 
   # add pkgrel to extraversion

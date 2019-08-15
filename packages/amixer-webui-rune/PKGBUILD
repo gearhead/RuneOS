@@ -1,37 +1,38 @@
 pkgname=amixer-webui-rune
 _pkgname=amixer-webui
-pkgver=1.0.0-rc
+pkgver=1.0.0
 pkgrel=1
 pkgdesc="a web interface to alsamxer"
 url="https://github.com/JiriSko/amixer-webui"
-arch=('armv6h' 'armv7h')
+#arch=('armv6h' 'armv7h')
+arch=('any')
 license=('MIT')
 depends=('alsa-utils' 'rsync' 'python-flask')
-makedepends=('python2' 'python2-pip' 'git')
+makedepends=('python' 'python-pip' 'git')
 provides=('amixer-webui')
 conflicts=('amixer-webui')
-source=("$pkgname::https://github.com/JiriSko/amixer-webui/archive/v$pkgver.zip")
+source=("$pkgname::https://github.com/JiriSko/amixer-webui/archive/v$pkgver-rc.zip")
 sha256sums=('SKIP')
 
 #pkgver() {
-#  cd "$_pkgname"-"$pkgver"
+#  cd "$_pkgname"-"$pkgver"-rc
 #  printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 #}
 
 prepare() {
-#  cd "$_pkgname"-"$pkgver"
-  cd "${srcdir}"/"$_pkgname"-"$pkgver"
+#  cd "$_pkgname"-"$pkgver"-rc
+  cd "${srcdir}"/"$_pkgname"-"$pkgver"-rc
    sed -i '48 s/self.equal/self.card/g' alsamixer_webui.py 
   
 }
 
 build() {
-  cd "${srcdir}"/"$_pkgname"-"$pkgver"
+  cd "${srcdir}"/"$_pkgname"-"$pkgver"-rc
   make -j4
 }
 
 package() {
-  cd "$srcdir"/"$_pkgname"-"$pkgver"
+  cd "$srcdir"/"$_pkgname"-"$pkgver"-rc
   make -j4 package
   cp -r "$srcdir"/"$_pkgname"-"$pkgver"-rc/production/deb-package/* "$pkgdir"/
   mkdir "$pkgdir"/etc

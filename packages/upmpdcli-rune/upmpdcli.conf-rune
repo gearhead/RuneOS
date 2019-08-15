@@ -52,8 +52,6 @@ loglevel = 0
 # value, which is automatically discovered.</descr></var>
 #upnpport = 
 
-
-
 # <grouptitle>Media Renderer parameters</grouptitle>
 
 # <var name="friendlyname" type="string"><brief>"Friendly Name" for the
@@ -132,8 +130,6 @@ iconpath  = /usr/share/upmpdcli/runeaudio.png
 # HTTP server). Default: '$pkgdatadir/presentation.html'.</descr></var>
 #presentationhtml = /usr/share/upmpdcli/presentation.html
 
-
-
 # <grouptitle>MPD parameters</grouptitle>
 
 # <var name="mpdhost" type="string"><brief>Host MPD runs on.</brief>
@@ -164,8 +160,6 @@ iconpath  = /usr/share/upmpdcli/runeaudio.png
 # queue and will fearlessly clear it. Can also be specified as -q
 # 0|1.</descr></var>
 #ownqueue = 1
-
-
 
 # <grouptitle>Audio control hooks</grouptitle>
 
@@ -444,8 +438,6 @@ ohmetapersist = 1
 # access. The general default is false for the autostart variables, so this
 # needs to be explicitely set to true.</descr></var>
 #uprclautostart = 1
-uprclautostart = 1
-
 
 # <grouptitle>Songcast Receiver parameters</grouptitle>
 

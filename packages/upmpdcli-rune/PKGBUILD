@@ -2,20 +2,23 @@
 
 pkgname=upmpdcli-rune
 _pkgname=upmpdcli
-pkgver=1.4.2pre
+#pkgver=1.4.2pre
+pkgver=1.4.2
 pkgrel=1
 pkgdesc="an UPnP front-end to the Music Player Daemon"
 url="http://www.lesbonscomptes.com/upmpdcli/"
 license=('GPL2')
-depends=('libupnpp-rune' 'libmpdclient' 'libmicrohttpd' 'jsoncpp' 'curl' 'expat')
+depends=('libupnpp' 'libmpdclient' 'libmicrohttpd' 'jsoncpp' 'curl' 'expat' 'python-requests')
 builddepends=('autoconf')
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 source=("https://www.lesbonscomptes.com/upmpdcli/downloads/$_pkgname-$pkgver.tar.gz"
-        "upmpdcli.conf"
+        "upmpdcli.conf-rune"
         "runeaudio.png")
-sha1sums=('SKIP'
-          '8ae35924a0fd4de7424eb9a94560331bd4de47b9'
+
+sha1sums=('3cc52ca60ebcdc6b14f20b0264a183c79d2f24c6'
+          'eff8eb3e483a09d6b944625ca3953fbe4d7c3592'
           '8cecfbf17d56aa342c9b0111fdae866713f7e067')
+
 install=upmpdcli.install
 build() {
 
@@ -38,7 +41,7 @@ package() {
   cd "$srcdir/$_pkgname-$pkgver"
   make DESTDIR="$pkgdir" install
   mkdir -p ${pkgdir}/etc/
-  cp ${startdir}/upmpdcli.conf-rune ${pkgdir}/etc/
+  cp ${startdir}/upmpdcli.conf-rune ${pkgdir}/etc/upmpdcli.conf
   cp ${startdir}/runeaudio.png ${pkgdir}/usr/share/upmpdcli/icon.png
   install -Dm644  ${startdir}/upmpdcli.service ${pkgdir}/usr/lib/systemd/system/upmpdcli.service
   install -Dm644  ${startdir}/upmpdcli.sysusers "$pkgdir"/usr/lib/sysusers.d/upmpdcli.conf

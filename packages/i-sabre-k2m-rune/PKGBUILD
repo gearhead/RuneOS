@@ -9,7 +9,9 @@ pkgdesc="i-sabre-k2m kernel module"
 url="https://github.com/audiophonics/I-Sabre-K2M"
 arch=('armv6h' 'armv7h')
 license=('GPLv2')
-depends=('linux')
+# had to comment the next line for armv6. this causes the modules to be put
+# in the incorrect directory. I am building on a chroot on a B3+
+#depends=('linux')
 makedepends=('linux-headers' 'git')
 #provides=('i-sabre-k2m.ko.gz')
 #conflicts=('i-sabre-k2m.ko.gz')

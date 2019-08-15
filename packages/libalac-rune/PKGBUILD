@@ -1,7 +1,11 @@
-# Maintainer: sekret, mail=$(echo c2VrcmV0QHBvc3Rlby5zZQo= | base64 -d)
+# Maintainer: Keith Grider
+# for Rune Shairport-sync to play native alac files
+# adapted from Mike Brady's instructions
+# https://github.com/mikebrady/alac
+#
 _pkgname=alac
-pkgname=$_pkgname
-#pkgver=0.r5.c38887c
+#pkgname=$_pkgname
+pkgname=libalac-rune
 pkgver=0.r25.5d6d836
 pkgrel=1
 pkgdesc="a lossless audio codec developed by Apple and deployed on all of its platforms and devices"
@@ -9,8 +13,10 @@ arch=('i686' 'x86_64' 'armv6h' 'armv7h')
 url="https://github.com/mikebrady/alac.git"
 license=('custom')
 makedepends=('git')
-provides=("$_pkgname" "$_pkgname-svn" 'alacconvert' 'libalac')
-conflicts=("$_pkgname" "$_pkgname-svn" 'alacconvert' 'libalac')
+#provides=("$_pkgname" "$_pkgname-svn" 'alacconvert' 'libalac')
+provides=('libalac')
+#conflicts=("$_pkgname" "$_pkgname-svn" 'alacconvert' 'libalac')
+conflicts=('libalac')
 source=("$_pkgname::git+https://github.com/mikebrady/alac.git")
 md5sums=('SKIP')
 
@@ -19,16 +25,7 @@ pkgver() {
   printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
-prepare() {
-  cd "$_pkgname"
-	#sed -i 's/LFLAGS) $(OBJS) -o alacconvert/OBJS) -o alacconvert $(LFLAGS)/' convert-utility/makefile
-	#sed -i 's/CFLAGS =/CFLAGS := $(CFLAGS)/' {codec,convert-utility}/makefile
-}
-
 build() {
-  #cd "$_pkgname"
-  #cd "$_pkgname"
-	#CFLAGS=-Wno-multichar make -C convert-utility
   cd "${srcdir}"/"$_pkgname"
   autoreconf -fi
   ./configure
@@ -38,8 +35,5 @@ build() {
 package() {
   cd "$srcdir/$_pkgname"
   make -j4 prefix="$pkgdir/usr" install
-#	install -Dm755 convert-utility/alacconvert "$pkgdir/usr/bin/alacconvert"
 	install -Dm644 codec/APPLE_LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
-
-# vim:set ts=2 sw=2 et:

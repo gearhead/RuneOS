@@ -2,8 +2,7 @@
 
 pkgname=upmpdcli-rune
 _pkgname=upmpdcli
-#pkgver=1.4.2pre
-pkgver=1.4.2
+pkgver=1.4.7
 pkgrel=1
 pkgdesc="an UPnP front-end to the Music Player Daemon"
 url="http://www.lesbonscomptes.com/upmpdcli/"
@@ -12,24 +11,25 @@ depends=('libupnpp' 'libmpdclient' 'libmicrohttpd' 'jsoncpp' 'curl' 'expat' 'pyt
 builddepends=('autoconf')
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 source=("https://www.lesbonscomptes.com/upmpdcli/downloads/$_pkgname-$pkgver.tar.gz"
+        "upmpdcli.service"
         "upmpdcli.conf-rune"
         "runeaudio.png")
 
-sha1sums=('3cc52ca60ebcdc6b14f20b0264a183c79d2f24c6'
-          'eff8eb3e483a09d6b944625ca3953fbe4d7c3592'
-          '8cecfbf17d56aa342c9b0111fdae866713f7e067')
+sha256sums=('55dec356c98e16f00b1e547f9f4a1c03756317102e91982f93eca8cc4eda115e'
+            '5f45e9439144ac2bd305ca3470baecd6d068c1185c5a90159bf744ddf9cf4506'
+            '5440d159f42d04159d537de313d7df99c2aa40c18c28377b9d0453ca3c4e7e5e'
+            'fe6495a42ca78309808aaa28c6d3353b14d51d20bef6f6ec3d5bc98ed46b6149')
 
 install=upmpdcli.install
 build() {
-
   cd "$srcdir/$_pkgname-$pkgver"
 # from Arch PKGFILE
 
   # this is temporary - should be fixed in the git repo
-  chmod u+x autogen.sh
+#  chmod u+x autogen.sh
 
-  msg "Run autogen.sh"
-  ./autogen.sh
+#  msg "Run autogen.sh"
+#  ./autogen.sh
 
 # end
 
@@ -41,8 +41,8 @@ package() {
   cd "$srcdir/$_pkgname-$pkgver"
   make DESTDIR="$pkgdir" install
   mkdir -p ${pkgdir}/etc/
-  cp ${startdir}/upmpdcli.conf-rune ${pkgdir}/etc/upmpdcli.conf
-  cp ${startdir}/runeaudio.png ${pkgdir}/usr/share/upmpdcli/icon.png
   install -Dm644  ${startdir}/upmpdcli.service ${pkgdir}/usr/lib/systemd/system/upmpdcli.service
   install -Dm644  ${startdir}/upmpdcli.sysusers "$pkgdir"/usr/lib/sysusers.d/upmpdcli.conf
+  cp ${startdir}/upmpdcli.conf-rune ${pkgdir}/etc/upmpdcli.conf
+  cp ${startdir}/runeaudio.png ${pkgdir}/usr/share/upmpdcli/icon.png
 }

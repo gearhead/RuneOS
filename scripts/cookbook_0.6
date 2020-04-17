@@ -44,6 +44,12 @@
 	
 	# install aid3lib
 	pacman -S id3lib --noconfirm
+
+	# install intltool - multi language use
+	pacman -S intltool --noconfirm
+
+	# install utf8 unicode processing library
+	pacman -S libutf8proc --noconfirm
 	
 	##########################
 	### -- system tools -- ###
@@ -55,8 +61,23 @@
 	# install sudo
 	pacman -S sudo --noconfirm
 	
-	# install procinfo (needed for debug page
-	pacman -S procinfo --noconfirm
+	# install procinfo (needed for debug page)
+	pacman -S procinfo-ng --noconfirm
+
+	# install cron replacement
+	pacman -S cronie --noconfirm
+
+	# install parted for adjusting partition size
+	pacman -S parted --noconfirm
+
+	# install patch test processor
+	pacman -S patch --noconfirm
+
+	# install tcp-wrappers
+	pacman -S tcp-wrappers --noconfirm
+
+	# install wiring pi for GPIOs
+	pacman -S wiringpi --noconfirm
 	
 	###########################
 	### -- network tools -- ###
@@ -72,7 +93,7 @@
 	pacman -S avahi --noconfirm
 	
 	# install nettools (0.49 MiB)
-	pacman -S net-tools --noconfirm
+	pacman -S net-tools nss-mdns --noconfirm
 	
 	# install ifplugd (0.13 MiB)
 	pacman -S ifplugd --noconfirm
@@ -137,7 +158,7 @@
 	### -- AUDIO stack -- ###
 	#########################
 	# install ALSA utils (9.66 MiB)
-	pacman -S alsa-utils --noconfirm
+	pacman -S alsa-utils alsa-plugins --noconfirm
 	
 	# install SOX (3.08 MiB)
 	pacman -S sox --noconfirm
@@ -263,7 +284,7 @@
 	
 	# for local browser on armv7h
 	# these are from the standard archive
-	pacman -S xf86-video-fbdev xorg-xinit xorg-xset startup-notification
+	pacman -S xf86-video-fbdev xorg-xinit xorg-xset startup-notification xorg-server
 	
 	# ----->>>> INSTALL Go Daddy Intermediate CA (Jamendo) <<<<----- #
 	

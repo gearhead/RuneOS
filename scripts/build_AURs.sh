@@ -1,51 +1,58 @@
 #!/bin/bash
 # Script to build AURs
-echo "Alac"
-cd alac-git
+# Go to AUR directory
+cd ../../AUR/ 
+echo "alsa-equal"
+cd alsaequal
 makepkg -f
-rm -rf src/ pkg/  alac/
+rm -rf src/ pkg/
 echo "Ashuffle"
-cd ../ashuffle-git
+cd ../ashuffle
+#git pull
 makepkg -f
 rm -rf src/ pkg/ ashuffle/
 echo "Bluez-alsa"
 cd ../bluez-alsa-git
+#git pull
 makepkg -f
 rm -rf src/ pkg/ bluez-alsa-git/
 echo "Blues-utils-compat"
 cd ../bluez-utils-compat
+#git pull
+makepkg -f
+rm -rf src/ pkg/
+echo "djmount"
+cd ../djmount
 makepkg -f
 rm -rf src/ pkg/
 echo "HFSprogs"
 cd ../hfsprogs
-makepkg -f
-rm -rf src/ pkg/
-echo "libUPnPP"
-cd ../libupnpp
+#git pull
 makepkg -f
 rm -rf src/ pkg/
 echo "MPDscribble"
 cd ../mpdscribble
-makepkg -f
-rm -rf src/ pkg/
-echo "PHP-event"
-cd ../php-event
-makepkg -f
-#rm -rf src/ pkg/
-echo "PHP-phpiredis"
-cd ../php-phpiredis
+#git pull
 makepkg -f
 rm -rf src/ pkg/
 echo "pi-bluetooth"
 cd ../pi-bluetooth
+#git pull 
 makepkg -f
 rm -rf src/ pkg/
 echo "snapcast"
 cd ../snapcast
+#git pull
 makepkg -f
 rm -rf src/ pkg/
 echo "Spotifyd"
 cd ../spotifyd
+#git pull
 makepkg -f
 rm -rf src/ pkg/
-echo "end"
+echo "Librespot"
+cd ../librespot-git
+#git pull
+makepkg -f
+rm -rf src/ pkg/ librespot/
+echo "end building AURs"

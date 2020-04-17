@@ -51,6 +51,15 @@
 	# install utf8 unicode processing library
 	pacman -S libutf8proc --noconfirm
 	
+	# imagemagick
+	pacman -S imagemagick --noconfirm
+	
+	# wireless controls
+	pacman -S lirc --noconfirm
+	
+	# info enhancements
+	pacman -S jq mediainfo --noconfirm
+	
 	##########################
 	### -- system tools -- ###
 	##########################
@@ -78,6 +87,10 @@
 
 	# install wiring pi for GPIOs
 	pacman -S wiringpi --noconfirm
+	
+	# alsa firmwares
+	pacman -S  alsa-firmware --noconfirm
+	
 	
 	###########################
 	### -- network tools -- ###
@@ -121,6 +134,9 @@
 	
 	# install yasm (2.80 MiB)
 	pacman -S yasm --noconfirm
+	
+	# nss-mdns
+	pacman -S nss-mdns --noconfirm
 	
 	##############################
 	### -- filesystem tools -- ###

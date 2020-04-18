@@ -58,7 +58,7 @@
 	pacman -S lirc --noconfirm
 	
 	# info enhancements
-	pacman -S jq mediainfo --noconfirm
+	pacman -S mediainfo --noconfirm
 	
 	##########################
 	### -- system tools -- ###
@@ -91,6 +91,8 @@
 	# alsa firmwares
 	pacman -S  alsa-firmware --noconfirm
 	
+	# logrotate
+	pacman -S logrotate --noconfirm
 	
 	###########################
 	### -- network tools -- ###
@@ -99,8 +101,8 @@
 	# install ethtool (0.25 MiB)
 	pacman -S ethtool --noconfirm
 	
-	# install netctl
-	pacman -S netcth --noconfirm
+	# install connman
+	pacman -S connman --noconfirm
 	
 	# install avahi (2.30 MiB)
 	pacman -S avahi --noconfirm
@@ -114,8 +116,8 @@
 	# install wireless tools (0.33 MiB)
 	pacman -S wireless_tools --noconfirm
 	
-	# install wpa_supplicant (1.43 MiB)
-	pacman -S wpa_supplicant --noconfirm
+	# install wireless
+	pacman -S iwd --noconfirm
 	
 	# install hostapd (0.85 MiB)
 	pacman -S hostapd --noconfirm
@@ -168,7 +170,10 @@
 	# install USB automount daemon (0.34 MiB)
 	# >>> REMEMBER to enable kernel polling when using devmon without udisks:
 	# http://ignorantguru.github.com/udevil/#polling
-	pacman -S udevil --noconfirm
+	pacman -S usbutils udevil --noconfirm
+	
+	# other fs tools
+	pacman -S smartmontools xfsprogs --noconfirm
 	
 	#########################
 	### -- AUDIO stack -- ###
@@ -277,18 +282,17 @@
 	# ----->>>> INSTALL RuneOS packages <<<<----- #
 	# get Rune packages somehow
 	# Build AUR packages for both architectures:
-	# bluez-alsa-git mpdscribble   php-phpiredis-git  snapcast
-	# bluez-utils-compat  drc    libupnpp    pi-bluetooth   
-	# ashuffle-git  hfsprogs   php-event     spotifyd
+	# alsa-equal ashuffle bluez-alsa-git bluez-utils-compat djmount hfsprogs librespot-git
+	# mpdscribble pi-bluetooth snapcast spotifyd   
 	# for armv7h
-	# libmatchbox  matchbox
+	# libmatchbox  matchbox-keyboard matchmox-window-mnanger drc
 	# for spotifyd, only install the basre spotifyd package, not the mpris and pulse versions
 	# put all the AUR files in a folder on the target then 
 	# issue 'pacman -U *.xz'
 	# Build the RuneOS packages and out them in a folder:
-	# amixer-webui-rune  i-sabre-k2m-rune  ply-lite-rune 
-	# linux-raspberrypi-rune  upmpdcli-rune   libalac-rune
-	# brutefir   hfsutils-rune  nginx-rune  shairport-sync-rune
+	# amixer-webui-rune brutefir hfsutils-rune i-sabre-k2m-rune libnpupnp libupnpp
+	# linux-raspberrypi-rune (pi4 for armv7) nginx-rune php-phpiredis
+	# ply-lite-rune shairport-sync-rune upmpdcli-rune
 	# issue 'pacman -U *.xz'
 	
 	# configure bluetooth
@@ -331,8 +335,8 @@
 	# disable systemd-networkd
 	systemctl disable systemd-networkd
 	
-	# enable eth0 or you cannot connect to it after boot
-	netctl enable eth0
+	# enable connman or you cannot connect to it after boot
+	systemctl enable iwd connman
 	
 	# enable nginx
 	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
@@ -346,21 +350,21 @@
 	mv /etc/redis.conf /etc/redis.conf.backup
 	cp /var/www/app/config/defaults/etc/redis.conf /etc/
 	mv /usr/lib/systemd/system/redis.service /usr/lib/systemd/system/redis.service.backup
-	cp /var/www/app/config/defaults/usr/lib/systemd/system/redis.service /usr/lib/systemd/system/redis.service
+	cp /var/www/app/config/defaults/etc/systemd/system/redis.service /etc/systemd/system/
 	systemctl enable redis
 	
 	# enable RuneAudio background workers
-	cp /var/www/app/config/defaults/usr/lib/systemd/system/rune_PL_wrk.service /usr/lib/systemd/system/
-	cp /var/www/app/config/defaults/usr/lib/systemd/system/rune_SY_wrk.service /usr/lib/systemd/system/
+	cp /var/www/app/config/defaults/etc/systemd/system/rune_PL_wrk.service /etc/systemd/system/
+	cp /var/www/app/config/defaults/etc/systemd/system/rune_SY_wrk.service /etc/systemd/system/
 	systemctl enable rune_PL_wrk
 	systemctl enable rune_SY_wrk
 	
 	# enable rune_shutdown
-	cp /var/www/app/config/defaults/usr/lib/systemd/system/rune_shutdown.service /usr/lib/systemd/system/
+	cp /var/www/app/config/defaults/etc/systemd/system/rune_shutdown.service /etc/systemd/system/
 	systemctl enable rune_shutdown
 	
 	#if armv7+
-	cp /var/www/app/config/defaults/usr/lib/systemd/system/bootsplash.service /usr/lib/systemd/system/
+	cp /var/www/app/config/defaults/etc/systemd/system/bootsplash.service /etc/systemd/system/
 	systemctl enable bootsplash
 	# this next line makes it so you cannot log in
 	#systemctl disable getty@tty1
@@ -368,10 +372,10 @@
 	# copy udevil service
 	mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
 	cp /var/www/app/config/defaults/etc/udevil/udevil.conf /etc/udevil/
-	cp /var/www/app/config/defaults/usr/lib/systemd/system/udevil.service /usr/lib/systemd/system/
+	cp /var/www/app/config/defaults/etc/systemd/system/udevil.service /etc/systemd/system/
 	systemctl enable udevil
 	
-	# enable alas mixer weg interface
+	# enable alas mixer web interface
 	systemctl enable amixer-webui
 	
 	# link Orion Optimize script

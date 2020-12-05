@@ -1,0 +1,26 @@
+From e198e4855660b5a8f5b8896c0f9e6753b798973e Mon Sep 17 00:00:00 2001
+From: gearhead <ys3al35l@gmail.com>
+Date: Sat, 26 Sep 2020 11:39:54 -0500
+Subject: [PATCH] patch to build under gcc 10.x
+ https://gcc.gnu.org/gcc-10/porting_to.html
+
+---
+ wiringPiD/drcNetCmd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/wiringPiD/drcNetCmd.h b/wiringPiD/drcNetCmd.h
+index 23f7dc1..3cbd639 100644
+--- a/wiringPiD/drcNetCmd.h
++++ b/wiringPiD/drcNetCmd.h
+@@ -35,7 +35,7 @@
+ #define	DRCN_ANALOG_READ	9
+ 
+ 
+-struct drcNetComStruct
++extern struct drcNetComStruct
+ {
+   uint32_t pin ;
+   uint32_t cmd ;
+-- 
+2.28.0
+

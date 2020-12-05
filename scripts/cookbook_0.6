@@ -93,6 +93,12 @@
 	
 	# logrotate
 	pacman -S logrotate --noconfirm
+
+        # needed for 'hostname'
+	pacman -S inetutils --noconfirm
+
+        # tmux terminal multiplexer
+	pacman -S tmux --noconfirm
 	
 	###########################
 	### -- network tools -- ###
@@ -143,11 +149,14 @@
 	##############################
 	### -- filesystem tools -- ###
 	##############################
+        # Install nfs
+        pacman -S nfs-utils --noconfirm
+
 	# install NTFS support (1.50 MiB)
 	pacman -S ntfs-3g --noconfirm
 	
 	# install dosfstools (0.25 MiB)
-	pacman -S dosfstools --noconfirm
+	pacman -S dosfstools dos2unix --noconfirm
 	
 	# install exFAT support (0.19 MiB)
 	pacman -S exfat-utils --noconfirm
@@ -165,7 +174,7 @@
 	pacman -S mc --noconfirm
 	
 	# add bluetooth
-	pacman -S bluez --noconfirm
+	pacman -S bluez bluez-utils --noconfirm
 	
 	# install USB automount daemon (0.34 MiB)
 	# >>> REMEMBER to enable kernel polling when using devmon without udisks:
@@ -268,7 +277,8 @@
 	
 	# for amixer-webui
 	pacman -S python-flask --noconfirm
-	
+        pacman -S uwsgi uwsgi-plugin-python --noconfirm	
+
 	# standard Arch packages for mpd and ffmpeg
 	pacman -S ffmpeg mpd --noconfirm
 	
@@ -276,8 +286,11 @@
 	pacman -S samba --noconfirm
 	
 	# for armv7 only 
-	pacman -Sy midori
-	
+        # Browser
+	pacman -S chromium upower --noconfirm
+        # Screen calibration
+        pacman -S xorg-xinput xinput_calibrator --noconfirm 	
+
 	# ----->>>> DOWNLOAD PACKAGES FROM RuneOS REPO <<<<----- #
 	# ----->>>> INSTALL RuneOS packages <<<<----- #
 	# get Rune packages somehow
@@ -304,7 +317,9 @@
 	
 	# for local browser on armv7h
 	# these are from the standard archive
-	pacman -S xf86-video-fbdev xorg-xinit xorg-xset startup-notification xorg-server
+	pacman -Sy xf86-video-fbdev xorg-xinit xorg-xset startup-notification xorg-server xbindkeys --noconfirm
+        pacman -Sy xf86-video-fbturbo terminus-font --noconfirm
+
 	
 	# ----->>>> INSTALL Go Daddy Intermediate CA (Jamendo) <<<<----- #
 	
@@ -389,6 +404,10 @@
 	mkdir /mnt/MPD/LocalStorage
 	chown -R mpd.audio /mnt/MPD
 	
+        # Add http to audio group
+        usermod -a -G audio http
+        usermod -a -G audio bluealsa
+ 
 	# reboot system
 	reboot
 	

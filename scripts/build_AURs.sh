@@ -1,52 +1,27 @@
 #!/bin/bash
 # Script to build AURs
 # Go to AUR directory
+# build all of these regardless
 cd ../../AUR/ 
 echo "alsa-equal"
 cd alsaequal
 makepkg -f
 rm -rf src/ pkg/
 echo "Ashuffle"
-cd ../ashuffle
+cd ../ashuffle-git
 #git pull
 makepkg -f
-rm -rf src/ pkg/ ashuffle/
-echo "Bluez-alsa"
-cd ../bluez-alsa-git
-#git pull
-makepkg -f
-rm -rf src/ pkg/ bluez-alsa-git/
-echo "Blues-utils-compat"
-cd ../bluez-utils-compat
-#git pull
-makepkg -f
-rm -rf src/ pkg/
-echo "djmount"
-cd ../djmount
+rm -rf src/ pkg/ ashuffle/ abseil-cpp/ googletest/
+#echo "bluez-alsa"
+#cd ../bluez-alsa-git
+#makepkg -f
+#rm -rf src/ pkg/ bluez-alsa-git/
+echo " Build Dynamic Room Correction"
+cd ../drc
 makepkg -f
 rm -rf src/ pkg/
 echo "HFSprogs"
 cd ../hfsprogs
-#git pull
-makepkg -f
-rm -rf src/ pkg/
-echo "MPDscribble"
-cd ../mpdscribble
-#git pull
-makepkg -f
-rm -rf src/ pkg/
-echo "pi-bluetooth"
-cd ../pi-bluetooth
-#git pull 
-makepkg -f
-rm -rf src/ pkg/
-echo "snapcast"
-cd ../snapcast
-#git pull
-makepkg -f
-rm -rf src/ pkg/
-echo "Spotifyd"
-cd ../spotifyd
 #git pull
 makepkg -f
 rm -rf src/ pkg/
@@ -55,4 +30,41 @@ cd ../librespot-git
 #git pull
 makepkg -f
 rm -rf src/ pkg/ librespot/
+echo "MPDscribble"
+cd ../mpdscribble
+#git pull
+makepkg -f
+rm -rf src/ pkg/
+echo "snapcast"
+cd ../snapcast
+#git pull
+makepkg -f
+rm -rf src/ pkg/
+# build these for armv7 and aarch64
+ARCH=$(pacman -Qi bash | grep 'Architecture' | cut -c 19-)
+echo $ARCH
+if [ $ARCH == 'armv7h' ] || [ $ARCH == 'aarch64' ]
+then
+  echo " Build libmatchbox"
+  cd ../libmatchbox
+  makepkg -f
+  rm -rf src/ pkg/
+#  echo " Build Matchbox WM"
+#  cd ../matchbox-window-manager
+#  makepkg -f
+#  rm -rf src/ pkg/
+  echo " Build Matchbox OSK"
+  cd ../matchbox-keyboard
+  makepkg -f
+  rm -rf src/ pkg/
+  echo " Build Wiringpi-git"
+  # only needed for aarch64 as it is not a package
+   cd ../wiringpi-git
+   makepkg -f
+   rm -rf src/ pkg/
+fi
+echo "spotifyd"
+cd ../spotifyd-full-git
+makepkg -f
+rm -rf src/ pkg/ spotifyd/
 echo "end building AURs"

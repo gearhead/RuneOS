@@ -1,12 +1,17 @@
 #!/bin/bash
-	########################################
-	# RuneAudio v0.6-beta cookbook         #
-	# written by: Orion (production image) #
-	# edited for 2018 kernel by Gearhead   #
-	# HW platform: RaspberryPi B1 and B2   #
-	########################################
-	# install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide, choose syslinux bootloader
-	# all rune packages are shown with armv6h for the B1/PiZero, substitute armv7h for the B2/3
+	#########################################
+	# RuneAudio v0.6-beta cookbook          #
+	# written by: Orion (production image)  #
+	# edited for 2018 kernel by Gearhead    #
+	# HW platforms: RaspberryPi B1 thru B4  #
+	#########################################
+	# armv6 or armv7: Install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide, 
+	
+	# aarch64: it is a bit more complicated...
+	# install the image as instructed on the arch-arm site for 64 bit version. Then build the linux 64 bit 
+	# kernel in the RuneOS/packages/ folder. Once it is built and available to install, remove 
+	# linux-aarch64 (this will also remove uboot) then install the linux-raspberrypi64-rune kernel and reboot. 
+
 	# general system update
 	pacman -Syu --noconfirm
 	
@@ -85,19 +90,19 @@
 	# install tcp-wrappers
 	pacman -S tcp-wrappers --noconfirm
 
-	# install wiring pi for GPIOs
+	# install wiring pi for GPIOs - this will fail for aarch64
 	pacman -S wiringpi --noconfirm
 	
 	# alsa firmwares
-	pacman -S  alsa-firmware --noconfirm
+	pacman -S alsa-firmware --noconfirm
 	
 	# logrotate
 	pacman -S logrotate --noconfirm
 
-        # needed for 'hostname'
+    # needed for 'hostname'
 	pacman -S inetutils --noconfirm
 
-        # tmux terminal multiplexer
+    # tmux terminal multiplexer - can use this to reset if on wifi
 	pacman -S tmux --noconfirm
 	
 	###########################
@@ -110,6 +115,9 @@
 	# install connman
 	pacman -S connman --noconfirm
 	
+	# install wireless
+	pacman -S iwd --noconfirm
+
 	# install avahi (2.30 MiB)
 	pacman -S avahi --noconfirm
 	
@@ -121,10 +129,7 @@
 	
 	# install wireless tools (0.33 MiB)
 	pacman -S wireless_tools --noconfirm
-	
-	# install wireless
-	pacman -S iwd --noconfirm
-	
+
 	# install hostapd (0.85 MiB)
 	pacman -S hostapd --noconfirm
 	
@@ -149,8 +154,8 @@
 	##############################
 	### -- filesystem tools -- ###
 	##############################
-        # Install nfs
-        pacman -S nfs-utils --noconfirm
+    # Install nfs
+    pacman -S nfs-utils --noconfirm
 
 	# install NTFS support (1.50 MiB)
 	pacman -S ntfs-3g --noconfirm
@@ -194,8 +199,11 @@
 	pacman -S sox --noconfirm
 	
 	# install base mpd
-	pacman -S mpd --noconfirm
+	pacman -S mpd --noconfirm	
 	
+	# Install ffmpeg
+	pacman -S ffmpeg --noconfirm
+
 	############################
 	### -- install RuneUI -- ###
 	############################
@@ -204,7 +212,7 @@
 	cd /var/www
 	
 	# clone RuneUI git repo
-	git clone -b 0.6b_OS https://github.com/gearhead/RuneUI.git .
+	git clone -b 0.6b_connman https://github.com/gearhead/RuneUI.git .
 	
 	##############################
 	# -- setup filesystem ACL -- #
@@ -238,7 +246,8 @@
 	cp /var/www/app/config/defaults/etc/dnsmasq.conf /etc/
 	# get correct hostapd.conf
 	cp /var/www/app/config/defaults/etc/hostapd/hostapd.conf /etc/hostapd/
-	# fix the problem with port 53
+	# fix the problem with port 53 - we do not use systemd-resolved any more
+	# but in case it gets enabled, this is a 'good idea' (tm)
 	echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
 	
 	# install RuneAudio MPD package dependencies
@@ -277,57 +286,46 @@
 	
 	# for amixer-webui
 	pacman -S python-flask --noconfirm
-        pacman -S uwsgi uwsgi-plugin-python --noconfirm	
+    pacman -S uwsgi uwsgi-plugin-python --noconfirm	
 
-	# standard Arch packages for mpd and ffmpeg
-	pacman -S ffmpeg mpd --noconfirm
-	
 	# standard Samba package
 	pacman -S samba --noconfirm
 	
-	# for armv7 only 
-        # Browser
+	# for armv7 and aarch64 
+    # Browser
 	pacman -S chromium upower --noconfirm
-        # Screen calibration
-        pacman -S xorg-xinput xinput_calibrator --noconfirm 	
+    # Screen calibration
+    pacman -S xorg-xinput xinput_calibrator --noconfirm 	
 
 	# ----->>>> DOWNLOAD PACKAGES FROM RuneOS REPO <<<<----- #
 	# ----->>>> INSTALL RuneOS packages <<<<----- #
 	# get Rune packages somehow
 	# Build AUR packages for both architectures:
-	# alsa-equal ashuffle bluez-alsa-git bluez-utils-compat djmount hfsprogs librespot-git
-	# mpdscribble pi-bluetooth snapcast spotifyd   
+	# alsa-equal ashuffle-git hfsprogs librespot-git
+	# mpdscribble snapcast spotifyd-full-git   
 	# for armv7h
-	# libmatchbox  matchbox-keyboard matchmox-window-mnanger drc
-	# for spotifyd, only install the basre spotifyd package, not the mpris and pulse versions
+	# libmatchbox  matchbox-keyboard drc
 	# put all the AUR files in a folder on the target then 
 	# issue 'pacman -U *.xz'
 	# Build the RuneOS packages and out them in a folder:
-	# amixer-webui-rune brutefir hfsutils-rune i-sabre-k2m-rune libnpupnp libupnpp
-	# linux-raspberrypi-rune (pi4 for armv7) nginx-rune php-phpiredis
+	# bluez-alsa-rune brutefir hfsutils-rune libnpupnp libupnpp
+	# linux-raspberrypi-rune (pi4 for armv7 64 for aarch64) nginx-rune php-phpiredis-rune
 	# ply-lite-rune shairport-sync-rune upmpdcli-rune
+	# for aarch64 you need to build raspberrypi-firmware and wiringpi
 	# issue 'pacman -U *.xz'
-	
-	# configure bluetooth
+	# all rune packages are shown with armv6h for the B1/PiZero, substitute armv7h for the B2/3/4
+	# or aarch64 for the 64 bit variant
+	# configure bluetooth - i think this is already done
 	# Add those lines to /etc/dbus-1/system.d/bluetooth.conf
 	# Users can use this service when they are members of the "audio" group.
 	#echo "<policy user="bluealsa">" >> /etc/dbus-1/system.d/bluetooth.conf
 	#echo "  <allow send_destination="org.bluez"/>" >> /etc/dbus-1/system.d/bluetooth.conf
 	#echo "</policy>" >> /etc/dbus-1/system.d/bluetooth.conf
 	
-	# for local browser on armv7h
+	# for local browser on armv7h and aarch64
 	# these are from the standard archive
 	pacman -Sy xf86-video-fbdev xorg-xinit xorg-xset startup-notification xorg-server xbindkeys --noconfirm
-        pacman -Sy xf86-video-fbturbo terminus-font --noconfirm
-
-	
-	# ----->>>> INSTALL Go Daddy Intermediate CA (Jamendo) <<<<----- #
-	
-	#cp -Rv /var/www/app/config/defaults/usr/share/ca-certificates /usr/share/
-	#cp -Rv /var/www/app/config/defaults/etc/ca-certificates /etc/
-	
-	# update SSL certs database
-	#trust extract-compat -v
+    pacman -Sy xf86-video-fbturbo terminus-font --noconfirm
 	
 	# ----->>>> SYSTEM CONFIGURATION <<<<----- #
 	
@@ -381,7 +379,7 @@
 	#if armv7+
 	cp /var/www/app/config/defaults/etc/systemd/system/bootsplash.service /etc/systemd/system/
 	systemctl enable bootsplash
-	# this next line makes it so you cannot log in
+	# this next line makes it so you cannot log in but removes all text from screen
 	#systemctl disable getty@tty1
 	
 	# copy udevil service
@@ -390,7 +388,7 @@
 	cp /var/www/app/config/defaults/etc/systemd/system/udevil.service /etc/systemd/system/
 	systemctl enable udevil
 	
-	# enable alas mixer web interface
+	# enable alsa mixer web interface
 	systemctl enable amixer-webui
 	
 	# link Orion Optimize script
@@ -404,9 +402,9 @@
 	mkdir /mnt/MPD/LocalStorage
 	chown -R mpd.audio /mnt/MPD
 	
-        # Add http to audio group
-        usermod -a -G audio http
-        usermod -a -G audio bluealsa
+    # Add http to audio group
+    usermod -a -G audio http
+    usermod -a -G audio bluealsa
  
 	# reboot system
 	reboot
@@ -418,12 +416,10 @@
 	# if you want a pretty console, edit /etc/locale.gen, select a language
 	# and run locale-gen
 	
-	# if using local browser - for armv7 or higher
+	# if using local browser - for armv7 or aarch64
 	mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
 	cp /var/www/app/config/defaults/etc/X11/xinit/xinitrc /etc/X11/xinit
 	cp /var/www/app/config/defaults/etc/X11/Xwrapper.config /etc/X11
-	cp /var/www/app/config/defaults/etc/X11/start_midori.sh /etc/X11
-	chmod 755 /etc/X11/start_midori.sh
 	
 	# reset and initialize the image
 	./var/www/commands/image_reset_script.sh

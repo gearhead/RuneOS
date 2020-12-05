@@ -1,0 +1,38 @@
+# Maintainer: Henri Derycke <nheir.kim@gmail.com>
+pkgname=bluez-alsa
+pkgver=3.0.0
+pkgrel=1
+pkgdesc="Bluetooth Audio ALSA Backend"
+arch=('x86_64' 'armv7h' 'aarch64' 'armv6h')
+url="https://github.com/Arkq/bluez-alsa"
+license=('MIT')
+depends=('bluez-libs' 'glib2' 'libfdk-aac' 'sbc' 'alsa-lib')
+makedepends=('git')
+source=(https://github.com/Arkq/bluez-alsa/archive/v${pkgver}.tar.gz
+	bluealsa.service
+        bluealsa.tmpfiles
+	bluealsa.conf)
+md5sums=('2e0a01c83dc07fc58c7dc59a29ed570b'
+         '9a166b5c2962e6d2cd7febe52342962c'
+         'e049cc166f97f281bec3a43175849bdc'
+         '2a661e9d06f0bf82796e027a30910bbd')
+
+install=bluealsa.install
+
+build() {
+	cd "$pkgname-$pkgver"
+	autoreconf --install
+	./configure --prefix=/usr \
+	            --sysconfdir=/etc \
+	            --enable-aac
+	make
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	make DESTDIR="$pkgdir/" install
+	install -Dm0644 $srcdir/$pkgname-$pkgver/LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
+        install -Dm0644 $srcdir/bluealsa.tmpfiles $pkgdir/usr/lib/tmpfiles.d/bluealsa.conf
+        install -Dm0644 $srcdir/bluealsa.service $pkgdir/usr/lib/systemd/system/bluealsa.service
+	install -Dm0644 $srcdir/bluealsa.conf $pkgdir/etc/conf.d/bluealsa
+}

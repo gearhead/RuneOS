@@ -1,2 +1,0 @@
-OPTIONS="--profile a2dp-sink"
-BT_ADDR="00:00:00:00:00:00" 

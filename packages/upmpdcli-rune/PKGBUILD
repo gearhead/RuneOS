@@ -2,7 +2,7 @@
 
 pkgname=upmpdcli-rune
 _pkgname=upmpdcli
-pkgver=1.5.0
+pkgver=1.5.17
 pkgrel=1
 pkgdesc="an UPnP front-end to the Music Player Daemon"
 url="http://www.lesbonscomptes.com/upmpdcli/"
@@ -39,7 +39,7 @@ build() {
 #patch -Np1 -i ../streamproxy.patch
 
   ./configure --prefix=/usr --sysconfdir=/etc
-  make
+  make -j4
 }
 
 package() {

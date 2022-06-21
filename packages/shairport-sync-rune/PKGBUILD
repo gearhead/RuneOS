@@ -1,6 +1,6 @@
 pkgname=shairport-sync-rune
 _pkgname=shairport-sync
-pkgver=3.3.6
+pkgver=3.3.9
 pkgrel=1
 pkgdesc='Emulates an AirPort Express for the purpose of streaming music from iTunes and compatible iPods and iPhones'
 url='https://github.com/mikebrady/shairport-sync'
@@ -32,7 +32,7 @@ build() {
 	 --with-soxr --with-dns_sd --with-pkg-config --with-metadata --with-stdout --with-pipe\
 	 --with-convolution --with-apple-alac --with-systemd --with-configfiles
 
-  make
+  make -j4
 
   sed 's|/usr/local/bin/|/usr/bin/|' -i scripts/shairport-sync.service
 }

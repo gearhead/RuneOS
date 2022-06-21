@@ -1,9 +1,0 @@
-# See /boot/overlays/README for all available options
-
-initramfs initramfs-linux.img followkernel
-kernel=kernel8.img
-arm_64bit=1
-#device_tree=broadcom/bcm2837-rpi-3-b-plus.dtb
-device_tree=bcm2710-rpi-3-b-plus.dtb
-# used on 4B only igonred by 2/3
-enable_gic=1

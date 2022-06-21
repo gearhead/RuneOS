@@ -1,425 +1,434 @@
-#!/bin/bash
-	#########################################
-	# RuneAudio v0.6-beta cookbook          #
-	# written by: Orion (production image)  #
-	# edited for 2018 kernel by Gearhead    #
-	# HW platforms: RaspberryPi B1 thru B4  #
-	#########################################
-	# armv6 or armv7: Install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide, 
-	
-	# aarch64: it is a bit more complicated...
-	# install the image as instructed on the arch-arm site for 64 bit version. Then build the linux 64 bit 
-	# kernel in the RuneOS/packages/ folder. Once it is built and available to install, remove 
-	# linux-aarch64 (this will also remove uboot) then install the linux-raspberrypi64-rune kernel and reboot. 
+!/bin/bash
+    #########################################
+    # RuneAudio v0.6-beta cookbook          #
+    # written by: Orion (production image)  #
+    # edited for 2018 kernel by Gearhead    #
+    # HW platforms: RaspberryPi B1 thru B4  #
+    #########################################
+    # armv6 or armv7: Install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide,
 
-	# general system update
-	pacman -Syu --noconfirm
-	
-	#allow ssh root login ( vi /etc/ssh/sshd_config and append PermitRootLogin yes )
-	echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-	
-	#Reboot and login as root and change the password to rune
-	#remove alarm login
-	passwd -d alarm
-	#then remove alarm from /etc/passwd and /etc/group
-	
-	# uninstall unecessary packages
-	pacman -R jfsutils lvm2 man-db man-pages reiserfsprogs --noconfirm
-	
-	# install git support (22.47 MiB)
-	pacman -S git --noconfirm
-	
-	# install Redis (1.53 MiB)
-	pacman -S redis --noconfirm
-	
-	# install php-fpm and php packages
-	pacman -S php-fpm php-redis --noconfirm
-	
-	#########################################
-	### -- additional system libraries -- ###
-	#########################################
-	# install libmcrypt (0.25 MiB)
-	pacman -S libmcrypt --noconfirm
-	
-	# install libjpeg-turbo (1.15 MiB)
-	pacman -S libjpeg --noconfirm
-	
-	# install apr-util (nginx req.) (1.63 MiB) 
-	pacman -S apr-util --noconfirm
-	
-	# install aid3lib
-	pacman -S id3lib --noconfirm
+    # aarch64: it is a bit more complicated...
+    # install the image as instructed on the arch-arm site for 64 bit version. Then build the linux 64 bit
+    # kernel in the RuneOS/packages/ folder. Once it is built and available to install, remove
+    # linux-aarch64 (this will also remove uboot) then install the linux-rpi kernel and reboot.
 
-	# install intltool - multi language use
-	pacman -S intltool --noconfirm
+    # general system update
+    pacman -Syu --noconfirm
 
-	# install utf8 unicode processing library
-	pacman -S libutf8proc --noconfirm
-	
-	# imagemagick
-	pacman -S imagemagick --noconfirm
-	
-	# wireless controls
-	pacman -S lirc --noconfirm
-	
-	# info enhancements
-	pacman -S mediainfo --noconfirm
-	
-	##########################
-	### -- system tools -- ###
-	##########################
-	
-	# install wget (3.05 MiB)
-	pacman -S wget --noconfirm
-	
-	# install sudo
-	pacman -S sudo --noconfirm
-	
-	# install procinfo (needed for debug page)
-	pacman -S procinfo-ng --noconfirm
+    #allow ssh root login ( vi /etc/ssh/sshd_config and append PermitRootLogin yes )
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-	# install cron replacement
-	pacman -S cronie --noconfirm
+    # setup locale
+    #edit /etc/locale.gen to uncomment the line with en_US.UTF-8
+    #then run locale-gen
 
-	# install parted for adjusting partition size
-	pacman -S parted --noconfirm
+    #Reboot and login as root and change the password to rune
+    #remove alarm login
+    passwd -d alarm
+    #then remove alarm from /etc/passwd and /etc/group
 
-	# install patch test processor
-	pacman -S patch --noconfirm
+    # uninstall unecessary packages - these are no longer installed
+    # left for completeness
+    pacman -R jfsutils lvm2 man-db man-pages reiserfsprogs --noconfirm
 
-	# install tcp-wrappers
-	pacman -S tcp-wrappers --noconfirm
+    # install git support (22.47 MiB)
+    pacman -S git --noconfirm
 
-	# install wiring pi for GPIOs - this will fail for aarch64
-	pacman -S wiringpi --noconfirm
-	
-	# alsa firmwares
-	pacman -S alsa-firmware --noconfirm
-	
-	# logrotate
-	pacman -S logrotate --noconfirm
+    # install Redis (1.53 MiB)
+    pacman -S redis --noconfirm
+
+    # install php-fpm and php packages
+    pacman -S php-fpm php-redis --noconfirm
+
+    #########################################
+    ### -- additional system libraries -- ###
+    #########################################
+    # install libmcrypt (0.25 MiB)
+    pacman -S libmcrypt --noconfirm
+
+    # install libjpeg-turbo (1.15 MiB)
+    pacman -S libjpeg --noconfirm
+
+    # install apr-util (nginx req.) (1.63 MiB)
+    pacman -S apr-util --noconfirm
+
+    # install aid3lib
+    pacman -S id3lib --noconfirm
+
+    # install intltool - multi language use
+    pacman -S intltool --noconfirm
+
+    # install utf8 unicode processing library
+    pacman -S libutf8proc --noconfirm
+
+    # imagemagick
+    pacman -S imagemagick --noconfirm
+
+    # wireless controls
+    pacman -S lirc --noconfirm
+
+    # info enhancements
+    pacman -S mediainfo --noconfirm
+    
+    # More libraries
+    pacman -S jsoncpp --noconfirm
+    pacman -S libmicrohttpd --noconfirm
+    pacman -S perl-uri --noconfirm
+    
+    ##########################
+    ### -- system tools -- ###
+    ##########################
+
+    # install wget (3.05 MiB)
+    pacman -S wget --noconfirm
+
+    # install sudo
+    pacman -S sudo --noconfirm
+
+    # install procinfo (needed for debug page)
+    pacman -S procinfo-ng --noconfirm
+
+    # install parted for adjusting partition size
+    pacman -S procinfo-ng --noconfirm
+
+    # install patch test processor
+    pacman -S patch --noconfirm
+
+    # install tcp-wrappers
+    pacman -S tcp-wrappers --noconfirm
+
+    # install wiring pi for GPIOs - this will fail for aarch64
+    pacman -S wiringpi --noconfirm
+
+    # alsa firmwares
+    pacman -S alsa-firmware --noconfirm
+
+    # logrotate
+    pacman -S logrotate --noconfirm
 
     # needed for 'hostname'
-	pacman -S inetutils --noconfirm
+    pacman -S inetutils --noconfirm
 
     # tmux terminal multiplexer - can use this to reset if on wifi
-	pacman -S tmux --noconfirm
-	
-	###########################
-	### -- network tools -- ###
-	###########################
-		
-	# install ethtool (0.25 MiB)
-	pacman -S ethtool --noconfirm
-	
-	# install connman
-	pacman -S connman --noconfirm
-	
-	# install wireless
-	pacman -S iwd --noconfirm
+    pacman -S tmux --noconfirm
+    
+    # add bluetooth
+    pacman -S bluez bluez-utils --noconfirm
 
-	# install avahi (2.30 MiB)
-	pacman -S avahi --noconfirm
-	
-	# install nettools (0.49 MiB)
-	pacman -S net-tools nss-mdns --noconfirm
-	
-	# install ifplugd (0.13 MiB)
-	pacman -S ifplugd --noconfirm
-	
-	# install wireless tools (0.33 MiB)
-	pacman -S wireless_tools --noconfirm
+    ###########################
+    ### -- network tools -- ###
+    ###########################
 
-	# install hostapd (0.85 MiB)
-	pacman -S hostapd --noconfirm
-	
-	# install dnsmasq - needed for hostapd and requires a rune config file
-	pacman -S dnsmasq --noconfirm
-	
-	# install nfs-utils (2.49 MiB)
-	pacman -S nfs-utils --noconfirm
-	
-	# install libupnp (0.46 MiB)
-	pacman -S libupnp --noconfirm
-	
-	# install libxml2 (8.10 MiB)
-	pacman -S libxml2 --noconfirm
-	
-	# install yasm (2.80 MiB)
-	pacman -S yasm --noconfirm
-	
-	# nss-mdns
-	pacman -S nss-mdns --noconfirm
-	
-	##############################
-	### -- filesystem tools -- ###
-	##############################
+    # install ethtool (0.25 MiB)
+    pacman -S ethtool --noconfirm
+
+    # install connman
+    pacman -S connman --noconfirm
+
+    # install wireless
+    pacman -S iwd --noconfirm
+
+    # install avahi (2.30 MiB)
+    pacman -S avahi --noconfirm
+
+    # install nettools (0.49 MiB)
+    pacman -S net-tools --noconfirm
+
+    # install ifplugd (0.13 MiB)
+    pacman -S ifplugd --noconfirm
+
+    # install wireless tools (0.33 MiB)
+    pacman -S wireless_tools --noconfirm
+
+    # install hostapd (0.85 MiB)
+    pacman -S hostapd --noconfirm
+
+    # install dnsmasq - needed for hostapd and requires a rune config file
+    pacman -S dnsmasq --noconfirm
+
+    # install libupnp (0.46 MiB)
+    pacman -S libupnp --noconfirm
+
+    # install libxml2 (8.10 MiB)
+    pacman -S libxml2 --noconfirm
+
+    # install yasm (2.80 MiB)
+    pacman -S yasm --noconfirm
+
+    # nss-mdns
+    pacman -S nss-mdns --noconfirm
+
+    ##############################
+    ### -- filesystem tools -- ###
+    ##############################
     # Install nfs
     pacman -S nfs-utils --noconfirm
 
-	# install NTFS support (1.50 MiB)
-	pacman -S ntfs-3g --noconfirm
-	
-	# install dosfstools (0.25 MiB)
-	pacman -S dosfstools dos2unix --noconfirm
-	
-	# install exFAT support (0.19 MiB)
-	pacman -S exfat-utils --noconfirm
-	
-	# install sshfs support (0.07 MiB)
-	pacman -S sshfs --noconfirm
-	
-	# install cifs-utils (0.63 MiB)
-	pacman -S cifs-utils --noconfirm
-	
-	# install ftpfs (0.06 MiB)
-	pacman -S curlftpfs --noconfirm
-	
-	# midnight commander
-	pacman -S mc --noconfirm
-	
-	# add bluetooth
-	pacman -S bluez bluez-utils --noconfirm
-	
-	# install USB automount daemon (0.34 MiB)
-	# >>> REMEMBER to enable kernel polling when using devmon without udisks:
-	# http://ignorantguru.github.com/udevil/#polling
-	pacman -S usbutils udevil --noconfirm
-	
-	# other fs tools
-	pacman -S smartmontools xfsprogs --noconfirm
-	
-	#########################
-	### -- AUDIO stack -- ###
-	#########################
-	# install ALSA utils (9.66 MiB)
-	pacman -S alsa-utils alsa-plugins --noconfirm
-	
-	# install SOX (3.08 MiB)
-	pacman -S sox --noconfirm
-	
-	# install base mpd
-	pacman -S mpd --noconfirm	
-	
-	# Install ffmpeg
-	pacman -S ffmpeg --noconfirm
+    # install NTFS support (1.50 MiB)
+    pacman -S ntfs-3g --noconfirm
 
-	############################
-	### -- install RuneUI -- ###
-	############################
-	cd /
-	ln -s /srv/http/ /var/www
-	cd /var/www
-	
-	# clone RuneUI git repo
-	git clone -b 0.6b_connman https://github.com/gearhead/RuneUI.git .
-	
-	##############################
-	# -- setup filesystem ACL -- #
-	##############################
-	
-	# setup webserver directory
-	chown -R http.http /srv/http/
-	chmod 644 $(find /srv/http/ -type f)
-	chmod 755 $(find /srv/http/ -type d)
-	chmod -R 755 /srv/http/command/
-	chmod -R 755 /srv/http/db/redis_datastore_setup
-	chmod -R 755 /srv/http/db/redis_acards_details
-	
-	# setup log directory
-	rm -r /var/log/*
-	mkdir /var/log/runeaudio
-	echo "logs            /var/log                tmpfs           nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
-	echo "rune-logs       /var/log/runeaudio      tmpfs           nodev,nosuid,noatime,mode=1777,size=5M                  0       0" >> /etc/fstab
-	echo "var-tmp         /var/tmp tmpfs nodev,nosuid,noatime,mode=1777,size=5M 0       0" >> /etc/fstab
-	echo "http-tmp        /srv/http/tmp tmpfs nodev,nosuid,noatime,mode=1777,size=5M,uid=http,gid=http 0       0" >> /etc/fstab
+    # install dosfstools (0.25 MiB)
+    pacman -S dosfstools dos2unix --noconfirm
 
-	# install motd
-	cp /var/www/app/config/defaults/etc/motd /etc/
-	cp /var/www/app/config/defaults/etc/issue /etc/
-	
-	# install config files
-	cp /var/www/app/config/defaults/etc/nanorc /etc/
-	
-	# enable dnsmasq for hostapd
-	mv /etc/dnsmasq.conf /etc/dnsmasq.conf.pacsave
-	cp /var/www/app/config/defaults/etc/dnsmasq.conf /etc/
-	# get correct hostapd.conf
-	cp /var/www/app/config/defaults/etc/hostapd/hostapd.conf /etc/hostapd/
-	# fix the problem with port 53 - we do not use systemd-resolved any more
-	# but in case it gets enabled, this is a 'good idea' (tm)
-	echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
-	
-	# install RuneAudio MPD package dependencies
-	# install libmpdclient (0.27 MiB)
-	pacman -S libmpdclient --noconfirm
-	
-	# install faad2 (0.39 MiB)
-	pacman -S faad2 --noconfirm
-	
-	# install sqlite3 (1.21 MiB)
-	pacman -S sqlite3 --noconfirm
-	
-	# install libmad (0.13 MiB)
-	pacman -S libmad --noconfirm
-	
-	# install libmms (0.09 MiB)
-	pacman -S libmms --noconfirm
-	
-	# install libid3tag (0.12 MiB)
-	pacman -S libid3tag --noconfirm
-	
-	# install audiofile (0.31 MiB)
-	pacman -S audiofile --noconfirm
-	
-	# install mpg123 (0.69 MiB)
-	pacman -S mpg123 --noconfirm
-	
-	# install mpc (0.10 MiB)
-	pacman -S mpc --noconfirm
-	
-	pacman -S jsoncpp --noconfirm
-	pacman -S libmicrohttpd --noconfirm
-	
-	pacman -S libpulse --noconfirm
-	pacman -S perl-uri --noconfirm
-	
-	# for amixer-webui
-	pacman -S python-flask --noconfirm
-    pacman -S uwsgi uwsgi-plugin-python --noconfirm	
+    # install exFAT support (0.19 MiB)
+    pacman -S exfat-utils --noconfirm
 
-	# standard Samba package
-	pacman -S samba --noconfirm
-	
-	# for armv7 and aarch64 
-    # Browser
-	pacman -S chromium upower --noconfirm
+    # install sshfs support (0.07 MiB)
+    pacman -S sshfs --noconfirm
+
+    # install cifs-utils (0.63 MiB)
+    pacman -S cifs-utils --noconfirm
+
+    # install ftpfs (0.06 MiB)
+    pacman -S curlftpfs --noconfirm
+
+    # midnight commander
+    pacman -S mc --noconfirm
+
+    # install USB automount daemon (0.34 MiB)
+    # >>> REMEMBER to enable kernel polling when using devmon without udisks:
+    # http://ignorantguru.github.com/udevil/#polling
+    pacman -S usbutils --noconfirm
+
+    # other fs tools
+    pacman -S smartmontools xfsprogs --noconfirm
+
+    #########################
+    ### -- AUDIO stack -- ###
+    #########################
+    # install ALSA utils (9.66 MiB)
+    pacman -S alsa-utils alsa-plugins --noconfirm
+
+    #########################
+    ### --  DEV Tools  -- ###
+    #########################
+    # install uglify-js
+    pacman -Sy uglify-js --noconfirm
+
+
+    ############################
+    ### -- install RuneUI -- ###
+    ############################
+    cd /
+    ln -s /srv/http/ /var/www
+    cd /var/www
+
+    # clone RuneUI git repo
+    git clone -b 0.6b_connman https://github.com/gearhead/RuneUI.git .
+
+    ##############################
+    # -- setup filesystem ACL -- #
+    ##############################
+
+    # setup webserver directory
+    chown -R http:http /srv/http/
+    chmod 644 $(find /srv/http/ -type f)
+    chmod 755 $(find /srv/http/ -type d)
+    chmod -R 755 /srv/http/command/
+    chmod -R 755 /srv/http/db/redis_datastore_setup
+    chmod -R 755 /srv/http/db/redis_acards_details
+
+    # setup log directory
+    rm -r /var/log/*
+    mkdir /var/log/runeaudio
+    echo "logs        /var/log                tmpfs           nodev,nosuid,noatime,mode=1777,size=5M  0 0" >> /etc/fstab
+    echo "rune-logs   /var/log/runeaudio      tmpfs           nodev,nosuid,noatime,mode=1777,size=5M  0 0" >> /etc/fstab
+    echo "var-tmp     /var/tmp tmpfs nodev,nosuid,noatime,mode=1777,size=5M                           0 0" >> /etc/fstab
+    echo "http-tmp    /srv/http/tmp tmpfs nodev,nosuid,noatime,mode=1777,size=5M,uid=http,gid=http    0 0" >> /etc/fstab
+
+    # install motd
+    cp /srv/http/app/config/defaults/etc/motd /etc/
+    cp /srv/http/app/config/defaults/etc/issue /etc/
+
+    # install config files
+    cp /srv/http/app/config/defaults/etc/nanorc /etc/
+
+    # enable dnsmasq for hostapd
+    mv /etc/dnsmasq.conf /etc/dnsmasq.conf.pacsave
+    cp /srv/http/app/config/defaults/etc/dnsmasq.conf /etc/
+    
+    # get correct hostapd.conf
+    cp /srv/http/app/config/defaults/etc/hostapd/hostapd.conf /etc/hostapd/
+    
+    # fix the problem with port 53 - we do not use systemd-resolved any more
+    # but in case it gets enabled, this is a 'good idea' (tm)
+    echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
+
+    # install RuneAudio MPD package dependencies
+    # install SOX (3.08 MiB)
+    pacman -S sox --noconfirm
+
+    # install base mpd
+    pacman -S mpd --noconfirm
+
+    # install mpc (0.10 MiB)
+    pacman -S mpc --noconfirm
+
+    # for amixer-webui
+    pacman -S python-flask --noconfirm
+    pacman -S uwsgi uwsgi-plugin-python --noconfirm
+    
+    # for python-pip
+    pacman -S python-pip --noconfirm
+
+    # standard Samba package
+    pacman -S samba --noconfirm
+
+    # for local browser on armv7h and aarch64, install these as armv6h
+    # these are from the standard archive
+    pacman -Sy xf86-video-fbdev xorg-xinit xorg-xset startup-notification xorg-server xbindkeys --noconfirm
+    pacman -Sy xf86-video-qxl xf86-video-sisusb xf86-video-vesa terminus-font --noconfirm
+
     # Screen calibration
-    pacman -S xorg-xinput xinput_calibrator --noconfirm 	
+    pacman -S xorg-xinput xinput_calibrator --noconfirm
+    pacman -S luakit weston --noconfirm
 
-	# ----->>>> DOWNLOAD PACKAGES FROM RuneOS REPO <<<<----- #
-	# ----->>>> INSTALL RuneOS packages <<<<----- #
-	# get Rune packages somehow
-	# Build AUR packages for both architectures:
-	# alsa-equal ashuffle-git hfsprogs librespot-git
-	# mpdscribble snapcast spotifyd-full-git   
-	# for armv7h
-	# libmatchbox  matchbox-keyboard drc
-	# put all the AUR files in a folder on the target then 
-	# issue 'pacman -U *.xz'
-	# Build the RuneOS packages and out them in a folder:
-	# bluez-alsa-rune brutefir hfsutils-rune libnpupnp libupnpp
-	# linux-raspberrypi-rune (pi4 for armv7 64 for aarch64) nginx-rune php-phpiredis-rune
-	# ply-lite-rune shairport-sync-rune upmpdcli-rune
-	# for aarch64 you need to build raspberrypi-firmware and wiringpi
-	# issue 'pacman -U *.xz'
-	# all rune packages are shown with armv6h for the B1/PiZero, substitute armv7h for the B2/3/4
-	# or aarch64 for the 64 bit variant
-	# configure bluetooth - i think this is already done
-	# Add those lines to /etc/dbus-1/system.d/bluetooth.conf
-	# Users can use this service when they are members of the "audio" group.
-	#echo "<policy user="bluealsa">" >> /etc/dbus-1/system.d/bluetooth.conf
-	#echo "  <allow send_destination="org.bluez"/>" >> /etc/dbus-1/system.d/bluetooth.conf
-	#echo "</policy>" >> /etc/dbus-1/system.d/bluetooth.conf
-	
-	# for local browser on armv7h and aarch64
-	# these are from the standard archive
-	pacman -Sy xf86-video-fbdev xorg-xinit xorg-xset startup-notification xorg-server xbindkeys --noconfirm
-    pacman -Sy xf86-video-fbturbo terminus-font --noconfirm
-	
-	# ----->>>> SYSTEM CONFIGURATION <<<<----- #
-	
-	# install RuneAudio system tweaks
-	#cp -Rv /var/www/app/config/_os/etc/* /etc
-	#cp -R /var/www/app/config/_os/usr/* /usr
-	mv /boot/config.txt /boot/config.txt.backup
-	cp /var/www/app/config/defaults/boot/config.txt /boot/
-	
-	# disable systemd-journald
-	#systemctl disable systemd-journald
-	#systemctl mask systemd-journald
-	#systemctl mask systemd-journal-flush.service
-	# don't do this as a journal may be helpful for now
-	
-	# disable systemd-logind
-	systemctl disable systemd-logind
-	systemctl mask systemd-logind
-	
-	# disable systemd-networkd
-	systemctl disable systemd-networkd
-	
-	# enable connman or you cannot connect to it after boot
-	systemctl enable iwd connman
-	
-	# enable nginx
-	mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
-	cp /var/www/app/config/defaults/etc/nginx/nginx-prod.conf /etc/nginx/
-	mkdir /etc/nginx/html
-	cp /var/www/app/config/defaults/etc/nginx/html/50x.html /etc/nginx/
-	ln -s /etc/nginx/nginx-prod.conf /etc/nginx/nginx.conf
-	systemctl enable nginx
-	
-	# enable redis	
-	mv /etc/redis.conf /etc/redis.conf.backup
-	cp /var/www/app/config/defaults/etc/redis.conf /etc/
-	mv /usr/lib/systemd/system/redis.service /usr/lib/systemd/system/redis.service.backup
-	cp /var/www/app/config/defaults/etc/systemd/system/redis.service /etc/systemd/system/
-	systemctl enable redis
-	
-	# enable RuneAudio background workers
-	cp /var/www/app/config/defaults/etc/systemd/system/rune_PL_wrk.service /etc/systemd/system/
-	cp /var/www/app/config/defaults/etc/systemd/system/rune_SY_wrk.service /etc/systemd/system/
-	systemctl enable rune_PL_wrk
-	systemctl enable rune_SY_wrk
-	
-	# enable rune_shutdown
-	cp /var/www/app/config/defaults/etc/systemd/system/rune_shutdown.service /etc/systemd/system/
-	systemctl enable rune_shutdown
-	
-	#if armv7+
-	cp /var/www/app/config/defaults/etc/systemd/system/bootsplash.service /etc/systemd/system/
-	systemctl enable bootsplash
-	# this next line makes it so you cannot log in but removes all text from screen
-	#systemctl disable getty@tty1
-	
-	# copy udevil service
-	mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
-	cp /var/www/app/config/defaults/etc/udevil/udevil.conf /etc/udevil/
-	cp /var/www/app/config/defaults/etc/systemd/system/udevil.service /etc/systemd/system/
-	systemctl enable udevil
-	
-	# enable alsa mixer web interface
-	systemctl enable amixer-webui
-	
-	# link Orion Optimize script
-	ln -s /srv/http/command/orion_optimize.sh /usr/sbin/
-	
-	# create /mnt directory structure
-	mkdir /mnt/MPD
-	mkdir /mnt/MPD/USB
-	mkdir /mnt/MPD/Webradio
-	mkdir /mnt/MPD/NAS
-	mkdir /mnt/MPD/LocalStorage
-	chown -R mpd.audio /mnt/MPD
-	
+    # ----->>>> DOWNLOAD PACKAGES FROM RuneOS REPO <<<<----- #
+    # ----->>>> INSTALL RuneOS packages <<<<----- #
+    # get Rune packages somehow
+    # Build AUR packages for both architectures:
+    # alsa-equal ashuffle-git hfsprogs librespot-git
+    # mpdscribble snapcast spotifyd-full-git
+    # for armv7h
+    # libmatchbox  matchbox-keyboard drc
+    # put all the AUR files in a folder on the target then
+    # issue 'pacman -U *.xz'
+    # Build the RuneOS packages and out them in a folder:
+    # bluez-alsa-rune brutefir hfsutils-rune libnpupnp libupnpp
+    # linux-raspberrypi-rune (pi4 for armv7 64 for aarch64) nginx-rune php-phpiredis-rune
+    # ply-lite-rune shairport-sync-rune upmpdcli-rune
+    # for aarch64 you need to build raspberrypi-firmware and wiringpi
+    # issue 'pacman -U *.xz'
+    # all rune packages are shown with armv6h for the B1/PiZero, substitute armv7h for the B2/3/4
+    # or aarch64 for the 64 bit variant
+    # configure bluetooth - i think this is already done
+    # Add those lines to /etc/dbus-1/system.d/bluetooth.conf
+    # Users can use this service when they are members of the "audio" group.
+    #echo "<policy user="bluealsa">" >> /etc/dbus-1/system.d/bluetooth.conf
+    #echo "  <allow send_destination="org.bluez"/>" >> /etc/dbus-1/system.d/bluetooth.conf
+    #echo "</policy>" >> /etc/dbus-1/system.d/bluetooth.conf
+
+    # ----->>>> SYSTEM CONFIGURATION <<<<----- #
+
+    # move record of linux-rpi-legacy from /var/lib/pacman/local to somewhere
+    # install armv7 kernel from rune.
+    # pacman -U linux-rpi-v7-x.xx.xx-x-armv7h.pkg.tar.xz --overwrite=*
+    # change architecture back to armv6 replace record of linux-rpi-legacy
+    # remove the initramfs.img that is created in /boot
+    # for security, copy the linux-rpi-rune package to /var/cache/pacman/pkg
+
+    # install RuneAudio system tweaks
+    #cp -Rv /srv/http/app/config/_os/etc/* /etc
+    #cp -R /srv/http/app/config/_os/usr/* /usr
+    mv /boot/config.txt /boot/config.txt.backup
+    cp /srv/http/app/config/defaults/boot/config.txt /boot/
+
+    # disable systemd-journald
+    #systemctl disable systemd-journald
+    #systemctl mask systemd-journald
+    #systemctl mask systemd-journal-flush.service
+    # don't do this as a journal may be helpful for now
+
+    # disable systemd-logind
+    systemctl disable systemd-logind
+    systemctl mask systemd-logind
+
+    # disable systemd-networkd
+    systemctl disable systemd-networkd
+
+    # enable connman or you cannot connect to it after boot
+    systemctl enable iwd connman
+
+    # enable nginx
+    mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
+    cp /srv/http/app/config/defaults/etc/nginx/nginx-prod.conf /etc/nginx/
+    mkdir /etc/nginx/html
+    cp /srv/http/app/config/defaults/etc/nginx/html/50x.html /etc/nginx/
+    ln -s /etc/nginx/nginx-prod.conf /etc/nginx/nginx.conf
+    systemctl enable nginx
+
+    # enable redis
+    mv /etc/redis/redis.conf /etc/redis/redis.conf.backup
+    cp /srv/http/app/config/defaults/etc/redis/redis.conf /etc/redis/
+    mv /usr/lib/systemd/system/redis.service /usr/lib/systemd/system/redis.service.backup
+    cp /srv/http/app/config/defaults/etc/systemd/system/redis.service /etc/systemd/system/
+    systemctl enable redis
+
+    # enable RuneAudio background workers
+    cp /srv/http/app/config/defaults/etc/systemd/system/rune_PL_wrk.service /etc/systemd/system/
+    cp /srv/http/app/config/defaults/etc/systemd/system/rune_SY_wrk.service /etc/systemd/system/
+    systemctl enable rune_PL_wrk
+    systemctl enable rune_SY_wrk
+
+    # enable rune_shutdown
+    cp /srv/http/app/config/defaults/etc/systemd/system/rune_shutdown.service /etc/systemd/system/
+    systemctl enable rune_shutdown
+
+    # enable boot splash image
+    cp /srv/http/app/config/defaults/etc/systemd/system/bootsplash.service /etc/systemd/system/
+    systemctl enable bootsplash
+    
+    # this next line makes it so you cannot log in but removes all text from screen at boot
+    #systemctl disable getty@tty1
+
+    # copy udevil service
+    mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
+    cp /srv/http/app/config/defaults/etc/udevil/udevil.conf /etc/udevil/
+    cp /srv/http/app/config/defaults/etc/systemd/system/udevil.service /etc/systemd/system/
+    systemctl enable udevil
+
+    # enable alsa mixer web interface
+    cp /srv/http/app/config/defaults/etc/systemd/system/amixer-webui.service /etc/systemd/system/
+    systemctl enable amixer-webui
+
+    # link Orion Optimize script
+    ln -s /srv/http/command/orion_optimize.sh /usr/sbin/
+
+    # create /mnt directory structure
+    mkdir /mnt/MPD
+    mkdir /mnt/MPD/USB
+    mkdir /mnt/MPD/Webradio
+    mkdir /mnt/MPD/NAS
+    mkdir /mnt/MPD/LocalStorage
+    chown -R mpd:audio /mnt/MPD
+
     # Add http to audio group
     usermod -a -G audio http
     usermod -a -G audio bluealsa
- 
-	# reboot system
-	reboot
-	
-	#Log in and repair filesystem
-	#rm -rf /var/run /var/lock && pacman -S filesystem
-	# sometimes the link from /run to /var/run gets hosed, repair it if it is gone
-	
-	# if you want a pretty console, edit /etc/locale.gen, select a language
-	# and run locale-gen
-	
-	# if using local browser - for armv7 or aarch64
-	mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
-	cp /var/www/app/config/defaults/etc/X11/xinit/xinitrc /etc/X11/xinit
-	cp /var/www/app/config/defaults/etc/X11/Xwrapper.config /etc/X11
-	
-	# reset and initialize the image
-	./var/www/commands/image_reset_script.sh
+    
+    # Add http to video group
+    usermod -a -G video http
+    usermod -a -G render http
+
+    # set guid on btmgmt so the attach udev rule works
+    #chmod u+s /usr/bin/btmgmt
+
+    # remove wpa-supplicant
+    
+
+    # reboot system
+    reboot
+
+    #Log in and repair filesystem if it is broken - from v0.4
+    #rm -rf /var/run /var/lock && pacman -S filesystem
+    # sometimes the link from /run to /var/run gets hosed, repair it if it is gone
+
+    # if you want a pretty console, edit /etc/locale.gen, select a language
+    # and run locale-gen
+
+    # if using local browser - for armv7 or aarch64
+    mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
+    cp /srv/http/app/config/defaults/etc/X11/xinit/xinitrc /etc/X11/xinit
+    cp /srv/http/app/config/defaults/etc/X11/Xwrapper.config /etc/X11
+
+    # reset and initialize the image
+    ./srv/http/commands/image_reset_script.sh
+
+   # select a locale in /etc/locale-gen and run locale-gen
+   #also set this as "localectl set-locale LANG=en_US.UTF-8" 
+   #to get mc to dsiaplay lines correctly. 
+
+  # to deal with laggy ssh logins, edit the file:
+  # /etc/pam.d/system-login and commenc out this line:
+  # '-session   optional   pam_systemd.so'
+

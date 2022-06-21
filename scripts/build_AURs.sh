@@ -12,10 +12,10 @@ cd ../ashuffle-git
 #git pull
 makepkg -f
 rm -rf src/ pkg/ ashuffle/ abseil-cpp/ googletest/
-#echo "bluez-alsa"
-#cd ../bluez-alsa-git
-#makepkg -f
-#rm -rf src/ pkg/ bluez-alsa-git/
+echo "bluez-alsa"
+cd ../bluez-alsa-git
+makepkg -f
+rm -rf src/ pkg/ bluez-alsa-git/
 echo " Build Dynamic Room Correction"
 cd ../drc
 makepkg -f
@@ -40,11 +40,27 @@ cd ../snapcast
 #git pull
 makepkg -f
 rm -rf src/ pkg/
+echo "loudgain"
+cd ../loudgain
+#git pull
+makepkg -f
+rm -rf src/ pkg/
+echo "loudness-scanner-git"
+cd ../snapcast
+#git pull
+makepkg -f
+rm -rf src/ pkg/
+echo "llmnrd"
+cd ../llmnrd-git
+#git pull
+makepkg -f
+rm -rf src/ pkg/ llmnrd/
+
 # build these for armv7 and aarch64
-ARCH=$(pacman -Qi bash | grep 'Architecture' | cut -c 19-)
-echo $ARCH
-if [ $ARCH == 'armv7h' ] || [ $ARCH == 'aarch64' ]
-then
+#ARCH=$(pacman -Qi bash | grep 'Architecture' | cut -c 19-)
+#echo $ARCH
+#if [ $ARCH == 'armv7h' ] || [ $ARCH == 'aarch64' ]
+#then
   echo " Build libmatchbox"
   cd ../libmatchbox
   makepkg -f
@@ -57,12 +73,7 @@ then
   cd ../matchbox-keyboard
   makepkg -f
   rm -rf src/ pkg/
-  echo " Build Wiringpi-git"
-  # only needed for aarch64 as it is not a package
-   cd ../wiringpi-git
-   makepkg -f
-   rm -rf src/ pkg/
-fi
+#fi
 echo "spotifyd"
 cd ../spotifyd-full-git
 makepkg -f

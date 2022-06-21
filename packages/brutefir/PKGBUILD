@@ -22,7 +22,7 @@ build() {
   cd "${pkgname}-${pkgver}-build"
 
   sed 's@/usr/local@/usr@' -i Makefile
-  make
+  make -j4
 }
 
 package() {

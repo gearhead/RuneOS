@@ -2,7 +2,7 @@
 # Contributor: Tristelune <tristelune@archlinux.info>
 
 pkgname=libnpupnp
-pkgver=4.0.14
+pkgver=4.2.2
 pkgrel=1
 pkgdesc="A C++ wrapper for libupnp - used with upmpdcli or upplay"
 url="http://www.lesbonscomptes.com/upplay/downloads.html"
@@ -15,7 +15,7 @@ sha256sums=('SKIP')
 build(){
 	cd "${pkgname}-${pkgver}"
 	./configure --prefix=/usr
-	make
+	make -j4
 }
 
 package(){

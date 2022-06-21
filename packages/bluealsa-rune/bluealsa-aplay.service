@@ -7,7 +7,7 @@ Wants=bluealsa.service
 Type=simple
 ;default to all devices - can be overridden in the EnvironmentFile
 Environment="BT_ADDR=00:00:00:00:00:00"
-EnvironmentFile=-/etc/default/bluealsa-aplay
+EnvironmentFile=-/etc/bluealsa/bluealsa-aplay
 ExecStart=/usr/bin/bluealsa-aplay $OPTIONS $BT_ADDR
 Restart=on-failure
 ProtectSystem=strict

@@ -7,7 +7,7 @@ pkgname=matchbox-window-manager
 pkgver=1.2
 pkgrel=4
 pkgdesc="A pretty much unique X window manager with a classic PDA management policy"
-arch=('x86_64' 'armv7h' 'aarch64')
+arch=('x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('GPL')
 depends=('libmatchbox' 'startup-notification' 'libpng' 'libsm')
 url="http://matchbox-project.org/"
@@ -19,8 +19,8 @@ cd "$srcdir"/$pkgname-$pkgver
 CFLAGS="$CFLAGS -fcommon" 
   ./configure --sysconfdir=/etc --prefix=/usr \
 	--enable-startup-notification --enable-session \
-	--enable-alt-input-wins --enable-expat
-make
+	--enable-alt-input-wins --enable-expat --enable-xsettings
+make -j4
 }
 
 package() {

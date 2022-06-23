@@ -5,12 +5,16 @@
     # edited for 2018 kernel by Gearhead    #
     # HW platforms: RaspberryPi B1 thru B4  #
     #########################################
-    # armv6 or armv7: Install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide,
+
+    # as of February 2022, Arch Arm stopped support of the armv6 image. The basic system is based 
+    # on the packages as they existed then plus a few updated packages. June 2022 - Still works
+    
+    # armv7: Install base ArchLinux system (follow guide https://wiki.archlinux.org/index.php/Installation_guide,
 
     # aarch64: it is a bit more complicated...
-    # install the image as instructed on the arch-arm site for 64 bit version. Then build the linux 64 bit
-    # kernel in the RuneOS/packages/ folder. Once it is built and available to install, remove
-    # linux-aarch64 (this will also remove uboot) then install the linux-rpi kernel and reboot.
+    # install the image as instructed on the arch-arm site for 64 bit version. Then reboot
+    # When rebooted, install the linux-rpi kernel (it will uninstall linux and uboot) and reboot.
+    # at this point, you have a full aarch64 rpi installation running arch-rpi kernel
 
     # general system update
     pacman -Syu --noconfirm
@@ -20,16 +24,16 @@
 
     # setup locale
     #edit /etc/locale.gen to uncomment the line with en_US.UTF-8
-    #then run locale-gen
+    then run locale-gen
 
     #Reboot and login as root and change the password to rune
     #remove alarm login
-    passwd -d alarm
+    #passwd -d alarm
     #then remove alarm from /etc/passwd and /etc/group
 
     # uninstall unecessary packages - these are no longer installed
     # left for completeness
-    pacman -R jfsutils lvm2 man-db man-pages reiserfsprogs --noconfirm
+    # pacman -R jfsutils lvm2 man-db man-pages reiserfsprogs --noconfirm
 
     # install git support (22.47 MiB)
     pacman -S git --noconfirm
@@ -97,7 +101,7 @@
     # install tcp-wrappers
     pacman -S tcp-wrappers --noconfirm
 
-    # install wiring pi for GPIOs - this will fail for aarch64
+    # install wiring pi for GPIOs
     pacman -S wiringpi --noconfirm
 
     # alsa firmwares
@@ -252,7 +256,7 @@
     
     # fix the problem with port 53 - we do not use systemd-resolved any more
     # but in case it gets enabled, this is a 'good idea' (tm)
-    echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
+    # echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
 
     # install RuneAudio MPD package dependencies
     # install SOX (3.08 MiB)
@@ -288,34 +292,22 @@
     # get Rune packages somehow
     # Build AUR packages for both architectures:
     # alsa-equal ashuffle-git hfsprogs librespot-git
-    # mpdscribble snapcast spotifyd-full-git
-    # for armv7h
+    # mpdscribble snapcast spotifyd-full-git llmnrd-git
+    # udevil
+    # for armv7h and aarch64
     # libmatchbox  matchbox-keyboard drc
     # put all the AUR files in a folder on the target then
     # issue 'pacman -U *.xz'
     # Build the RuneOS packages and out them in a folder:
-    # bluez-alsa-rune brutefir hfsutils-rune libnpupnp libupnpp
-    # linux-raspberrypi-rune (pi4 for armv7 64 for aarch64) nginx-rune php-phpiredis-rune
-    # ply-lite-rune shairport-sync-rune upmpdcli-rune
-    # for aarch64 you need to build raspberrypi-firmware and wiringpi
-    # issue 'pacman -U *.xz'
+    # bluealsa-monitor bluealsa-rune brutefir hfsutils-rune libnpupnp 
+    # libupnpp linux-rpi-rune (pi4 for armv7 64 for aarch64) nginx-rune 
+    # matchbox-window-manager ply-lite-rune shairport-sync-rune upmpdcli-rune
+    # install them by pacman -U *.xz
+    #
     # all rune packages are shown with armv6h for the B1/PiZero, substitute armv7h for the B2/3/4
     # or aarch64 for the 64 bit variant
-    # configure bluetooth - i think this is already done
-    # Add those lines to /etc/dbus-1/system.d/bluetooth.conf
-    # Users can use this service when they are members of the "audio" group.
-    #echo "<policy user="bluealsa">" >> /etc/dbus-1/system.d/bluetooth.conf
-    #echo "  <allow send_destination="org.bluez"/>" >> /etc/dbus-1/system.d/bluetooth.conf
-    #echo "</policy>" >> /etc/dbus-1/system.d/bluetooth.conf
 
     # ----->>>> SYSTEM CONFIGURATION <<<<----- #
-
-    # move record of linux-rpi-legacy from /var/lib/pacman/local to somewhere
-    # install armv7 kernel from rune.
-    # pacman -U linux-rpi-v7-x.xx.xx-x-armv7h.pkg.tar.xz --overwrite=*
-    # change architecture back to armv6 replace record of linux-rpi-legacy
-    # remove the initramfs.img that is created in /boot
-    # for security, copy the linux-rpi-rune package to /var/cache/pacman/pkg
 
     # install RuneAudio system tweaks
     #cp -Rv /srv/http/app/config/_os/etc/* /etc
@@ -400,21 +392,12 @@
     usermod -a -G video http
     usermod -a -G render http
 
-    # set guid on btmgmt so the attach udev rule works
-    #chmod u+s /usr/bin/btmgmt
-
-    # remove wpa-supplicant
-    
+    # remove wpa-supplicant and netctl as we use iwd and connman
+    pacman -Rcsn wpa-supplicant --noconfirm
+    pacman -Rc netctl --noconfirm
 
     # reboot system
     reboot
-
-    #Log in and repair filesystem if it is broken - from v0.4
-    #rm -rf /var/run /var/lock && pacman -S filesystem
-    # sometimes the link from /run to /var/run gets hosed, repair it if it is gone
-
-    # if you want a pretty console, edit /etc/locale.gen, select a language
-    # and run locale-gen
 
     # if using local browser - for armv7 or aarch64
     mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
@@ -424,11 +407,11 @@
     # reset and initialize the image
     ./srv/http/commands/image_reset_script.sh
 
-   # select a locale in /etc/locale-gen and run locale-gen
-   #also set this as "localectl set-locale LANG=en_US.UTF-8" 
-   #to get mc to dsiaplay lines correctly. 
+    # select a locale in /etc/locale-gen and run locale-gen
+    # also set this as "localectl set-locale LANG=en_US.UTF-8" 
+    # to get mc to disaplay lines correctly. 
 
-  # to deal with laggy ssh logins, edit the file:
-  # /etc/pam.d/system-login and commenc out this line:
-  # '-session   optional   pam_systemd.so'
+    # to deal with laggy ssh logins, edit the file:
+    # /etc/pam.d/system-login and commenc out this line:
+    # '-session   optional   pam_systemd.so'
 

@@ -1,0 +1,54 @@
+Format: 1.8
+Date: Wed, 18 Mar 2020 20:53:14 +0100
+Source: fdk-aac
+Binary: aac-enc aac-enc-dbgsym libfdk-aac-dev libfdk-aac2 libfdk-aac2-dbgsym
+Architecture: armhf
+Version: 2.0.1-1
+Distribution: unstable
+Urgency: medium
+Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
+Changed-By: Fabian Greffrath <fabian@debian.org>
+Description:
+ aac-enc    - Fraunhofer FDK AAC Codec Library - frontend binary
+ libfdk-aac-dev - Fraunhofer FDK AAC Codec Library - development files
+ libfdk-aac2 - Fraunhofer FDK AAC Codec Library - runtime files
+Closes: 865710 915386
+Changes:
+ fdk-aac (2.0.1-1) unstable; urgency=medium
+ .
+   * Team upload.
+ .
+   [ Debian Janitor ]
+   * Bump debhelper from old 11 to 12.
+   * Set upstream metadata fields: Bug-Database, Repository, Repository-
+     Browse.
+ .
+   [ Fabian Greffrath ]
+   * New upstream version 2.0.1 (Closes: #915386).
+   * Bump SONAME to libfdk-aac2.
+   * Refresh patches.
+   * Enable all hardening flags.
+   * Bump Standards-Version to 4.5.0
+   * Install the static library archive in the libfdk-aac-dev package
+     (Closes: #865710).
+Checksums-Sha1:
+ 79d39778c879e376c256d24e983f86273fc51460 13752 aac-enc-dbgsym_2.0.1-1_armhf.deb
+ 38e9f300463199f1c7cd3dc39018867c2b3ba7a9 886968 aac-enc_2.0.1-1_armhf.deb
+ c95938654506bdb7505d088fffc20d1d98253379 6175 fdk-aac_2.0.1-1_armhf.buildinfo
+ f217e4475abd3e1ad5ca56d33a0c365063159437 669940 libfdk-aac-dev_2.0.1-1_armhf.deb
+ 0cfb81665d1a5300c2dbac7d3837f4bb6c75748b 2121468 libfdk-aac2-dbgsym_2.0.1-1_armhf.deb
+ d3e1aeb6a15058510d17f20361603d248fc3eb0b 548624 libfdk-aac2_2.0.1-1_armhf.deb
+Checksums-Sha256:
+ 9c62287a341fc2996b9b51f1f74256736022f8f3813bfb8b53679082d8481845 13752 aac-enc-dbgsym_2.0.1-1_armhf.deb
+ bb6857a61232760e96cc4caacc78b25401f52fad9a465c12d00cba8328a8c311 886968 aac-enc_2.0.1-1_armhf.deb
+ 8ab858ac7b25986c5de3fcc5881b9e47c2a692a4ec48bd4ec7dea7f1895925b6 6175 fdk-aac_2.0.1-1_armhf.buildinfo
+ 7600d4a9a4213fee76f16cfc842ea3cb11b61e61adc18597352bca7bcb5683a1 669940 libfdk-aac-dev_2.0.1-1_armhf.deb
+ 5aff76d69d816d5b4cd342965a455a86406fd242dc0b7218595b65fc0ae11498 2121468 libfdk-aac2-dbgsym_2.0.1-1_armhf.deb
+ 1a623947d09374343d8b473aea89360655f5ba3f1f2c7bf1da7b227c420de4bd 548624 libfdk-aac2_2.0.1-1_armhf.deb
+Files:
+ 9ccb5f3648f8a7ae856d67f5a5d1f551 13752 non-free/debug optional aac-enc-dbgsym_2.0.1-1_armhf.deb
+ ac32a245123b08a518ea26fe1f9573d1 886968 non-free/sound optional aac-enc_2.0.1-1_armhf.deb
+ f92138a01bcaa6c60e22f46a7d3aeabb 6175 non-free/libs optional fdk-aac_2.0.1-1_armhf.buildinfo
+ f39d60da53516da3ccc6ab0a5f4fb62f 669940 non-free/libdevel optional libfdk-aac-dev_2.0.1-1_armhf.deb
+ 951a270fefc44e6fa823930070190955 2121468 non-free/debug optional libfdk-aac2-dbgsym_2.0.1-1_armhf.deb
+ 1ae2b44fe0e3112680ffce6c28b7e5e6 548624 non-free/libs optional libfdk-aac2_2.0.1-1_armhf.deb

@@ -1,4 +1,6 @@
-# Maintainer: Logan Sevcik <logan+aur@sevcik.email>
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+# Contributor: Logan Sevcik <logan+aur@sevcik.email>
+
 pkgname=nqptp-git
 pkgver=1.d17da85
 pkgrel=1

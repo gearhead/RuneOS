@@ -1,4 +1,5 @@
-# Maintainer: Samuel Walladge <samuel+aur@swalladge.net>
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+# Contributor: Samuel Walladge <samuel+aur@swalladge.net>
 # Contributor: Varakh <varakh@varakh.de>
 
 pkgname=spotifyd-full-git

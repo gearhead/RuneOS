@@ -1,4 +1,5 @@
-# Maintainer: Keith Grider <grider.4@osu.edu>
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+
 _pkgname=shairport-sync
 pkgname=$_pkgname-rune
 pkgver=4.1.1

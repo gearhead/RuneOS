@@ -1,4 +1,5 @@
-# Maintainer: Simone De Gregori <orion@runeaudio.com>
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+# Contributor: Simone De Gregori <orion@runeaudio.com>
 
 _cfgdir=/etc/nginx
 _tmpdir=/var/lib/nginx

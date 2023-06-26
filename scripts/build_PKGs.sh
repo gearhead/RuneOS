@@ -65,16 +65,16 @@ armv6h)
   rm -rf src/ pkg/
   ;;
 armv7h)
-  echo "linux-raspberrypi-armv7"
-  cd ../linux-rpi-rune
-  makepkg -f
-  rm -rf src/ pkg/
+#  echo "linux-raspberrypi-armv7"
+#  cd ../linux-rpi-rune
+#  makepkg -f
+#  rm -rf src/ pkg/
   ;;
 aarch64)
-  echo "linux-raspberrypi4-aarch64"
-  cd ../linux-rpi-rune
-  makepkg -f
-  rm -rf src/ pkg/
+#  echo "linux-raspberrypi4-aarch64"
+#  cd ../linux-rpi-rune
+#  makepkg -f
+#  rm -rf src/ pkg/
   ;;
 esac
 #echo "Deleting build folders"

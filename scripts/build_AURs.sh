@@ -16,6 +16,10 @@ echo "bluez-alsa"
 cd ../bluez-alsa-git
 makepkg -f
 rm -rf src/ pkg/ bluez-alsa-git/
+echo "openAPTx"
+cd ../libopenaptx-git
+makepkg -f
+rm -rf src/ pkg/ libopenaptx/
 echo " Build Dynamic Room Correction"
 cd ../drc
 makepkg -f
@@ -45,7 +49,7 @@ cd ../loudgain
 #git pull
 makepkg -f
 rm -rf src/ pkg/
-echo "loudness-scanner-git"
+echo "Snapcast"
 cd ../snapcast
 #git pull
 makepkg -f
@@ -55,12 +59,21 @@ cd ../llmnrd-git
 #git pull
 makepkg -f
 rm -rf src/ pkg/ llmnrd/
+echo "Udevil"
+cd ../udevil
+#git pull
+makepkg -f
+rm -rf src/ pkg/ udevil-0.4.4/
+echo "nqptp"
+cd ../nqptp-git
+makepkg -f
+rm -rf src/ pkg/ nqptp/
 
 # build these for armv7 and aarch64
-#ARCH=$(pacman -Qi bash | grep 'Architecture' | cut -c 19-)
-#echo $ARCH
-#if [ $ARCH == 'armv7h' ] || [ $ARCH == 'aarch64' ]
-#then
+ARCH=$(pacman -Qi bash | grep 'Architecture' | cut -c 19-)
+echo $ARCH
+if [ $ARCH == 'armv7h' ] || [ $ARCH == 'aarch64' ]
+then
   echo " Build libmatchbox"
   cd ../libmatchbox
   makepkg -f
@@ -73,9 +86,13 @@ rm -rf src/ pkg/ llmnrd/
   cd ../matchbox-keyboard
   makepkg -f
   rm -rf src/ pkg/
-#fi
+fi
 echo "spotifyd"
 cd ../spotifyd-full-git
 makepkg -f
 rm -rf src/ pkg/ spotifyd/
+#echo "fbturbo"
+#cd ../xf86-video-fbturbo-git
+#makepkg -f
+#rm -rf src/ pkg/ xf86-video-fbturbo/
 echo "end building AURs"

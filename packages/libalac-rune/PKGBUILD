@@ -6,7 +6,7 @@
 _pkgname=alac
 #pkgname=$_pkgname
 pkgname=libalac-rune
-pkgver=0.r25.5d6d836
+pkgver=0.r26.96dd59d
 pkgrel=1
 pkgdesc="a lossless audio codec developed by Apple and deployed on all of its platforms and devices"
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')

@@ -6,7 +6,7 @@ pkgver=r16.359e5b3
 pkgrel=1
 pkgdesc="utomated ALSA Configuration For BlueALSA PCMs (git)"
 url="https://github.com/borine/bluealsa-monitor"
-arch=(x86_64 i686 armv6h armv7h aarch64)
+arch=(x86_64 i686 armv6h armv7h aarch64 arm64)
 license=(unlicense)
 
 makedepends=("git" "meson" "cmake")
@@ -33,7 +33,7 @@ pkgver() {
 build() {
   cd "$srcdir/$pkgname"
 
-  arch-meson \
+  arch-meson --prefix=/usr \
     builddir
 }
 

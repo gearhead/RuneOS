@@ -1,3 +1,0 @@
-post_install() {
-  echo '# Users can use this service when they are members of the "audio" group.'
-}

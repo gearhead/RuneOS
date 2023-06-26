@@ -1,0 +1,39 @@
+diff --git a/src/iwd-dbus.conf b/src/iwd-dbus.conf
+index 7fc2e68c..af461ed6 100644
+--- a/src/iwd-dbus.conf
++++ b/src/iwd-dbus.conf
+@@ -14,7 +14,7 @@
+     <allow send_interface="net.connman.iwd.SignalLevelAgent"/>
+   </policy>
+ 
+-  <policy group="wheel">
++  <policy group="sudo">
+     <allow send_destination="net.connman.iwd"/>
+   </policy>
+ 
+diff --git a/tools/hwsim-dbus.conf b/tools/hwsim-dbus.conf
+index ec081361..3e9d0f10 100644
+--- a/tools/hwsim-dbus.conf
++++ b/tools/hwsim-dbus.conf
+@@ -12,7 +12,7 @@
+     <allow send_destination="net.connman.hwsim"/>
+   </policy>
+ 
+-  <policy group="wheel">
++  <policy group="sudo">
+     <allow send_destination="net.connman.hwsim"/>
+   </policy>
+ 
+diff --git a/wired/ead-dbus.conf b/wired/ead-dbus.conf
+index 8a685e0a..3bb6d054 100644
+--- a/wired/ead-dbus.conf
++++ b/wired/ead-dbus.conf
+@@ -13,7 +13,7 @@
+     <allow send_interface="net.connman.ead.Agent"/>
+   </policy>
+ 
+-  <policy group="wheel">
++  <policy group="sudo">
+     <allow send_destination="net.connman.ead"/>
+   </policy>
+ 

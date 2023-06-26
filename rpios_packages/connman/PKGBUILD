@@ -1,0 +1,66 @@
+# Maintainer: Gearhead <ys3al35l@gmail.com>
+# borrowed and modified from Arch Linux for Rune
+
+pkgname=connman
+pkgver=1.41
+pkgrel=1
+pkgdesc="Intel's modular network connection manager"
+url="https://01.org/connman"
+arch=('armhf' 'arm64')
+license=('GPL2')
+makedepends=('bluez' 'wpasupplicant' 'openconnect' 'openvpn' 'ppp' 'iwd' 'ppp-dev'\
+             'libudev-dev' 'libglib2.0-dev' 'libdbus-1-dev' 'gtk-doc-tools' 'libgnutls28-dev' 'libopenconnect-dev'\
+             'libreadline-dev' 'libxtables-dev' 'wpasupplicant' 'libbluetooth-dev' 'ppp-dev' 'libmnl-dev')
+depends=('dbus' 'iptables' 'libc6' 'libdbus-1-3' 'gnutls-bin' 'libglib2.0-0' 'libgnutls30' 'libxtables12' 'libmnl0')
+backup=('/etc/connman/main.conf')
+optdepends=('bluez: Support for Bluetooth devices'
+            'wpa_supplicant: for WiFi devices'
+            'pptpclient: for ppp support'
+            'openvpn: for VPN Support'
+            'iwd: for WiFi devices')
+source=("${pkgname}-${pkgver}.tar.xz::https://www.kernel.org/pub/linux/network/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+        "${pkgname}-${pkgver}.tar.sign::https://www.kernel.org/pub/linux/network/${pkgname}/${pkgname}-${pkgver}.tar.sign"
+        'allow_group_network.diff'
+        'Scan_in_AP_mode.patch')
+sha512sums=('b7880d908635ab9350c12e207213d20b11c1a50afcb93ae92e1fc57d4345bf792afe1a5534650e18b8cd05a3766ce9993083b2d659e49f87b867e6f2c1a83b2d'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+validpgpkeys=('E932D120BC2AEC444E558F0106CA9F5D1DCF2659')
+
+prepare(){
+  cd "${pkgname}-${pkgver}"
+  patch -Np1 -i "${srcdir}/allow_group_network.diff"
+#  patch -Np1 -i "${srcdir}/Scan_in_AP_mode.patch"
+
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+      --runstatedir='/run' \
+      --enable-iwd \
+      --enable-l2tp \
+      --enable-openconnect \
+      --enable-openvpn \
+      --enable-pie \
+      --enable-polkit \
+      --enable-pptp \
+      --enable-selinux \
+      --enable-threads \
+      --with-openconnect=/usr/sbin/openconnect \
+      --with-openvpn=/usr/sbin/openvpn \
+      --with-systemdunitdir=/lib/systemd/system \
+      --with-tmpfilesdir=/usr/lib/tmpfiles.d 
+  make
+}
+
+package() {
+  make -C "${pkgname}-${pkgver}" DESTDIR="${pkgdir}" install
+  install -Dm755 "${srcdir}/${pkgname}-${pkgver}/client/${pkgname}ctl" "${pkgdir}/usr/bin/${pkgname}ctl"
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/src/main.conf" "${pkgdir}/etc/connman/main.conf"
+  find "${pkgdir}/usr" -name \*.service -exec sed -i 's/s\(bin\)/\1/' {} +
+# See FS#48044
+  sed -i 's/ProtectSystem=full/ProtectSystem=true/' "${pkgdir}"/lib/systemd/system/connman.service
+}

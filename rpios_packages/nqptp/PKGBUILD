@@ -1,0 +1,35 @@
+# Maintainer: Logan Sevcik <logan+aur@sevcik.email>
+pkgname=nqptp-git
+pkgver=1.d17da85
+pkgrel=1
+pkgdesc="A daemon that monitors timing data from PTP clocks"
+arch=('arm64' 'armhf')
+url="https://github.com/mikebrady/nqptp#readme"
+license=('GPL2')
+provides=(nqptp)
+conflicts=(nqptp)
+replaces=(nqptp)
+backup=()
+options=()
+source=("git+https://github.com/mikebrady/nqptp.git")
+noextract=()
+md5sums=('SKIP')
+
+_gitname="nqptp"
+
+pkgver() {
+	cd "$srcdir/$_gitname"
+        printf "%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd "$srcdir/$_gitname"
+  autoreconf -fi
+  ./configure --prefix=/usr --with-systemd-startup
+  make -j4
+}
+
+package() {
+  cd "$srcdir/$_gitname"
+  make -j4 DESTDIR="$pkgdir/" install
+}

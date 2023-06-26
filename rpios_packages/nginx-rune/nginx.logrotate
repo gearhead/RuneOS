@@ -1,0 +1,10 @@
+/var/log/runeaudio/ui_*.log {
+    su http http
+    missingok
+    create 640 http http
+    sharedscripts
+    compress
+    postrotate
+    test -r /run/nginx/nginx.pid && kill -USR1 `cat /run/nginx/nginx.pid`
+    endscript
+}

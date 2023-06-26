@@ -1,0 +1,40 @@
+# Maintainer: oi_wtf <brainpower at mailbox dot org>
+
+pkgname=ashuffle
+pkgver=3.13.4
+pkgrel=1
+pkgdesc="Automatic library-wide shuffle for mpd."
+url="https://github.com/joshkunz/ashuffle"
+arch=('armhf' 'arm64')
+license=(MIT)
+
+#depends=("libmpdclient-dev" "libyaml-cpp0.6" "libabsl-dev>=20211102.0")
+depends=("libmpdclient2")
+makedepends=("libmpdclient-dev" "libabsl-dev" "meson")
+
+source=(
+  "$pkgname::git+https://github.com/joshkunz/ashuffle.git"
+)
+sha256sums=('SKIP')
+
+prepare() {
+  cd "$pkgname"
+  git checkout v$pkgver
+  git submodule update --init --recursive
+}
+
+build() {
+  cd "$pkgname"
+  meson \
+    -Dbuildtype=release \
+    -Dprefix='/usr' \
+    build
+  ninja -C build
+}
+
+package() {
+  cd "$pkgname"
+  DESTDIR="${pkgdir}" ninja -C build install
+  install -Dm644 "LICENSE" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

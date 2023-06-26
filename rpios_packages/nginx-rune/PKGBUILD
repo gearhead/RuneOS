@@ -1,0 +1,106 @@
+# Maintainer: Simone De Gregori <orion@runeaudio.com>
+
+_cfgdir=/etc/nginx
+_tmpdir=/var/lib/nginx
+pkgname=nginx-rune
+pkgver=1.22.1
+pkgrel=2
+pkgdesc="NGiNX HTTP server (RuneAudio PushStream)"
+arch=('arm64' 'armhf')
+depends=('libpcre3-dev' 'zlib1g' 'libaprutil1')
+makedepends=('git')
+url="http://nginx.org"
+license=('custom')
+conflicts=('nginx')
+provides=('nginx')
+
+source=("http://nginx.org/download/nginx-${pkgver}.tar.gz"
+        'service'
+        'nginx.logrotate'
+        'nginx-prod.conf')
+
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+build() {
+	cd "${srcdir}"
+
+       [[ $CARCH == "armv7h" || $CARCH == "aarch64" ]] && CFLAGS+=" -fPIC" && CXXFLAGS+=" -fPIC"
+
+	msg "Fetching nginx-push-stream-module"
+	_modules=(${_modules[@]} --add-module=../nginx-push-stream-module)
+	if [ -d nginx-push-stream-module ]; then
+            pushd nginx-push-stream-module
+            git pull
+            popd
+        else
+	    git clone https://github.com/wandenberg/nginx-push-stream-module.git
+	fi
+
+	cd "${srcdir}/nginx-${pkgver}"
+	msg "Building nginx"
+
+	CFLAGS="-I /usr/include/httpd -I /usr/include/apr-1" ./configure \
+        --prefix=${_cfgdir} \
+        --conf-path=${_cfgdir}/nginx.conf \
+        --sbin-path=/usr/bin/nginx \
+        --pid-path=/run/nginx/nginx.pid \
+        --lock-path=/run/nginx/nginx.lock \
+        --user=http \
+        --group=http \
+        --http-log-path=/var/log/runeaudio/ui.log \
+        --error-log-path=/var/log/runeaudio/ui_error.log \
+        --http-client-body-temp-path=${_tmpdir}/client-body \
+        --http-proxy-temp-path=${_tmpdir}/proxy \
+        --http-fastcgi-temp-path=${_tmpdir}/fastcgi \
+        --http-scgi-temp-path=${_tmpdir}/scgi \
+        --http-uwsgi-temp-path=${_tmpdir}/uwsgi \
+        --with-http_gzip_static_module \
+        --with-http_stub_status_module \
+        --with-http_ssl_module \
+        --without-mail_pop3_module \
+        --without-mail_imap_module \
+        --without-mail_smtp_module \
+        --without-http_charset_module \
+        --without-http_ssi_module \
+        --without-http_userid_module \
+        --without-http_access_module \
+        --without-http_auth_basic_module \
+        --without-http_geo_module \
+        --without-http_map_module \
+        --without-http_split_clients_module \
+        --without-http_referer_module \
+        --without-http_scgi_module \
+        --without-http_memcached_module \
+        --without-http_limit_conn_module \
+        --without-http_limit_req_module \
+        --without-http_empty_gif_module \
+        --without-http_browser_module \
+        --without-http_upstream_ip_hash_module \
+        --without-http_upstream_least_conn_module \
+        --without-http_upstream_keepalive_module \
+        --with-ipv6 \
+        ${_modules[@]} 
+        make -j4
+}
+
+#        --with-file-aio \
+
+package() {
+	cd "${srcdir}/nginx-${pkgver}"
+	make -j4 DESTDIR="${pkgdir}" install
+	rm "${pkgdir}"/etc/nginx/*.default
+	rm "${pkgdir}"/etc/nginx/nginx.conf
+	install -Dm644 "${srcdir}"/nginx-prod.conf "${pkgdir}"/etc/nginx/nginx-prod.conf
+        install -d "$pkgdir"/var/lib/nginx
+        install -dm700 "$pkgdir"/var/lib/nginx/proxy
+        install -dm700 "$pkgdir"/var/lib/nginx/fastcgi
+        install -dm700 "$pkgdir"/var/lib/nginx/scgi
+        install -dm700 "$pkgdir"/var/lib/nginx/uwsgi
+	install -d "${pkgdir}"/usr/share/nginx
+	mv "${pkgdir}"/etc/nginx/html/ "${pkgdir}"/usr/share/nginx
+	install -Dm644 "${srcdir}"/nginx.logrotate "${pkgdir}"/etc/logrotate.d/nginx
+	install -Dm644 "${srcdir}"/service "${pkgdir}"/usr/lib/systemd/system/nginx.service
+	rm -rf "${pkgdir}"/var/run
+}

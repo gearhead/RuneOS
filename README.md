@@ -8,3 +8,6 @@ The recipe is in the Scripts folder
 ## 2. Overview
 Build an arch headless install then add the rune packages
 
+## 3. RPiOS
+Added PKGBUILDs, build script and packages for RPiOS in addition to Arch
+

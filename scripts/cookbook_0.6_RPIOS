@@ -30,7 +30,6 @@ apt install -y imagemagick
 apt install -y libjsoncpp-dev
 apt install -y libmicrohttpd-dev
 apt install -y connman iwd
-apt install -y ifplugd
 apt install -y hostapd
 apt install -y dnsmasq
 apt install -y libupnp-dev
@@ -76,7 +75,7 @@ apt install -y php-curl
 apt install -y tmux
 apt install -y libarchive-tools
 apt install -y php-mbstring
-#added after images released\
+#added after initial images released
 #determined they are needed by UI
 apt install -y procinfo
 apt install -y bluetooth
@@ -88,19 +87,22 @@ apt install -y avahi-utils
 # these are explicitly installed in Arch Arm
 # but are already installed by default or other installed packages
 # if these commands are run, it will just say they are already installed
-#apt install -y liburi-perl
-#apt install -y wget
-#apt install -y sudo
-#apt install -y rsync
-#apt install -y ethtool
-#apt install -y avahi-daemon
-#apt install -y net-tools
-#apt install -y wireless-tools
-#apt install -y ntfs-3g
-#apt install -y dosfstools dos2unix
-#apt install -y cifs-utils
-#apt install -y alsa-utils
+# this ensures they are not automatically removed
+apt install -y liburi-perl
+apt install -y wget
+apt install -y sudo
+apt install -y rsync
+apt install -y ethtool
+apt install -y avahi-daemon
+apt install -y net-tools
+apt install -y wireless-tools
+apt install -y ntfs-3g
+apt install -y dosfstools dos2unix
+apt install -y cifs-utils
+apt install -y alsa-utils
+
 #apt install -y llmnrd -- not needed as we use systemd-resolved which conflicts
+#apt install -y ifplugd -- not needed as it was used with netctl
 
 # edit /etc/locale.gen then run locale-gen then 
 locale-gen

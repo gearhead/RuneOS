@@ -12,6 +12,18 @@ openssl passwd -6
 use "RuneAudio"
 nano userconf.txt
 alarm:whatever the password program generated
+# to get wifi connectivity, create a wpa_supplicant.conf file
+# in /bootfs which has this:
+country=us
+update_config=1
+ctrl_interface=/var/run/wpa_supplicant
+
+network={
+ scan_ssid=1
+ ssid="MyNetworkSSID"
+ psk="Pa55w0rd1234"
+}
+
 # then boot the image.
 Update it
 sudo apt update

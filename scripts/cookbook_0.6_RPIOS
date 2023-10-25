@@ -22,7 +22,7 @@ sudo apt upgrade
 reboot
 # go through cookbook...
 sudo su
-apt install -y git redis php-fpm php-redis php-zip
+apt install -y git redis php-fpm php-redis php-zip php-json
 apt install -y libmcrypt-dev
 apt install -y libjpeg-dev
 apt install -y libaprutil1
@@ -253,8 +253,8 @@ ln -s /srv/http /var/www
 chown mpd:audio /var/log/runeaudio 
 
 #stop the default php-fpm as RPi insists on using the version#
-systemctl stop php7.4-fpm
-systemctl disable php7.4-fpm
+systemctl stop php8.2-fpm
+systemctl disable php8.2-fpm
 
 #stop the swapfile RPiOS does this by default
 dphys-swapfile swapoff

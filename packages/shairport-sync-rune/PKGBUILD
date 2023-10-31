@@ -1,7 +1,7 @@
 # Maintainer: Keith Grider <grider.4@osu.edu>
 _pkgname=shairport-sync
 pkgname=$_pkgname-rune
-pkgver=4.1.1
+pkgver=4.3.1
 pkgrel=1
 pkgdesc="AirPlay 2 audio player with multi-room playback for Rune"
 url="https://github.com/mikebrady/shairport-sync"

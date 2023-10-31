@@ -195,7 +195,10 @@
 
     # other fs tools
     pacman -S smartmontools xfsprogs --noconfirm
-
+    
+    # add unzip
+    pacman -S unzip --noconfirm
+    
     #########################
     ### -- AUDIO stack -- ###
     #########################
@@ -281,6 +284,9 @@
     # these are from the standard archive
     pacman -Sy xf86-video-fbdev xorg-xinit xorg-xset startup-notification xorg-server xbindkeys --noconfirm
     pacman -Sy xf86-video-qxl xf86-video-sisusb xf86-video-vesa terminus-font --noconfirm
+    
+    # until luakit and X11 work or we go to Weston
+    pacman -Sy chromium unclutter
 
     # Screen calibration
     pacman -S xorg-xinput xinput_calibrator --noconfirm

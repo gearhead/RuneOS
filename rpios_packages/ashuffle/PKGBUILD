@@ -1,4 +1,5 @@
-# Maintainer: oi_wtf <brainpower at mailbox dot org>
+# Maintainer: Gearhead <ys3al35l at gmail dot com>
+# Contributor: oi_wtf <brainpower at mailbox dot og>
 
 pkgname=ashuffle
 pkgver=3.13.4
@@ -8,7 +9,6 @@ url="https://github.com/joshkunz/ashuffle"
 arch=('armhf' 'arm64')
 license=(MIT)
 
-#depends=("libmpdclient-dev" "libyaml-cpp0.6" "libabsl-dev>=20211102.0")
 depends=("libmpdclient2")
 makedepends=("libmpdclient-dev" "libabsl-dev" "meson")
 

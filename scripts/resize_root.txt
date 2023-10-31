@@ -1,0 +1,29 @@
+Actually you can resize the disk while active in arch linux.
+
+As root:
+
+fdisk /dev/mmcblk0
+
+Delete the second partition /dev/mmcblk0p2
+d
+2
+
+Create a new primary partition and use default sizes prompted. This will then create a partiton that fills the disk
+n
+p
+2
+enter
+enter
+
+Save and exit fdisk:
+w
+
+
+Now reboot. Once rebooted:
+resize2fs /dev/mmcblk0p2
+
+Your main / partition should be the full size of the disk now.
+
+When done through gparted, these are run to shrink a partition:
+e2fsck -f -y -v -C 0 /dev/sdd2
+resize2fs -p /dev/sdd2 6144000K

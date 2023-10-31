@@ -54,11 +54,12 @@ cd ../snapcast
 #git pull
 makepkg -f
 rm -rf src/ pkg/
-echo "llmnrd"
-cd ../llmnrd-git
+# no longer used - resolved...
+#echo "llmnrd"
+#cd ../llmnrd-git
 #git pull
-makepkg -f
-rm -rf src/ pkg/ llmnrd/
+#makepkg -f
+#rm -rf src/ pkg/ llmnrd/
 echo "Udevil"
 cd ../udevil
 #git pull

@@ -3,7 +3,7 @@
 # Contributor: Jameson Pugh <imntreal@gmail.com>
 
 pkgname=ell
-pkgver=0.57
+pkgver=0.59
 pkgrel=1
 pkgdesc="Embedded Linux library"
 arch=(armhf arm64)

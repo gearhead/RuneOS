@@ -2,7 +2,7 @@
 # borrowed and modified from Arch Linux for Rune
 
 pkgname=iwd
-pkgver=2.5
+pkgver=2.8
 pkgrel=1
 pkgdesc='Internet Wireless Daemon'
 arch=('armhf' 'arm64')

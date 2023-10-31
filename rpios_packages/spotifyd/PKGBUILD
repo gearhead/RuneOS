@@ -3,18 +3,20 @@
 # Contributor: Varakh <varakh@varakh.de>
 
 pkgname=spotifyd-full-git
-pkgver=0.r238.e7d15da
+pkgver=0.r247.2e0bd38
 pkgrel=1
 arch=('arm64' 'armhf')
-depends=('libpulse-dev' 'portaudio19-dev')
+depends=('libpulse0' 'libportaudio2')
 license=('GPL3')
-makedepends=('git' 'libpulse-dev' 'dbus')
+makedepends=('git' 'libpulse-dev' 'dbus' 'portaudio19-dev')
 conflicts=('spotifyd' 'spotifyd-pulseaudio' 'spotifyd-git' 'spotifyd-bin' 'spotifyd-pulseaudio-git')
 provides=('spotifyd')
 pkgdesc="A spotify playing daemon (all features enabled)"
 url="https://github.com/Spotifyd/spotifyd"
-source=("spotifyd::git+https://github.com/Spotifyd/spotifyd")
-sha256sums=('SKIP')
+source=("spotifyd::git+https://github.com/Spotifyd/spotifyd"
+        'spotifyd.sysusers')
+sha256sums=('SKIP'
+            'SKIP')
 
 pkgver() {
 #  cd $srcdir/spotifyd;
@@ -47,4 +49,6 @@ build() {
 package() {
   install -D -m 755 "$srcdir/spotifyd/target/release/spotifyd" "${pkgdir}/usr/bin/spotifyd"
   install -D -m 644 "$srcdir/spotifyd/contrib/spotifyd.service" "${pkgdir}/usr/lib/systemd/user/spotifyd.service"
+  install -D -m644 "$srcdir"/spotifyd.sysusers "$pkgdir"/usr/lib/sysusers.d/spotifyd.conf
+
 }

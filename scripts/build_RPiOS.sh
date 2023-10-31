@@ -38,14 +38,18 @@ echo "ply-lite"
 cd ../ply-lite
 makedeb -s --no-confirm
 rm -rf src/ pkg/ ply-lite/
+echo "rsgain"
+cd ../rsgain
+makedeb -s --no-confirm
+rm -rf src/ pkg/
 echo "openaptx"
 cd ../openaptx
 makedeb -s --no-confirm
 rm -rf src/ pkg/ libopenaptx/
-echo "mpd"
-cd ../mpd
-makedeb -s --no-confirm
-rm -rf src/ pkg/
+#echo "mpd"
+#cd ../mpd
+#makedeb -s --no-confirm
+#rm -rf src/ pkg/
 echo "shairport-sync"
 cd ../shairport-sync
 makedeb -s --no-confirm

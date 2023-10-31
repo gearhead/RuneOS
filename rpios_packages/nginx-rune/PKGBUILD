@@ -4,12 +4,12 @@
 _cfgdir=/etc/nginx
 _tmpdir=/var/lib/nginx
 pkgname=nginx-rune
-pkgver=1.22.1
-pkgrel=2
+pkgver=1.24.0
+pkgrel=1
 pkgdesc="NGiNX HTTP server (RuneAudio PushStream)"
 arch=('arm64' 'armhf')
-depends=('libpcre3-dev' 'zlib1g' 'libaprutil1')
-makedepends=('git')
+depends=('libpcre3' 'zlib1g' 'libaprutil1')
+makedepends=('git' 'libpcre3-dev')
 url="http://nginx.org"
 license=('custom')
 conflicts=('nginx')
@@ -18,9 +18,11 @@ provides=('nginx')
 source=("http://nginx.org/download/nginx-${pkgver}.tar.gz"
         'service'
         'nginx.logrotate'
-        'nginx-prod.conf')
+        'nginx.conf'
+        'nginx.sysusers')
 
 sha256sums=('SKIP'
+            'SKIP'
             'SKIP'
             'SKIP'
             'SKIP')
@@ -93,13 +95,14 @@ package() {
 	make -j4 DESTDIR="${pkgdir}" install
 	rm "${pkgdir}"/etc/nginx/*.default
 	rm "${pkgdir}"/etc/nginx/nginx.conf
-	install -Dm644 "${srcdir}"/nginx-prod.conf "${pkgdir}"/etc/nginx/nginx-prod.conf
+	install -Dm644 "${srcdir}"/nginx.conf "${pkgdir}"/etc/nginx/nginx.conf
         install -d "$pkgdir"/var/lib/nginx
         install -dm700 "$pkgdir"/var/lib/nginx/proxy
         install -dm700 "$pkgdir"/var/lib/nginx/fastcgi
         install -dm700 "$pkgdir"/var/lib/nginx/scgi
         install -dm700 "$pkgdir"/var/lib/nginx/uwsgi
 	install -d "${pkgdir}"/usr/share/nginx
+        install -D -m644 "$srcdir"/nginx.sysusers "$pkgdir"/usr/lib/sysusers.d/nginx.conf
 	mv "${pkgdir}"/etc/nginx/html/ "${pkgdir}"/usr/share/nginx
 	install -Dm644 "${srcdir}"/nginx.logrotate "${pkgdir}"/etc/logrotate.d/nginx
 	install -Dm644 "${srcdir}"/service "${pkgdir}"/usr/lib/systemd/system/nginx.service

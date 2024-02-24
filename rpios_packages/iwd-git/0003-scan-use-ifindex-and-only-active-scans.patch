@@ -1,0 +1,148 @@
+From 1c890792a27323d42b34816341054f943cd1c37c Mon Sep 17 00:00:00 2001
+From: James Prestwood <prestwoj@gmail.com>
+Date: Tue, 13 Feb 2024 06:38:14 -0600
+Subject: [PATCH 3/3] scan: use ifindex and only active scans
+
+---
+ src/scan.c    | 20 ++++++++++++++------
+ src/scan.h    |  4 +++-
+ src/station.c |  6 ++++--
+ 3 files changed, 21 insertions(+), 9 deletions(-)
+
+diff --git a/src/scan.c b/src/scan.c
+index f48ffdef..ab97d5a7 100644
+--- a/src/scan.c
++++ b/src/scan.c
+@@ -72,6 +72,7 @@ struct scan_periodic {
+ 	scan_notify_func_t callback;
+ 	void *userdata;
+ 	uint32_t id;
++	uint32_t ifindex;
+ 	bool needs_active_scan:1;
+ };
+ 
+@@ -289,6 +290,7 @@ static void scan_build_attr_scan_frequencies(struct l_genl_msg *msg,
+ 	l_genl_msg_leave_nested(msg);
+ }
+ 
++#if 0
+ static void scan_build_attr_ie(struct l_genl_msg *msg,
+ 					struct scan_context *sc,
+ 					const struct scan_parameters *params)
+@@ -330,6 +332,7 @@ static void scan_build_attr_ie(struct l_genl_msg *msg,
+ 
+ 	l_genl_msg_append_attrv(msg, NL80211_ATTR_IE, iov, iov_elems);
+ }
++#endif
+ 
+ static bool scan_mac_address_randomization_is_disabled(void)
+ {
+@@ -354,10 +357,13 @@ static struct l_genl_msg *scan_build_cmd(struct scan_context *sc,
+ 
+ 	msg = l_genl_msg_new(NL80211_CMD_TRIGGER_SCAN);
+ 
+-	l_genl_msg_append_attr(msg, NL80211_ATTR_WDEV, 8, &sc->wdev_id);
++	if (params->ifindex)
++		l_genl_msg_append_attr(msg, NL80211_ATTR_IFINDEX, 4, &params->ifindex);
++	else
++		l_genl_msg_append_attr(msg, NL80211_ATTR_WDEV, 8, &sc->wdev_id);
+ 
+-	if (wiphy_get_max_scan_ie_len(sc->wiphy))
+-		scan_build_attr_ie(msg, sc, params);
++	//if (wiphy_get_max_scan_ie_len(sc->wiphy))
++	//	scan_build_attr_ie(msg, sc, params);
+ 
+ 	if (freqs)
+ 		scan_build_attr_scan_frequencies(msg, freqs);
+@@ -562,7 +568,7 @@ static void scan_build_next_cmd(struct l_queue *cmds, struct scan_context *sc,
+ 	data.num_ssids_can_append = data.max_ssids_per_scan;
+ 	known_networks_foreach(scan_cmds_add_hidden, &data);
+ 
+-	l_genl_msg_append_attr(cmd, NL80211_ATTR_SSID, 0, NULL);
++	l_genl_msg_append_attr(cmd, 0, 0, NULL);
+ 	l_genl_msg_leave_nested(cmd);
+ 	l_queue_push_tail(cmds, cmd);
+ }
+@@ -1032,7 +1038,7 @@ static bool scan_periodic_queue(struct scan_context *sc)
+ 					scan_periodic_notify, sc,
+ 					scan_periodic_destroy);
+ 	} else
+-		sc->sp.id = scan_common(sc->wdev_id, true, &params,
++		sc->sp.id = scan_common(sc->wdev_id, false, &params,
+ 					WIPHY_WORK_PRIORITY_PERIODIC_SCAN,
+ 					scan_periodic_triggered,
+ 					scan_periodic_notify, sc,
+@@ -1055,7 +1061,8 @@ static bool scan_periodic_is_disabled(void)
+ 	return disabled;
+ }
+ 
+-void scan_periodic_start(uint64_t wdev_id, scan_trigger_func_t trigger,
++void scan_periodic_start(uint64_t wdev_id, uint32_t ifindex,
++				scan_trigger_func_t trigger,
+ 				scan_notify_func_t func, void *userdata)
+ {
+ 	struct scan_context *sc;
+@@ -1079,6 +1086,7 @@ void scan_periodic_start(uint64_t wdev_id, scan_trigger_func_t trigger,
+ 	sc->sp.trigger = trigger;
+ 	sc->sp.callback = func;
+ 	sc->sp.userdata = userdata;
++	sc->sp.ifindex = ifindex;
+ 
+ 	/* If nothing queued, start the first periodic scan */
+ 	scan_periodic_queue(sc);
+diff --git a/src/scan.h b/src/scan.h
+index 65caf41c..4b5e29d6 100644
+--- a/src/scan.h
++++ b/src/scan.h
+@@ -105,6 +105,7 @@ struct scan_parameters {
+ 	const uint8_t *ssid;	/* Used for direct probe request */
+ 	size_t ssid_len;
+ 	const uint8_t *source_mac;
++	uint32_t ifindex;
+ };
+ 
+ typedef void (*scan_func_t)(struct l_genl_msg *msg, void *user_data);
+@@ -153,7 +154,8 @@ uint32_t scan_owe_hidden(uint64_t wdev_id, struct l_queue *list,
+ 			void *userdata, scan_destroy_func_t destroy);
+ bool scan_cancel(uint64_t wdev_id, uint32_t id);
+ 
+-void scan_periodic_start(uint64_t wdev_id, scan_trigger_func_t trigger,
++void scan_periodic_start(uint64_t wdev_id, uint32_t ifindex,
++				scan_trigger_func_t trigger,
+ 				scan_notify_func_t func, void *userdata);
+ bool scan_periodic_stop(uint64_t wdev_id);
+ 
+diff --git a/src/station.c b/src/station.c
+index c4e7a887..06e4604d 100644
+--- a/src/station.c
++++ b/src/station.c
+@@ -1360,6 +1360,7 @@ static uint32_t station_scan_trigger(struct station *station,
+ 	memset(&params, 0, sizeof(params));
+ 	params.flush = true;
+ 	params.freqs = freqs;
++	params.ifindex = netdev_get_ifindex(station->netdev);
+ 
+ 	if (wiphy_can_randomize_mac_addr(station->wiphy) ||
+ 			station->connected_bss ||
+@@ -1372,7 +1373,7 @@ static uint32_t station_scan_trigger(struct station *station,
+ 					station, destroy);
+ 	}
+ 
+-	return scan_passive_full(id, &params, triggered, notify,
++	return scan_active_full(id, &params, triggered, notify,
+ 					station, destroy);
+ }
+ 
+@@ -1585,7 +1586,8 @@ static void station_enter_state(struct station *station,
+ 		station->state = STATION_STATE_AUTOCONNECT_FULL;
+ 		/* Fall through */
+ 	case STATION_STATE_AUTOCONNECT_FULL:
+-		scan_periodic_start(id, periodic_scan_trigger,
++		scan_periodic_start(id, netdev_get_ifindex(station->netdev),
++					periodic_scan_trigger,
+ 					new_scan_results, station);
+ 		break;
+ 	case STATION_STATE_CONNECTING:
+-- 
+2.39.2
+

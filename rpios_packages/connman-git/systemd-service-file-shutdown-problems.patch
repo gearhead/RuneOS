@@ -1,0 +1,17 @@
+Description: Prevent systemd service file shutdown problems
+ Silence lintian warnings about, read more at
+ https://lintian.debian.org/tags/systemd-service-file-shutdown-problems.html
+
+Last-Update: 2019-05-01
+
+--- a/src/connman-wait-online.service.in
++++ b/src/connman-wait-online.service.in
+@@ -2,7 +2,7 @@
+ Description=Wait for network to be configured by ConnMan
+ Requisite=connman.service
+ After=connman.service
+-Before=network-online.target
++Before=network-online.target shutdown.target
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+ 

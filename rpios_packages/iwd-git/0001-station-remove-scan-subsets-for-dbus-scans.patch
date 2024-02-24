@@ -1,0 +1,88 @@
+From 7360e2f088db0120f8ae0c19e7ba9c1cbaee2096 Mon Sep 17 00:00:00 2001
+From: James Prestwood <prestwoj@gmail.com>
+Date: Mon, 12 Feb 2024 04:42:23 -0800
+Subject: [PATCH 1/3] station: remove scan subsets for dbus scans
+
+---
+ src/station.c | 61 ++++-----------------------------------------------
+ 1 file changed, 4 insertions(+), 57 deletions(-)
+
+diff --git a/src/station.c b/src/station.c
+index ea505ca2..c4e7a887 100644
+--- a/src/station.c
++++ b/src/station.c
+@@ -4421,67 +4421,14 @@ int station_hide_network(struct station *station, struct network *network)
+ 	return 0;
+ }
+ 
+-static void station_add_2_4ghz_freq(uint32_t freq, void *user_data)
+-{
+-	struct scan_freq_set *set = user_data;
+-
+-	/* exclude social channels added in initial scan request */
+-	if (freq < 3000 && freq != 2412 && freq != 2437 && freq != 2462)
+-		scan_freq_set_add(set, freq);
+-}
+-
+ static void station_fill_scan_freq_subsets(struct station *station)
+ {
+ 	const struct scan_freq_set *supported =
+ 				wiphy_get_supported_freqs(station->wiphy);
+-	unsigned int subset_idx = 0;
+-
+-	/*
+-	 * Scan the 2.4GHz "social channels" first, 5GHz second, if supported,
+-	 * all other 2.4GHz channels last.  To be refined as needed.
+-	 */
+-	if (allowed_bands & BAND_FREQ_2_4_GHZ) {
+-		station->scan_freqs_order[subset_idx] = scan_freq_set_new();
+-		scan_freq_set_add(station->scan_freqs_order[subset_idx], 2412);
+-		scan_freq_set_add(station->scan_freqs_order[subset_idx], 2437);
+-		scan_freq_set_add(station->scan_freqs_order[subset_idx], 2462);
+-		subset_idx++;
+-	}
+-
+-	/*
+-	 * TODO: It may might sense to split up 5 and 6ghz into separate subsets
+-	 *       since the channel set is so large.
+-	 */
+-	if (allowed_bands & (BAND_FREQ_5_GHZ | BAND_FREQ_6_GHZ)) {
+-		uint32_t mask = allowed_bands &
+-					(BAND_FREQ_5_GHZ | BAND_FREQ_6_GHZ);
+-		struct scan_freq_set *set = scan_freq_set_clone(supported,
+-								mask);
+-
+-		/* 5/6ghz didn't add any frequencies */
+-		if (scan_freq_set_isempty(set)) {
+-			scan_freq_set_free(set);
+-		} else
+-			station->scan_freqs_order[subset_idx++] = set;
+-	}
+-
+-	/* Add remaining 2.4ghz channels to subset */
+-	if (allowed_bands & BAND_FREQ_2_4_GHZ) {
+-		station->scan_freqs_order[subset_idx] = scan_freq_set_new();
+-		scan_freq_set_foreach(supported, station_add_2_4ghz_freq,
+-					station->scan_freqs_order[subset_idx]);
+-	}
+-
+-	/*
+-	 * This has the unintended consequence of allowing DBus scans to
+-	 * scan the entire spectrum rather than cause IWD to be completely
+-	 * non-functional. Rather than prevent DBus scans from working at all
+-	 * print a warning here.
+-	 */
+-	if (station->scan_freqs_order[0] == NULL)
+-		l_warn("All supported bands were disabled by user! IWD will not"
+-			" function as expected");
+-
++	station->scan_freqs_order[0] = scan_freq_set_clone(supported,
++						BAND_FREQ_2_4_GHZ |
++						BAND_FREQ_5_GHZ |
++						BAND_FREQ_6_GHZ);
+ }
+ 
+ static void station_wiphy_watch(struct wiphy *wiphy,
+-- 
+2.39.2
+

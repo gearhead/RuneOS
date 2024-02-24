@@ -1,0 +1,27 @@
+From 6f612db7e7833ed9add199d8b88a113f62edd3f9 Mon Sep 17 00:00:00 2001
+From: James Prestwood <prestwoj@gmail.com>
+Date: Tue, 13 Feb 2024 06:23:37 -0600
+Subject: [PATCH 2/3] eap: fix compile issue on ARM/GCC 12
+
+---
+ src/eap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/eap.c b/src/eap.c
+index 4d08f072..95a9c25c 100644
+--- a/src/eap.c
++++ b/src/eap.c
+@@ -425,8 +425,8 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+ 				size_t len)
+ {
+ 	enum eap_type type;
+-	uint32_t vendor_id;
+-	uint32_t vendor_type;
++	uint32_t vendor_id = 0;
++	uint32_t vendor_type = 0;
+ 	enum eap_type our_type = eap->method->request_type;
+ 	uint32_t our_vendor_id = (eap->method->vendor_id[0] << 16) |
+ 				(eap->method->vendor_id[1] << 8) |
+-- 
+2.39.2
+

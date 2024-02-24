@@ -1,0 +1,83 @@
+# Based on the files created for Arch Linux by:
+# Christian Rebischke <Chris.Rebischke[at]archlinux[dot]org>
+# Daniel Wallace <danielwallace at gtmanfred dot com>
+# Lucas De Marchi <lucas.de.marchi@gmail.com>
+# Tailinchu <tailinchu at gmail dot com>
+# tormen <quickhelp@gmail.com>
+# Maintainer: Andrey Vetrov <vetrov at mail dot ru>
+
+pkgname=connman-git
+pkgver=0.r1.ee0046e
+pkgrel=1
+pkgdesc="Intel's modular network connection manager. Git version."
+url="https://01.org/connman"
+arch=('armhf' 'arm64')
+license=('GPL2')
+provides=("connman=$pkgver")
+conflicts=('connman')
+makedepends=('bluez' 'wpasupplicant' 'openconnect' 'openvpn' 'ppp' 'iwd' 'ppp-dev' 'debhelper-compat'\
+             'libudev-dev' 'libglib2.0-dev' 'libdbus-1-dev' 'gtk-doc-tools' 'libgnutls28-dev' 'libopenconnect-dev'\
+             'libreadline-dev' 'libxtables-dev' 'wpasupplicant' 'libbluetooth-dev' 'ppp-dev' 'libmnl-dev')
+depends=('dbus' 'iptables' 'libc6' 'libdbus-1-3' 'gnutls-bin' 'libglib2.0-0' 'libgnutls30' 'libxtables12' 'libmnl0'\
+             'lsb-base')
+optdepends=('bluez: Support for Bluetooth devices'
+            'wpa_supplicant: for WiFi devices'
+            'pptpclient: for ppp support'
+            'openvpn: for VPN Support'
+            'iwd: for WiFi devices')
+source=("git+https://git.kernel.org/pub/scm/network/connman/connman.git"
+        'allow_group_network.diff'
+     '01-init-script-lsb-headers.patch'
+     'systemd-service-file-shutdown-problems.patch')
+sha512sums=('SKIP'
+            '06dd5867d460f1c3cf6c359e650ca2ef24495493a99cd03dbd17f23e587e9066d9bc98758d85d5c690d1ae21fa77ad8da5e2fa83d0b52c95d7a535784c5c4964'
+            '35625124579c9afef4c1d786f03308965dc5fa5b2c493d0eb535bf33cae2772bfc8cf93905b68f9156c26a33cbcf42af5ddecd54da314104e9e38a7da9b5a824'
+            '14ec78e9d5493b9d68156bde6a9948c491f094cfbcb82247df83538f355ae9c82e2b9350d25935a2fc2f7b18bc97771b47d9d5fe3e77540c724c986666cf3b3e')
+pkgver() {
+    cd ${pkgname%-*}
+#    git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare(){
+  cd ${pkgname%-*}
+#  patch -Np1 -i "${srcdir}/allow_group_network.diff"
+  patch -Np1 -i "${srcdir}/01-init-script-lsb-headers.patch"
+  patch -Np1 -i "${srcdir}/systemd-service-file-shutdown-problems.patch"
+}
+
+build() {
+	cd "$srcdir/${pkgname%-*}"
+        autoreconf --install
+        autoconf
+
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+      --runstatedir='/run' \
+      --enable-iwd \
+      --enable-l2tp \
+      --enable-openconnect \
+      --enable-openvpn \
+      --enable-pptp \
+      --enable-pie \
+      --enable-polkit \
+      --enable-selinux \
+      --enable-threads \
+      --with-openconnect=/usr/sbin/openconnect \
+      --with-openvpn=/usr/sbin/openvpn \
+      --with-systemdunitdir=/lib/systemd/system \
+      --with-tmpfilesdir=/usr/lib/tmpfiles.d \
+      --with-dns-backend=systemd-resolved
+	make
+}
+
+package() {
+  cd "$srcdir/${pkgname%-*}"
+  make DESTDIR="$pkgdir" install
+  install -Dm644 "${srcdir}/${pkgname%-*}/src/main.conf" "${pkgdir}/etc/connman/main.conf"
+  find "${pkgdir}/usr" -name \*.service -exec sed -i 's/s\(bin\)/\1/' {} +
+# See FS#48044
+#  sed -i 's/ProtectSystem=full/ProtectSystem=true/' "${pkgdir}"/usr/lib/systemd/system/connman.service
+  sed -i 's/ProtectSystem=full/ProtectSystem=true/' "${pkgdir}"/lib/systemd/system/connman.service
+  rm -r "${pkgdir}"/usr/lib/tmpfiles.d
+
+}

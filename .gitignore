@@ -6,13 +6,13 @@
 /fdk/libfdkaac
 *.tgz
 *.zip
-rpios_build/
+/rpios_build/
 /scripts/*.txt
 /scripts/*.txt
-rpios_packages/connman-git/.git/
-rpios_packages/connman-git/.SRCINFO
-rpios_packages/connman-git/.gitignore
-rpios_packages/iwd-git/.git
-rpios_packages/iwd-git/.SRCINFO
-rpios_packages/iwd-git/.gitignore
+/rpios_packages/connman-git/.git/
+/rpios_packages/connman-git/.SRCINFO
+/rpios_packages/connman-git/.gitignore
+/rpios_packages/iwd-git/.git
+/rpios_packages/iwd-git/.SRCINFO
+/rpios_packages/iwd-git/.gitignore
 

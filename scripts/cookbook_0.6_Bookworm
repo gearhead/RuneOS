@@ -110,7 +110,7 @@ apt install -y chromium
 apt install -y php-tokenizer 
 
 # networking
-apt install -y connman
+apt install -y connman iwd
 # iwd is not installed, here, as we build a more up to date version
 
 #apt install -y llmnrd -- not needed as we use systemd-resolved which conflicts
@@ -121,9 +121,6 @@ apt install -y connman
 # edit /etc/locale.gen then run locale-gen then 
 #locale-gen
 #dpkg-reconfigure locales
-
-mv /boot/firmware/config.txt /boot/firmware/config.txt.backup
-cp /srv/http/app/config/defaults/boot/config.txt /boot/firmware/
 
 # fix an error in Bookworm
 #sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d
@@ -155,6 +152,9 @@ chmod -R 755 /srv/http/db/redis_datastore_setup
 chmod -R 755 /srv/http/db/redis_acards_details
 mkdir /var/log/runeaudio
 
+mv /boot/firmware/config.txt /boot/firmware/config.txt.backup
+cp /srv/http/app/config/defaults/boot/config.txt /boot/firmware/
+
 # create keyring folder
 gpg -k
 
@@ -171,29 +171,33 @@ sudo apt-get install -y upmpdcli
 
 # remove the packages that conflict
 apt remove --purge -y wpasupplicant
-apt remove --purge -y pulseaudio
+apt remove --purge -y pulseaudio pulseaudio-utils libpulsedsp pipewire
+apt remove --purge pipewire pipewire-pulse pipewire-bin liblua libpipewire-0.3-modules libwireplumber ofono
 apt remove --purge -y network-manager
 apt remove --purge -y netctl ifplugd
+apt autoremove 
 
 # i had to do this after it was all set up. Do not know if it will always be needed
-apt remove --purge sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
-apt remove --purge llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
+apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
+apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
 
 # install motd
 cp /srv/http/app/config/defaults/etc/motd /etc/
 cp /srv/http/app/config/defaults/etc/issue /etc/
 
 # install config files
+mv /etc/nanorc /etc/nanorc.orig
 cp /srv/http/app/config/defaults/etc/nanorc /etc/
 
 # enable dnsmasq for hostapd
-mv /etc/dnsmasq.conf /etc/dnsmasq.conf.pacsave
+mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
 cp /srv/http/app/config/defaults/etc/dnsmasq.conf /etc/
     
 # get correct hostapd.conf
+mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.orig
 cp /srv/http/app/config/defaults/etc/hostapd/hostapd.conf /etc/hostapd/
 
-mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
+mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 cp /srv/http/app/config/defaults/etc/nginx/nginx-prod.conf /etc/nginx/
 mkdir /etc/nginx/html
 cp /srv/http/app/config/defaults/etc/nginx/html/50x.html /etc/nginx/
@@ -275,6 +279,14 @@ usermod -a -G render http
 mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
 cp /srv/http/app/config/defaults/etc/X11/xinit/xinitrc /etc/X11/xinit
 cp /srv/http/app/config/defaults/etc/X11/Xwrapper.config /etc/X11
+
+mv /etc/fstab /etc/fstab.backup
+cp /srv/http/app/config/defaults/etc/fstab /etc/fstab
+
+mkdir /var/log/runeaudio
+mkdir /srv/http/tmp
+
+mount -a
 
 # do this or it will not return after reboot!
 systemctl enable connman iwd

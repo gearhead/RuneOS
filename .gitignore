@@ -9,5 +9,10 @@
 rpios_build/
 /scripts/*.txt
 /scripts/*.txt
-/connman-git/.git/
-/iwd-git/.git
+rpios_packages/connman-git/.git/
+rpios_packages/connman-git/.SRCINFO
+rpios_packages/connman-git/.gitignore
+rpios_packages/iwd-git/.git
+rpios_packages/iwd-git/.SRCINFO
+rpios_packages/iwd-git/.gitignore
+

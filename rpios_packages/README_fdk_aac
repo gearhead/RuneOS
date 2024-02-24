@@ -1,4 +1,0 @@
-https://forums.raspberrypi.com/viewtopic.php?p=2100652#p2100652
-
-built proper armhf package with this:
-apt-get --build source libfdk-aac2

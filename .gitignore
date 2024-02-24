@@ -2,12 +2,12 @@
 **/src/
 **/pkg/
 *.gz
-fdk/fdkaac
-fdk/libfdkaac
+/fdk/fdkaac
+/fdk/libfdkaac
 *.tgz
 *.zip
 rpios_build/
-/scripts/*-hf.txt
-/scripts/*-64.txt
+/scripts/*.txt
+/scripts/*.txt
 /connman-git/.git/
-iwd-git/.git
+/iwd-git/.git

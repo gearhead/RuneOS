@@ -1,9 +1,9 @@
-**/archive
+**/archive/
 **/src/
 **/pkg/
 *.gz
-/fdk/fdkaac
-/fdk/libfdkaac
+/fdk/fdkaac/
+/fdk/libfdkaac/
 *.tgz
 *.zip
 /rpios_build/
@@ -12,7 +12,7 @@
 /rpios_packages/connman-git/.git/
 /rpios_packages/connman-git/.SRCINFO
 /rpios_packages/connman-git/.gitignore
-/rpios_packages/iwd-git/.git
+/rpios_packages/iwd-git/.git/
 /rpios_packages/iwd-git/.SRCINFO
 /rpios_packages/iwd-git/.gitignore
 

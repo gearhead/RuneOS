@@ -10,7 +10,7 @@ arch=('armhf' 'arm64')
 license=(MIT)
 
 depends=("libmpdclient2")
-makedepends=("libmpdclient-dev" "libabsl-dev" "meson")
+makedepends=("libmpdclient-dev" "libabsl-dev" "meson" "cmake")
 
 source=(
   "$pkgname::git+https://github.com/joshkunz/ashuffle.git"

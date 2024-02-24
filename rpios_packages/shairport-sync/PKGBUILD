@@ -3,18 +3,18 @@
 _pkgname=shairport-sync
 pkgname=$_pkgname-rune
 pkgver=4.3.2
-pkgrel=1
+pkgrel=2
 pkgdesc="AirPlay 2 audio player with multi-room playback for Rune"
 url="https://github.com/mikebrady/shairport-sync"
 arch=('arm64' 'armhf')
 license=('custom')
 backup=(/etc/shairport-sync.conf)
-depends=('openssl' 'libasound2' 'ffmpeg' 'avahi-daemon' 'libpulse0' \
-         'mosquitto' 'libplist-utils' 'libavahi-compat-libdnssd1' 'libconfig9')
+depends=('openssl' 'libasound2' 'ffmpeg' 'libpulse0' \
+         'mosquitto' 'libplist-utils' 'libconfig9')
 makedepends=('autoconf' 'automake' 'libtool' 'xxd' 'libalac' 'mosquitto' 'ffmpeg' 'libasound2-dev' 'libsodium-dev' 'libplist-dev'\
-             'libsoxr-dev' 'libjack-dev' 'portaudio19-dev' 'libavahi-compat-libdnssd-dev' 'libmosquitto-dev' 'libpulse-dev'\
-             'libgcrypt-dev' 'libavutil-dev' 'libavcodec-dev' 'libavformat-dev' 'libavahi-client-dev' 'libpopt-dev' 'libconfig-dev'\
-             'libpipewire-0.3-dev')
+             'libsoxr-dev' 'libjack-dev' 'portaudio19-dev' 'libmosquitto-dev' 'libpulse-dev'\
+             'libgcrypt-dev' 'libavutil-dev' 'libavcodec-dev' 'libavformat-dev' 'libpopt-dev' 'libconfig-dev'\
+             'libpipewire-0.3-dev' 'portaudio19-dev' 'libavahi-compat-libdnssd-dev')
 optdepends=('pulseaudio: PulseAudio support'
             'pipewire: PipeWire support'
             'libsoxr: libsoxr-based resampling')
@@ -46,7 +46,6 @@ build() {
     --with-jack \
     --with-stdout \
     --with-pipe \
-    --with-avahi \
     --with-dns_sd \
     --with-pkg-config \
     --with-configfiles \

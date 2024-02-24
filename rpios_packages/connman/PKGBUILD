@@ -2,16 +2,17 @@
 # borrowed and modified from Arch Linux for Rune
 
 pkgname=connman
-pkgver=1.41
-pkgrel=1
+pkgver=1.42
+pkgrel=2
 pkgdesc="Intel's modular network connection manager"
 url="https://01.org/connman"
 arch=('armhf' 'arm64')
 license=('GPL2')
-makedepends=('bluez' 'wpasupplicant' 'openconnect' 'openvpn' 'ppp' 'iwd' 'ppp-dev'\
+makedepends=('bluez' 'wpasupplicant' 'openconnect' 'openvpn' 'ppp' 'iwd' 'ppp-dev' 'debhelper-compat'\
              'libudev-dev' 'libglib2.0-dev' 'libdbus-1-dev' 'gtk-doc-tools' 'libgnutls28-dev' 'libopenconnect-dev'\
              'libreadline-dev' 'libxtables-dev' 'wpasupplicant' 'libbluetooth-dev' 'ppp-dev' 'libmnl-dev')
-depends=('dbus' 'iptables' 'libc6' 'libdbus-1-3' 'gnutls-bin' 'libglib2.0-0' 'libgnutls30' 'libxtables12' 'libmnl0')
+depends=('dbus' 'iptables' 'libc6' 'libdbus-1-3' 'gnutls-bin' 'libglib2.0-0' 'libgnutls30' 'libxtables12' 'libmnl0'\
+             'lsb-base')
 backup=('/etc/connman/main.conf')
 optdepends=('bluez: Support for Bluetooth devices'
             'wpa_supplicant: for WiFi devices'
@@ -21,18 +22,22 @@ optdepends=('bluez: Support for Bluetooth devices'
 source=("${pkgname}-${pkgver}.tar.xz::https://www.kernel.org/pub/linux/network/${pkgname}/${pkgname}-${pkgver}.tar.xz"
         "${pkgname}-${pkgver}.tar.sign::https://www.kernel.org/pub/linux/network/${pkgname}/${pkgname}-${pkgver}.tar.sign"
         'allow_group_network.diff'
+     '01-init-script-lsb-headers.patch'
+     'systemd-service-file-shutdown-problems.patch'
         'Scan_in_AP_mode.patch')
-sha512sums=('b7880d908635ab9350c12e207213d20b11c1a50afcb93ae92e1fc57d4345bf792afe1a5534650e18b8cd05a3766ce9993083b2d659e49f87b867e6f2c1a83b2d'
-            'SKIP'
-            'SKIP'
-            'SKIP')
 validpgpkeys=('E932D120BC2AEC444E558F0106CA9F5D1DCF2659')
-
+sha512sums=('SKIP'
+            'SKIP'
+            '3dac1b91d0ae6ad9ce1e83e50d5efc95f0158b30e1d05b99afa70437e3bec91296b633d117403a64485e1266cb9ebbec82b54fccaede4d3a3604bd1523db1afb'
+            '35625124579c9afef4c1d786f03308965dc5fa5b2c493d0eb535bf33cae2772bfc8cf93905b68f9156c26a33cbcf42af5ddecd54da314104e9e38a7da9b5a824'
+            '14ec78e9d5493b9d68156bde6a9948c491f094cfbcb82247df83538f355ae9c82e2b9350d25935a2fc2f7b18bc97771b47d9d5fe3e77540c724c986666cf3b3e'
+            'd69f6aa204ab3cebda54604bbdc36b3bc193f83996a4166b6b723a3a651d52043cfb47945f4c231b9ab5b23ede9adbf0d8d69cc4b96ff4742a71b1896cbacb67')
 prepare(){
   cd "${pkgname}-${pkgver}"
-  patch -Np1 -i "${srcdir}/allow_group_network.diff"
+#  patch -Np1 -i "${srcdir}/allow_group_network.diff"
+ patch -Np1 -i "${srcdir}/01-init-script-lsb-headers.patch"
+ patch -Np1 -i "${srcdir}/systemd-service-file-shutdown-problems.patch"
 #  patch -Np1 -i "${srcdir}/Scan_in_AP_mode.patch"
-
 }
 
 build() {
@@ -46,14 +51,15 @@ build() {
       --enable-openvpn \
       --enable-pie \
       --enable-polkit \
-      --enable-pptp \
       --enable-selinux \
       --enable-threads \
       --with-openconnect=/usr/sbin/openconnect \
       --with-openvpn=/usr/sbin/openvpn \
       --with-systemdunitdir=/lib/systemd/system \
-      --with-tmpfilesdir=/usr/lib/tmpfiles.d 
+      --with-tmpfilesdir=/usr/lib/tmpfiles.d \
+      --with-dns-backend=systemd-resolved
   make
+#      --enable-pptp \
 }
 
 package() {

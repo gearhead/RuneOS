@@ -127,7 +127,7 @@ apt install -y systemd-resolved
 #sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d
 
 # i had to do this after it was all set up. Do not know if it will always be needed
-apt remove --purge sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
+apt remove --purge sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager
 apt remove --purge llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
 
 # add a link to /dev/null for nologin
@@ -176,6 +176,7 @@ apt remove --purge -y pulseaudio pulseaudio-utils libpulsedsp pipewire
 apt remove --purge pipewire pipewire-pulse pipewire-bin liblua libpipewire-0.3-modules libwireplumber ofono
 apt remove --purge -y network-manager
 apt remove --purge -y netctl ifplugd
+apt remove --purge -y triggerhappy
 apt autoremove 
 
 # i had to do this after it was all set up. Do not know if it will always be needed
@@ -198,11 +199,11 @@ cp /srv/http/app/config/defaults/etc/dnsmasq.conf /etc/
 mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.orig
 cp /srv/http/app/config/defaults/etc/hostapd/hostapd.conf /etc/hostapd/
 
-mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
-cp /srv/http/app/config/defaults/etc/nginx/nginx-prod.conf /etc/nginx/
+# mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
+rm /etc/nginx/nginx.conf
+cp /srv/http/app/config/defaults/etc/nginx/nginx.conf /etc/nginx/
 mkdir /etc/nginx/html
 cp /srv/http/app/config/defaults/etc/nginx/html/50x.html /etc/nginx/
-ln -s /etc/nginx/nginx-prod.conf /etc/nginx/nginx.conf
 systemctl enable nginx
 
 # this is a strange one. RPi uses redis-server for the service

@@ -110,8 +110,9 @@ apt install -y chromium
 apt install -y php-tokenizer 
 
 # networking
-apt install -y connman iwd
-# iwd is not installed, here, as we build a more up to date version
+# apt install -y connman iwd
+# connman and iwd are not installed, here, as we build more up to date versions
+apt install -y systemd-resolved
 
 #apt install -y llmnrd -- not needed as we use systemd-resolved which conflicts
 #apt install -y ifplugd -- not needed as it was used with netctl

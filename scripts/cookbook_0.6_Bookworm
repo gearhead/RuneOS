@@ -102,7 +102,6 @@ apt install -y ntfs-3g
 apt install -y dosfstools dos2unix
 apt install -y cifs-utils
 apt install -y alsa-utils
-apt install -y libavahi-compat-libdnssd1
 
 # noted by John that with bookworm that these were not installed
 apt install -y sysfsutils winbind unclutter telnet flac firmware-linux-nonfree libasound2-plugin-equal

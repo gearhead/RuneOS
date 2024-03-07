@@ -67,7 +67,6 @@ apt install -y luakit weston
 apt install -y brutefir
 apt install -y drc
 apt install -y hfsutils hfsprogs
-#apt install -y shairport-sync # we build a more up to date version
 apt install -y loudgain
 apt install -y mpdscribble
 apt install -y snapserver snapclient
@@ -110,47 +109,8 @@ apt install -y chromium
 apt install -y php-tokenizer 
 
 # networking
-# apt install -y connman iwd
 # connman and iwd are not installed, here, as we build more up to date versions
 apt install -y systemd-resolved
-
-#apt install -y llmnrd -- not needed as we use systemd-resolved which conflicts
-#apt install -y ifplugd -- not needed as it was used with netctl
-
-# this messes up perl and we get a ton of screen errors
-# run raspi-config... or:
-# edit /etc/locale.gen then run locale-gen then 
-#locale-gen
-#dpkg-reconfigure locales
-
-# fix an error in Bookworm
-#sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d
-
-# add a link to /dev/null for nologin
-ln -s /dev/null /usr/bin/nologin
-# create http user
-useradd -U -c "http webserver user" -d /srv/http -s /usr/bin/nologin "http"
-
-systemctl stop dnsmasq
-systemctl disable dnsmasq
-systemctl stop hostapd
-systemctl disable hostapd
-systemctl stop snapserver snapclient
-systemctl disable snapserver snapclient
-
-mkdir /srv/http
-cd /srv/http
-git clone -b 0.6b-dev https://github.com/gearhead/RuneUI.git .
-chown -R http:http /srv/http/
-chmod 644 $(find /srv/http/ -type f)
-chmod 755 $(find /srv/http/ -type d)
-chmod -R 755 /srv/http/command/
-chmod -R 755 /srv/http/db/redis_datastore_setup
-chmod -R 755 /srv/http/db/redis_acards_details
-mkdir /var/log/runeaudio
-
-mv /boot/firmware/config.txt /boot/firmware/config.txt.backup
-cp /srv/http/app/config/defaults/boot/config.txt /boot/firmware/
 
 # create keyring folder
 gpg -k
@@ -164,20 +124,70 @@ mv upmpdcli-rbookworm.list /etc/apt/sources.list.d/
 sudo apt-get update
 sudo apt-get install -y upmpdcli
 
-# install the built packages
+# At thhis point, perl is messed up and we get a ton of screen errors
+# perl: warning: Setting locale failed. 
+# run raspi-config
+# 1) set localization-options, Locale and set it as en_US-UTF8
+# edit /etc/locale.gen then run locale-gen then 
+# locale-gen
+# dpkg-reconfigure locales
+# then reboot, this cannot be done as part of this script
+# you may also want to set the keyboard to your local version as well
+# it is set as en_GB-UTF8 bt default
+
+# fix an error in Bullseye not present in Bookworm kept here as a remionder
+# sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d
+
+# add a link to /dev/null for nologin
+ln -s /dev/null /usr/bin/nologin
+# create http user
+useradd -U -c "http webserver user" -d /srv/http -s /usr/bin/nologin "http"
+
+# stop some of the installed services
+systemctl stop dnsmasq
+systemctl disable dnsmasq
+systemctl stop hostapd
+systemctl disable hostapd
+systemctl stop snapserver snapclient
+systemctl disable snapserver snapclient
+
+# set up RuneUI
+mkdir /srv/http
+cd /srv/http
+git clone -b 0.7b-dev https://github.com/gearhead/RuneUI.git .
+chown -R http:http /srv/http/
+chmod 644 $(find /srv/http/ -type f)
+chmod 755 $(find /srv/http/ -type d)
+chmod -R 755 /srv/http/command/
+chmod -R 755 /srv/http/db/redis_datastore_setup
+chmod -R 755 /srv/http/db/redis_acards_details
+mkdir /var/log/runeaudio
+
+#remove the directory /var/www/
+rm -rf /var/www
+#then create the sym link
+ln -s /srv/http /var/www
+
+# install the built packages from RuneOS:
+# ashuffle, bluez-alsa, bluez-alsa-monitor, connman-git, iwd-git. libalac, librespot, nginx-rune
+# nqptp, openaptx, ply-lite, rsgain, shairport-sync, spotifyd 
 
 # remove the packages that conflict
 apt remove --purge -y wpasupplicant
 apt remove --purge -y pulseaudio pulseaudio-utils libpulsedsp pipewire
-apt remove --purge pipewire pipewire-pulse pipewire-bin liblua libpipewire-0.3-modules libwireplumber ofono
+apt remove --purge -y pipewire pipewire-pulse pipewire-bin liblua libpipewire-0.3-modules libwireplumber ofono
 apt remove --purge -y network-manager
 apt remove --purge -y netctl ifplugd
 apt remove --purge -y triggerhappy
-apt autoremove 
 
 # I had to do this after it was all set up. Do not know if it will always be needed
 apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
 apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
+apt autoremove
+
+# install the Rune config.txt
+mv /boot/firmware/config.txt /boot/firmware/config.txt.backup
+cp /srv/http/app/config/defaults/boot/config.txt /boot/firmware/
 
 # install motd
 cp /srv/http/app/config/defaults/etc/motd /etc/
@@ -202,9 +212,9 @@ mkdir /etc/nginx/html
 cp /srv/http/app/config/defaults/etc/nginx/html/50x.html /etc/nginx/
 systemctl enable nginx
 
-# this is a strange one. RPi uses redis-server for the service
+# this is a strange one. RPiOS uses redis-server for the service
 # they expect multiple servers all with their own name, so we shut down 
-# their system and install ours. 
+# their system service and install ours. 
 systemctl stop redis-server
 systemctl disable redis-server
 systemctl mask redis-server
@@ -238,11 +248,6 @@ systemctl enable amixer-webui
 # if this is installed, disable dhcpcd as connman does this
 systemctl disable dhcpcd 
 systemctl mask dhcpcd
-
-#remove the directory /var/www/
-rm -rf /var/www
-#then create the sym link
-ln -s /srv/http /var/www
 
 # this may not be correct as we need to delete everything here
 # and add a tmp filesystem then do this...
@@ -295,7 +300,7 @@ reboot
 initialize image  
 # i.e. run image_reset_script.sh from the RuneUI repo
 
-# form here down, these are needed to use makedeb to build packages
+# from here down, this info is needed to use makedeb to build packages
 # on a second machine. **ignore if you are not doing this**
 #build other packages using makedeb... That way we can use PKGBUILDS
 #https://docs.makedeb.org/introduction/welcome/
@@ -326,7 +331,7 @@ MAKEFLAGS="-j5"
 DISTCC_HOSTS="192.168.1.102:3634"
 */
 
-#arm64
+#arm64 64 bit arm RPiOS
 /*
 CARCH="arm64"
 CHOST="aarch64-unknown-linux-gnu"
@@ -367,9 +372,9 @@ curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs -o rust.sh
 #. "$HOME/.cargo/env"
 
 # so it can be used to build rust packages
-# the armhf rpiOS needs to be built for armv6, so the rust toolkit needed is
+# the armhf rpiOS packages need to be built for armv6, so the rust toolkit needed is
 # arm-unknown-linux-gnueabihf
 # for arm64 it is
 # aarch64-unknown-linux-gnu
 # but this is properly detected based on the kernel
-# when rustup runs
+# when rustup runs on 64 bit arm...

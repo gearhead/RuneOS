@@ -126,10 +126,6 @@ apt install -y systemd-resolved
 # fix an error in Bookworm
 #sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d
 
-# i had to do this after it was all set up. Do not know if it will always be needed
-apt remove --purge sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager
-apt remove --purge llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
-
 # add a link to /dev/null for nologin
 ln -s /dev/null /usr/bin/nologin
 # create http user
@@ -179,7 +175,7 @@ apt remove --purge -y netctl ifplugd
 apt remove --purge -y triggerhappy
 apt autoremove 
 
-# i had to do this after it was all set up. Do not know if it will always be needed
+# I had to do this after it was all set up. Do not know if it will always be needed
 apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
 apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
 

@@ -19,18 +19,18 @@ cd ../ashuffle
 makedeb -s --no-confirm
 rm -rf src/ pkg/ ashuffle/
 # the ones in bookworm are current enough
-#echo "connman"
-#cd ../connman
-#makedeb -s --no-confirm
-#rm -rf src/ pkg/
+echo "connman-git"
+cd ../connman-git
+makedeb -s --no-confirm
+rm -rf src/ pkg/ connman/
 #echo "ell"
 #cd ../ell
 #makedeb -s --no-confirm
 #rm -rf src/ pkg/
-#echo "iwd"
-#cd ../iwd
-#makedeb -s --no-confirm
-#rm -rf src/ pkg/
+echo "iwd-git"
+cd ../iwd-git
+makedeb -s --no-confirm
+rm -rf src/ pkg/ ell/ iwd/
 echo "nginx"
 cd ../nginx-rune
 makedeb -s --no-confirm

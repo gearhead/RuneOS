@@ -183,7 +183,11 @@ apt remove --purge -y triggerhappy
 # I had to do this after it was all set up. Do not know if it will always be needed
 apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
 apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
-apt autoremove
+apt remove --purge man-db mkvtoolnix
+apt -y autoremove
+
+# remove more cruft - manuals
+rm -rf /usr/share/man/*
 
 # install the Rune config.txt
 mv /boot/firmware/config.txt /boot/firmware/config.txt.backup

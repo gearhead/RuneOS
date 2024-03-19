@@ -2,7 +2,7 @@
 # Contributor: Logan Sevcik <logan+aur@sevcik.email>
 
 pkgname=nqptp-git
-pkgver=1.cfa8315
+pkgver=1.b8384c4
 pkgrel=1
 pkgdesc="A daemon that monitors timing data from PTP clocks"
 arch=('arm64' 'armhf')

@@ -3,11 +3,12 @@
 
 pkgname=bluez-alsa-git
 _pkgname="${pkgname%-git}"
-pkgver=0.r1.1c1e9c0
+pkgver=4.1.1.r86.gb7bb861
 pkgrel=1
 pkgdesc="Bluetooth audio ALSA backend"
 arch=('arm64'
-      'armhf')
+      'armhf'
+      'amd64')
 url="https://github.com/Arkq/${_pkgname}"
 license=('MIT')
 depends=('libasound2'
@@ -56,7 +57,9 @@ install=bluealsa.install
 
 pkgver() {
    cd "$pkgname"
-   printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+   git describe --long --tags --always | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+#   git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+#   printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 
@@ -92,7 +95,7 @@ build() {
          --enable-faststream)
   ./configure \
       "${flags[@]}"
-  make
+  make -j4
 }
 
 package() {

@@ -6,7 +6,7 @@ pkgver=3.13.4
 pkgrel=1
 pkgdesc="Automatic library-wide shuffle for mpd."
 url="https://github.com/joshkunz/ashuffle"
-arch=('armhf' 'arm64')
+arch=('armhf' 'arm64' 'amd64')
 license=(MIT)
 
 depends=("libmpdclient2")
@@ -25,7 +25,7 @@ prepare() {
 
 build() {
   cd "$pkgname"
-  meson \
+  meson setup \
     -Dbuildtype=release \
     -Dprefix='/usr' \
     build

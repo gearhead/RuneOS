@@ -2,11 +2,11 @@
 # Maintainer: gearhead <ys3al35l at gmail dot com>
 
 pkgname=bluealsa-monitor
-pkgver=1.359e5b3
+pkgver=0.r16.359e5b3
 pkgrel=1
 pkgdesc="Automated ALSA Configuration For BlueALSA PCMs (git)"
 url="https://github.com/borine/bluealsa-monitor"
-arch=('arm64' 'armhf')
+arch=('arm64' 'armhf' 'amd64')
 license=(unlicense)
 
 makedepends=("git" "meson" "cmake")
@@ -22,8 +22,9 @@ sha256sums=(
 )
 
 pkgver() {
-	cd "$srcdir/$pkgname"
-        printf "%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+    cd "$srcdir/$pkgname"
+#    git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 #prepare() {

@@ -3,11 +3,11 @@
 #
 pkgname=ply-lite-rune
 _pkgname=ply-lite
-pkgver=0.r1.76e20e8
+pkgver=0.r10.76e20e8
 pkgrel=1
 pkgdesc="a plymouth lite spalsh screen"
 url="https://github.com/T4d3o/Plymouth-lite.git"
-arch=('armhf' 'arm64')
+arch=('armhf' 'arm64' 'amd64')
 license=('GPLv2')
 depends=('libpng16-16')
 makedepends=('git' 'libpng-dev')
@@ -18,7 +18,8 @@ sha256sums=('SKIP')
 
 pkgver() {
   cd "$_pkgname"
-  printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+#  git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {

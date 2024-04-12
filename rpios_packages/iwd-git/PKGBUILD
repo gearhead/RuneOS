@@ -2,10 +2,10 @@
 # Contributor: Christian Rebischke <chris.rebischke@archlinux.org>
 _pkgname='iwd'
 pkgname=iwd-git
-pkgver=0.r1.6bedcb4
+pkgver=2.17.r0.g468cecdb
 pkgrel=1
 pkgdesc='Internet Wireless Daemon'
-arch=('i686' 'x86_64' 'armhf' 'arm64')
+arch=('i686' 'x86_64' 'armhf' 'arm64' 'amd64')
 url='https://git.kernel.org/cgit/network/wireless/iwd.git/'
 license=('LGPL')
 depends=('libc6' 'libreadline8')
@@ -33,7 +33,8 @@ install=iwd.install
 pkgver() {
     cd "$_pkgname"
     #git describe --long | sed -r 's/^r//;s/([^-]*-g)/r\1/;s/-/./g'
-    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+    git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+#    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {

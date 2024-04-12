@@ -2,18 +2,18 @@
 # Contributor: Logan Sevcik <logan+aur@sevcik.email>
 
 pkgname=nqptp-git
-pkgver=1.b8384c4
+pkgver=1.2.5.dev.18.b8384c4
 pkgrel=1
 pkgdesc="A daemon that monitors timing data from PTP clocks"
-arch=('arm64' 'armhf')
-url="https://github.com/mikebrady/nqptp#readme"
+arch=('arm64' 'armhf' 'amd64')
+url="http://github.com/mikebrady/nqptp#readme"
 license=('GPL2')
 provides=(nqptp)
 conflicts=(nqptp)
 replaces=(nqptp)
 backup=()
 options=()
-source=("git+https://github.com/mikebrady/nqptp.git"
+source=("git+http://github.com/mikebrady/nqptp.git"
         nqptp.sysusers
         remove-useradd.patch)
 noextract=()
@@ -24,10 +24,20 @@ md5sums=('SKIP'
 _gitname="nqptp"
 
 pkgver() {
-	cd "$srcdir/$_gitname"
-        printf "%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-}
+    cd "$srcdir/$_gitname"
+# git log -1 --date=short --pretty=format:%ad | sed 's/-//g'
+#    git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+#printf "%s-%s-%s\n" "$(git tag -l --sort=-creatordate | head -n 1)" \
+#"$(git log --oneline $(git describe --tags --abbrev=0).. | wc -l)" \
+#"$(git rev-parse --short HEAD)"
 
+REVISION=$(git tag -l --sort=-creatordate | head -n 1)
+CURRENT=$(git rev-parse --short HEAD)
+LAST=$(git rev-list -n 1 $REVISION | cut -c1-7)
+printf "%s-%s-%s\n" "$REVISION" \
+"$(git rev-list --count $LAST..HEAD)" \
+"$CURRENT" | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 prepare() {
   cd nqptp

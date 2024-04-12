@@ -7,11 +7,11 @@
 # Maintainer: Andrey Vetrov <vetrov at mail dot ru>
 
 pkgname=connman-git
-pkgver=0.r1.1292984
+pkgver=1.42.r383.g49b16df3
 pkgrel=1
 pkgdesc="Intel's modular network connection manager. Git version."
 url="https://01.org/connman"
-arch=('armhf' 'arm64')
+arch=('armhf' 'arm64' 'amd64')
 license=('GPL2')
 provides=("connman=$pkgver")
 conflicts=('connman')
@@ -36,7 +36,8 @@ sha512sums=('SKIP'
 pkgver() {
     cd ${pkgname%-*}
 #    git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
-    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+    git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+#    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare(){

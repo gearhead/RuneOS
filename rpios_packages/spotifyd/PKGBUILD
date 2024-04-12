@@ -3,9 +3,9 @@
 # Contributor: Varakh <varakh@varakh.de>
 
 pkgname=spotifyd-full-git
-pkgver=0.r277.33e525e
+pkgver=0.3.5.r53.g67122c6
 pkgrel=1
-arch=('arm64' 'armhf')
+arch=('arm64' 'armhf' 'amd64')
 depends=('libpulse0' 'libportaudio2')
 license=('GPL3')
 makedepends=('git' 'libpulse-dev' 'dbus' 'portaudio19-dev')
@@ -19,10 +19,11 @@ sha256sums=('SKIP'
             'SKIP')
 
 pkgver() {
-#  cd $srcdir/spotifyd;
+  cd $srcdir/spotifyd;
 #  git describe --tags --match 'v*' | sed 's/^v//;s/-/./g'
    cd "$_pkgname"
-   printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+   git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+#   printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 
 prepare() {
      cd "$_pkgname"

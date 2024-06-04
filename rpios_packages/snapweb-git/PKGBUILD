@@ -1,0 +1,45 @@
+# Maintainer: Gearhead <ys3al35l at gmail dot com>
+
+_pkgname=snapweb
+pkgname=$_pkgname-git
+pkgver=0.7.0.r1.geb23e03
+pkgrel=1
+pkgdesc="Web client for Snapcast. Git version."
+url="https://github.com/badaix/snapweb.git"
+arch=('all')
+license=('GPL3')
+provides=("snapweb=$pkgver")
+conflicts=('snapweb')
+makedepends=('npm')
+depends=()
+source=("git+https://github.com/badaix/snapweb.git")
+sha512sums=('SKIP')
+
+pkgver() {
+    cd ${_pkgname%}
+#    git describe --long --tags | sed 's/\([^v]*-g\)/r\1/;s/-/./g'
+   git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+#prepare() {
+#    _ensure_local_nvm
+#    nvm install 14.15.0
+#    npm ci
+#}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  npm install
+  npm run build
+  npm prune --production
+#    _ensure_local_nvm
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  install -dm755 "${pkgdir}/usr/share/${_pkgname}/"
+  cp -r dist/* "${pkgdir}/usr/share/${_pkgname}/"
+  install -dm755 "${pkgdir}/usr/share/doc/${_pkgname}/"
+  cp debian/copyright "${pkgdir}/usr/share/doc/${_pkgname}/"
+  cp changelog.md "${pkgdir}/usr/share/doc/${_pkgname}/"
+}

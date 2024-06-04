@@ -124,6 +124,11 @@ mv upmpdcli-rbookworm.list /etc/apt/sources.list.d/
 sudo apt-get update
 sudo apt-get install -y upmpdcli
 
+#install premade binary for snapweb
+wget https://github.com/badaix/snapweb/releases/download/v0.7.0/snapweb_0.7.0-1_all.deb
+apt install ./snapweb_0.7.0-1_all.deb
+rm snapweb_0.7.0-1_all.deb
+
 # At thhis point, perl is messed up and we get a ton of screen errors
 # perl: warning: Setting locale failed. 
 # run raspi-config

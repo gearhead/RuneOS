@@ -2,7 +2,7 @@
 # Contributor: oi_wtf <brainpower at mailbox dot og>
 
 pkgname=ashuffle
-pkgver=3.13.4
+pkgver=3.14.7
 pkgrel=1
 pkgdesc="Automatic library-wide shuffle for mpd."
 url="https://github.com/joshkunz/ashuffle"
@@ -14,6 +14,7 @@ makedepends=("libmpdclient-dev" "libabsl-dev" "meson" "cmake")
 
 source=(
   "$pkgname::git+https://github.com/joshkunz/ashuffle.git"
+#  "$pkgname::https://github.com/joshkunz/ashuffle/archive/refs/tags/v$pkgver.tar.gz"
 )
 sha256sums=('SKIP')
 
@@ -28,6 +29,7 @@ build() {
   meson setup \
     -Dbuildtype=release \
     -Dprefix='/usr' \
+    -Dcpp_link_args=-latomic \
     build
   ninja -C build
 }

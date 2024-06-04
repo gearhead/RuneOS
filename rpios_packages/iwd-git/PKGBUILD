@@ -2,7 +2,7 @@
 # Contributor: Christian Rebischke <chris.rebischke@archlinux.org>
 _pkgname='iwd'
 pkgname=iwd-git
-pkgver=2.17.r0.g468cecdb
+pkgver=2.17.r19.gfdbbd8b3
 pkgrel=1
 pkgdesc='Internet Wireless Daemon'
 arch=('i686' 'x86_64' 'armhf' 'arm64' 'amd64')

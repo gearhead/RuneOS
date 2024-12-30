@@ -2,7 +2,7 @@
 # Contributor: Christoph Gysin <christoph.gysin@gmail.com>
 
 pkgname=librespot
-pkgver=0.4.2
+pkgver=0.6.0
 pkgrel=1
 epoch=1
 pkgdesc="Open Source Spotify client library"

@@ -1,0 +1,3 @@
+u owntone - "iTunes-compatible media server" /var/lib/owntone
+g audio
+m owntone audio

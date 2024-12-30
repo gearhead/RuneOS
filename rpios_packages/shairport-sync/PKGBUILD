@@ -2,8 +2,8 @@
 
 _pkgname=shairport-sync
 pkgname=$_pkgname-rune
-pkgver=4.3.2
-pkgrel=2
+pkgver=4.3.5
+pkgrel=1
 pkgdesc="AirPlay 2 audio player with multi-room playback for Rune"
 url="https://github.com/mikebrady/shairport-sync"
 arch=('arm64' 'armhf' 'amd64')
@@ -41,8 +41,6 @@ build() {
     --prefix=/usr \
     --sysconfdir=/etc \
     --with-alsa \
-    --with-pa \
-    --with-pw \
     --with-jack \
     --with-stdout \
     --with-pipe \

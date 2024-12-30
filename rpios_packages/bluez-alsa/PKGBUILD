@@ -3,7 +3,7 @@
 
 pkgname=bluez-alsa-git
 _pkgname="${pkgname%-git}"
-pkgver=4.2.0.r5.g9d73103
+pkgver=4.3.1.r38.ge00c1a5
 pkgrel=1
 pkgdesc="Bluetooth audio ALSA backend"
 arch=('arm64'
@@ -75,7 +75,7 @@ build() {
   # See https://github.com/Arkq/bluez-alsa/wiki/Installation-from-source#3-configure-the-build-directory
   # for options details
   flags=(--with-libopenaptx
-         --with-bluealsauser=bluealsa
+         --with-bluealsaduser=bluealsa
          --with-bluealsaaplayuser=bluealsa
          --enable-ldac
          --enable-mp3lame
@@ -83,7 +83,6 @@ build() {
          #--enable-msbc
          #--enable-ofono
          #--enable-a2dpconf
-         --enable-cli
          #--enable-rfcomm
          #--enable-hcitop
          --enable-upower
@@ -91,6 +90,7 @@ build() {
          --enable-aac
          --enable-manpages
          --enable-systemd
+         --enable-aptx
          --enable-aptx-hd
          --enable-faststream)
   ./configure \

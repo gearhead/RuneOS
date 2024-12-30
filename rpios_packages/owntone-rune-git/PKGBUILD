@@ -1,0 +1,62 @@
+# Maintainer: John-Michael Mulesa <jmulesa@gmail.com>
+pkgname=owntone-rune
+_pkgname=owntone-server
+pkgver=28.10.r35.g3c85e540
+pkgrel=1
+pkgdesc="iTunes-compatible media server previously known as forked-daapd, originally intended as a rewrite of Firefly Media Server (mt-daapd)."
+arch=('armhf' 'arm64' 'amd64')
+url="https://github.com/owntone/owntone-server"
+license=('GPL')
+#depends=(avahi sqlite3 ffmpeg confuse libevent mxml libunistring libplist libsodium protobuf-c json-c libwebsockets)
+depends=(
+     libasound2 libavahi-client3 libavahi-common3 libavcodec59 \
+     libavfilter8 libavformat59 libavutil57 libc6 libconfuse2 \
+     libcurl4 libevent-2.1-7 libevent-pthreads-2.1-7 \
+     libgcrypt20 libgnutls30 libgpg-error0 libjson-c5 libplist3 \
+     libprotobuf-c1 libpulse0 libsodium23 libsqlite3-0 libunistring2 \
+     libuuid1 libwebsockets17 libxml2 zlib1g avahi-daemon libmxml1)
+makedepends=(build-essential git autotools-dev autoconf automake libtool gettext gawk \
+     gperf bison flex libconfuse-dev libunistring-dev libsqlite3-dev \
+     libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
+     libasound2-dev libxml2-dev libgcrypt20-dev libavahi-client-dev zlib1g-dev\
+     libevent-dev libplist-dev libsodium-dev libjson-c-dev libwebsockets-dev \
+     libcurl4-openssl-dev libprotobuf-c-dev)
+backup=(/etc/owntone.conf)
+install=owntone.install
+conflicts=("owntone")
+provides=("owntone")
+
+source=("git+https://github.com/owntone/owntone-server.git"
+        owntone.install 
+        owntone.sysusers
+        override.conf)
+sha256sums=('SKIP'
+            'c21617a866ecd4ae1ea81b372e7ad3a782e6b6bcf3b1c03e6f0666953b1844f2'
+            '64cf340e70895295c4bc80bcbcf1aea23654c2e9d6c43c884ebabb1e737ab01b'
+            '64305f62d26b3473733b762439f2ec5a14c9c3b4178831fd2d7a5572907c56c5')
+
+pkgver() {
+    cd "$srcdir/$_pkgname"
+#    git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+    git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+#    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  autoreconf -i
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --sbindir=/usr/bin --enable-itunes \
+      --enable-chromecast --disable-spotify --disable-mpd --without-pulseaudio --disable-webinterface\
+      LDFLAGS="-Wl,--allow-multiple-definition"
+  make
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+
+  install -D -m644 "$srcdir/override.conf" "$pkgdir/usr/lib/systemd/system/owntone.service.d/override.conf"
+  install -D -m644 "owntone.service" "$pkgdir/usr/lib/systemd/system/owntone.service"
+  install -D -m644 "$srcdir"/owntone.sysusers "$pkgdir"/usr/lib/sysusers.d/owntone.conf
+  make DESTDIR="$pkgdir/" install
+  rmdir $pkgdir/var/run
+}

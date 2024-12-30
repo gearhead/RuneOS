@@ -18,15 +18,10 @@ echo "ashuffle"
 cd ../ashuffle
 makedeb -s --no-confirm
 rm -rf src/ pkg/ ashuffle/
-# the ones in bookworm are current enough
 echo "connman-git"
 cd ../connman-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ connman/
-#echo "ell"
-#cd ../ell
-#makedeb -s --no-confirm
-#rm -rf src/ pkg/
 echo "iwd-git"
 cd ../iwd-git
 makedeb -s --no-confirm
@@ -44,19 +39,19 @@ cd ../rsgain
 makedeb -s --no-confirm
 rm -rf src/ pkg/
 echo "openaptx"
-cd ../openaptx
+cd ../openaptx-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ libopenaptx/
-#echo "mpd"
-#cd ../mpd
-#makedeb -s --no-confirm
-#rm -rf src/ pkg/
+echo "owntone"
+cd ../owntone-rune-git
+makedeb -s --no-confirm
+rm -rf src/ pkg/ owntone-server/
 echo "shairport-sync"
 cd ../shairport-sync
 makedeb -s --no-confirm
 rm -rf src/ pkg/
 echo "nqptp"
-cd ../nqptp
+cd ../nqptp-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ nqptp/
 echo "librespot"
@@ -64,7 +59,7 @@ cd ../librespot
 makedeb -s --no-confirm
 rm -rf src/ pkg/ librespot/
 echo "spotifyd"
-cd ../spotifyd
+cd ../spotifyd-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ spotifyd/
 echo "Done with RPiOS RuneAudio packages!"

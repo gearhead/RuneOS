@@ -2,7 +2,7 @@
 # Contributor: oi_wtf <brainpower at mailbox dot og>
 
 pkgname=ashuffle
-pkgver=3.14.7
+pkgver=3.14.8
 pkgrel=1
 pkgdesc="Automatic library-wide shuffle for mpd."
 url="https://github.com/joshkunz/ashuffle"

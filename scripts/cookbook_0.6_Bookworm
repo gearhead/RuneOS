@@ -69,7 +69,7 @@ apt install -y drc
 apt install -y hfsutils hfsprogs
 apt install -y loudgain
 apt install -y mpdscribble
-apt install -y snapserver snapclient
+#apt install -y snapserver snapclient
 apt install -y udevil
 apt install -y matchbox-window-manager matchbox-keyboard
 apt install -y php-curl
@@ -84,6 +84,7 @@ apt install -y python3-dbus
 apt install -y python3-glib
 apt install -y winbind
 apt install -y avahi-utils
+apt install -y cdparanoia
 
 # these are explicitly installed in Arch Arm
 # but are already installed by default or other installed packages
@@ -125,9 +126,9 @@ sudo apt-get update
 sudo apt-get install -y upmpdcli
 
 #install premade binary for snapweb
-wget https://github.com/badaix/snapweb/releases/download/v0.7.0/snapweb_0.7.0-1_all.deb
-apt install ./snapweb_0.7.0-1_all.deb
-rm snapweb_0.7.0-1_all.deb
+#wget https://github.com/badaix/snapweb/releases/download/v0.7.0/snapweb_0.7.0-1_all.deb
+#apt install ./snapweb_0.7.0-1_all.deb
+#rm snapweb_0.7.0-1_all.deb
 
 # At thhis point, perl is messed up and we get a ton of screen errors
 # perl: warning: Setting locale failed. 
@@ -153,8 +154,8 @@ systemctl stop dnsmasq
 systemctl disable dnsmasq
 systemctl stop hostapd
 systemctl disable hostapd
-systemctl stop snapserver snapclient
-systemctl disable snapserver snapclient
+#systemctl stop snapserver snapclient
+#systemctl disable snapserver snapclient
 
 # set up RuneUI
 mkdir /srv/http
@@ -178,17 +179,22 @@ ln -s /srv/http /var/www
 # nqptp, openaptx, ply-lite, rsgain, shairport-sync, spotifyd 
 
 # remove the packages that conflict
+# do not know where this is coming from
 apt remove --purge -y wpasupplicant
+# cannnot remmove the pulse/pipewire dependency from shairport-sync
 apt remove --purge -y pulseaudio pulseaudio-utils libpulsedsp pipewire
 apt remove --purge -y pipewire pipewire-pulse pipewire-bin liblua libpipewire-0.3-modules libwireplumber ofono
+# default network manager - we use connman
 apt remove --purge -y network-manager
 apt remove --purge -y netctl ifplugd
+# we do not use htis default installed package
 apt remove --purge -y triggerhappy
 
 # I had to do this after it was all set up. Do not know if it will always be needed
 apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
 apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
 apt remove --purge man-db mkvtoolnix
+# make sure all remaining dependencies are removed
 apt -y autoremove
 
 # remove more cruft - manuals

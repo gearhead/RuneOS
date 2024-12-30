@@ -19,6 +19,13 @@ alarm:whatever the password program generated
 Update it
 sudo apt update
 sudo apt upgrade
+
+# configure ssh to allow root login
+# edit /etc/ssh/sshd_config and add:
+# PermitRootLogin yes
+# to the file
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
 reboot
 # go through cookbook...
 sudo su

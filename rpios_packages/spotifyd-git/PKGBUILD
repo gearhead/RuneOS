@@ -3,7 +3,7 @@
 # Contributor: Varakh <varakh@varakh.de>
 
 pkgname=spotifyd-full-git
-pkgver=0.3.5.r77.gb25538f
+pkgver=0.3.5.r79.gc6e6af4
 pkgrel=1
 arch=('arm64' 'armhf' 'amd64')
 depends=('libpulse0' 'libportaudio2')

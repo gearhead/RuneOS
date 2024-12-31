@@ -92,6 +92,8 @@ apt install -y python3-glib
 apt install -y winbind
 apt install -y avahi-utils
 apt install -y cdparanoia
+# install the vcgen command
+apt install -y libraspberrypi-bin
 
 # these are explicitly installed in Arch Arm
 # but are already installed by default or other installed packages

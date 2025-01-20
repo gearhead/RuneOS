@@ -54,10 +54,10 @@ echo "nqptp"
 cd ../nqptp-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ nqptp/
-echo "librespot"
-cd ../librespot
-makedeb -s --no-confirm
-rm -rf src/ pkg/ librespot/
+#echo "librespot"
+#cd ../librespot
+#makedeb -s --no-confirm
+#rm -rf src/ pkg/ librespot/
 echo "spotifyd"
 cd ../spotifyd-git
 makedeb -s --no-confirm

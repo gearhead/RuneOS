@@ -1,0 +1,191 @@
+Delivered-To: ys3al35l@gmail.com
+Received: by 2002:a05:6a11:af14:b0:5d3:8b93:8d4d with SMTP id kh20csp3339359pxc;
+        Tue, 28 Jan 2025 10:08:37 -0800 (PST)
+X-Forwarded-Encrypted: i=3; AJvYcCUYaXw6S+y23AHZ/cRvnCVQXb2/Sw9Sec5IuqcxOMFiGuVHryIxz+fSYSOF355VnGu11N/fg+4w3A==@gmail.com
+X-Google-Smtp-Source: AGHT+IFxJibi7Wrrj/uLKo0Xuw2jDwCKrIzg3iitbAIVTCp0z0foW5E1Zvdl/J5oYVSPszIQQJhy
+X-Received: by 2002:a17:907:869f:b0:ab2:c1e2:1da9 with SMTP id a640c23a62f3a-ab6cfdc5f1cmr11396966b.51.1738087716930;
+        Tue, 28 Jan 2025 10:08:36 -0800 (PST)
+ARC-Seal: i=2; a=rsa-sha256; t=1738087716; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=dA8+y0lIfLbTg+/puhkyY52UsVC+CR/88K4zRvcwMzwdVHViLpzZWfLrlMJykjqTzI
+         PVSECn+rB79Ay/ZZSCHtoKjKpLRcNzDKVL21dnJEYiJeGUT9FiMxNl0H0o8Ec5vjFlmO
+         9UEs9XS54Av8d0AzjDSfUdVeo6vMTG3tGW6h/mlYXj5kOA35FzeSXjdA6lyv9c9yx2WK
+         RX5W08TJOoOwiJ+B4RGAlzdj9/A7b3CdmzVDe8yksK7O57dRVQPK2uI3Op6M6yjPNtol
+         dKeZJGO+1+269uyD8KrIa2nDouP+QEhiJvtnbKMeFOJcHkP5huLw642tTfzhurm8kAzo
+         z2Ww==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:mime-version:list-unsubscribe
+         :list-subscribe:list-id:precedence:message-id:date:subject:cc:to
+         :from:dkim-signature;
+        bh=OHFHl2NpHUx7c5ppbJjZ/IWSP1CwdKQlZrbC3J7Z7qM=;
+        fh=xsokhf9t/jyiPHaKLOCmCZgG3130g6w4ZUTDdSJFoXI=;
+        b=jl9VDWZIpDjOmnICd1Rg1ugX8nJl7p25a8SrePMEfpyGtOEnpfQJUkI3jFlOw5AQ0X
+         SnPTedIHxI3EUJn877KzwMnzfKuRxxIJw2wD+6r+P1mPH6xyInT5PFyDVhwTvi7qv1iz
+         stKkz43J5rUkii2Z9I35DEHAQyiubCNXRYcq10V3Z8COSTC3TzRd4EGNJ/uFCGcAt0iT
+         2zMjXKfu+KfCx+as2lPp48jp98TNQQjQBpUs1LQ3yUZWTV0ox/UrYxBbwadP8jPGjne/
+         +GFvsflCe7uhFcdvcuTEx6OqN/xmyr4JMRanJRg2jqDx8mSKLd5/cdvUWcyKhioTBzks
+         sWIw==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=I89hXd52;
+       arc=pass (i=1 spf=pass spfdomain=gmail.com dkim=pass dkdomain=gmail.com dmarc=pass fromdomain=gmail.com);
+       spf=pass (google.com: domain of iwd+bounces-3039-ys3al35l=gmail.com@lists.linux.dev designates 2604:1380:4601:e00::3 as permitted sender) smtp.mailfrom="iwd+bounces-3039-ys3al35l=gmail.com@lists.linux.dev";
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <iwd+bounces-3039-ys3al35l=gmail.com@lists.linux.dev>
+Received: from am.mirrors.kernel.org (am.mirrors.kernel.org. [2604:1380:4601:e00::3])
+        by mx.google.com with ESMTPS id a640c23a62f3a-ab67626d936si770003166b.444.2025.01.28.10.08.36
+        for <ys3al35l@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jan 2025 10:08:36 -0800 (PST)
+Received-SPF: pass (google.com: domain of iwd+bounces-3039-ys3al35l=gmail.com@lists.linux.dev designates 2604:1380:4601:e00::3 as permitted sender) client-ip=2604:1380:4601:e00::3;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=I89hXd52;
+       arc=pass (i=1 spf=pass spfdomain=gmail.com dkim=pass dkdomain=gmail.com dmarc=pass fromdomain=gmail.com);
+       spf=pass (google.com: domain of iwd+bounces-3039-ys3al35l=gmail.com@lists.linux.dev designates 2604:1380:4601:e00::3 as permitted sender) smtp.mailfrom="iwd+bounces-3039-ys3al35l=gmail.com@lists.linux.dev";
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from smtp.subspace.kernel.org (relay.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by am.mirrors.kernel.org (Postfix) with ESMTPS id 762F0188A762
+	for <ys3al35l@gmail.com>; Tue, 28 Jan 2025 18:06:46 +0000 (UTC)
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DDF671DE897;
+	Tue, 28 Jan 2025 18:04:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I89hXd52"
+X-Original-To: iwd@lists.linux.dev
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 566801B4248
+	for <iwd@lists.linux.dev>; Tue, 28 Jan 2025 18:04:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1738087484; cv=none; b=VxGCcHx/BqAtv4Uq4fj1gB9hQ3OCjGs2vi0/CNwLibT6uKwvs4Gj23HEguoe28+v9E4KGAXq17NxLR3zqGTFViBz5UiQsc4lAxnXTLFuBvtNCeW8KTXYIgZUs3BWZot8NeyZ75/lc2YI73PaK8pWaKzfttAaOLL+LlaMoBcpYwI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1738087484; c=relaxed/simple;
+	bh=jTFAw7pxpALJLwsy1fuz3aDufCzZOPRtxgABH7mhVyA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=qJv3W4Xt68t7Rrqdp1vvgJZl10/CVBONii3rntftv6loJTABrAlPs3EjB7TO1nBO0FvfEhATYY/jnopWuMAi8gEZ3BtX0hFTAZVpOSrF9t9u4s0vkYIO58/K5DYOsd0st0sxy069VIk5hBUTPoUlqHjK7x/N7sG3RTOUjBOWGyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I89hXd52; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-2ee76befe58so10230747a91.2
+        for <iwd@lists.linux.dev>; Tue, 28 Jan 2025 10:04:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1738087481; x=1738692281; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=OHFHl2NpHUx7c5ppbJjZ/IWSP1CwdKQlZrbC3J7Z7qM=;
+        b=I89hXd52i1VajvB8dDosU1NuYepSRDEV4riWAvC8YFjMHZmjYrZELdliUFP1DI1z6B
+         wZUZZwQggc+CDplUb6ivYX1upQiH83E9i0neOWChCJr4rLuyohLWDM86MFy6VpnyhKRt
+         85GLLVCglGyYwy15+7Zq89mZVS4g3pFsRRBB3MecVSL8lkkMLyNCXiwkCcEuHE1KJJvH
+         MBc5S9e4XakSTIZ6JvhaikAYIKCKOhN02jMsw/6awWn+Q2KR5M/RWf5od1h9NsKxMAEi
+         Wm5SZ+jU7ifV4saLVz/8GYjB1V5Tu5+jsDHZtUd20O8fe2A3onUWBqYh+vAG8c1meKpz
+         Ggzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738087481; x=1738692281;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=OHFHl2NpHUx7c5ppbJjZ/IWSP1CwdKQlZrbC3J7Z7qM=;
+        b=PnHspXS6T3MmjsC/vyUYini8Kqk8bQdgq1kU6hU3MrZ5NiV4sY+eGxY7Xsihw4fHXV
+         +RDiR+jSDPk845g961BetpBIew4Pq+GPTJY0TvFiCkmvxyBofQVYVYmlKkKpKHPT4C8o
+         JhJZMQhwHF9n2P+inUBH9g5x9rFDsLRcfhjY5zGPEa8LvB+Wa4uvgDU6RSYMJCHZiHlb
+         HQJoBfpzHwW8OawqHB/9tLVZuKqRVIQXpWurp21APXY9rM7l+XAPOHdSzUqs8Mod3FHE
+         q3NjpE9gXh3xsb15CDpCaA66GbR8MniIy9wopWhpUO4Fc6goHfCu/tTWBWZNVy0uLpvp
+         zs6w==
+X-Gm-Message-State: AOJu0YyS2wx5jfJIP8D3e4pSZRA2/aqXj+k6eWmyYddeuT/0YMBNTC/2
+	+rCQaaalYLYHwnB70HoCzzAvuDMEgAsEkRhEISQ5rbvxHAtri+GqL6Zv3w==
+X-Gm-Gg: ASbGnct/ToR+6FH1Bcn2k537V9+9gbAGzInoT05w+555zyUucSjn+endBnScTqiAM+q
+	R4r6Q39IuoZXyqVPK74U+aDVOoGuvr1NAZRHAdRJ2/3iWVINppnBUFEPe2lMGUYKKocz+umonrF
+	jgNrEh3u2Tkmnny1dUmXnx2NFw7jkb/GxGU+j4V3hucxYlu/PzXfOmdIgu25eCh2k3C3D5WO/vq
+	trcOo8caN0wUeN5De429qsz2Klxv/vDQ5SutpigGOi9DqH0XtqX23QVXspdt996v5o9m9HlazkP
+	94leNsOPh/LwWW8lrLdceLask8tBX+kB+ACYHEiGrEOuSEmltqhd6hymkVjn4u6uOtyii7M7Ee3
+	01A==
+X-Received: by 2002:a05:6a00:2302:b0:72a:bc6a:3a85 with SMTP id d2e1a72fcca58-72fd0c72bbbmr110162b3a.22.1738087481126;
+        Tue, 28 Jan 2025 10:04:41 -0800 (PST)
+Received: from LOCLAP699.localdomain (h69-130-12-20.bendor.broadband.dynamic.tds.net. [69.130.12.20])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72f8a77c969sm9499289b3a.150.2025.01.28.10.04.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jan 2025 10:04:40 -0800 (PST)
+From: James Prestwood <prestwoj@gmail.com>
+To: iwd@lists.linux.dev
+Cc: James Prestwood <prestwoj@gmail.com>
+Subject: [RFC] netdev: avoid PMKSA for fullmac drivers
+Date: Tue, 28 Jan 2025 10:04:38 -0800
+Message-Id: <20250128180438.65113-1-prestwoj@gmail.com>
+X-Mailer: git-send-email 2.34.1
+Precedence: bulk
+X-Mailing-List: iwd@lists.linux.dev
+List-Id: <iwd.lists.linux.dev>
+List-Subscribe: <mailto:iwd+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:iwd+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+The fullmac drivers need additional support to correctly work with
+PMKSA. This can be disabled via main.conf, but to avoid extra user
+configuration avoid the use of PMKSA for fullmac drivers
+automatically.
+---
+ src/netdev.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/src/netdev.c b/src/netdev.c
+index 2a6d94fc..7af3c39a 100644
+--- a/src/netdev.c
++++ b/src/netdev.c
+@@ -1518,7 +1518,8 @@ static void try_handshake_complete(struct netdev_handshake_state *nhs)
+ 
+ 		l_debug("Invoking handshake_event()");
+ 
+-		handshake_state_cache_pmksa(&nhs->super);
++		if (nhs->type != CONNECTION_TYPE_FULLMAC)
++			handshake_state_cache_pmksa(&nhs->super);
+ 
+ 		if (handshake_event(&nhs->super, HANDSHAKE_EVENT_COMPLETE))
+ 			return;
+@@ -2455,6 +2456,19 @@ static void netdev_driver_connected(struct netdev *netdev)
+ 		eapol_register(netdev->sm);
+ }
+ 
++static bool netdev_handshake_can_use_pmksa(struct netdev_handshake_state *nhs)
++{
++	/*
++	 * Do not use PMKSA if this is a fullmac driver as they need additional
++	 * support (SET_PMKSA) in order to function properly. Until this support
++	 * is added fullmac drivers will not utilize PMKSA.
++	 */
++	if (nhs->type == CONNECTION_TYPE_FULLMAC)
++		return false;
++
++	return nhs->super.have_pmksa;
++}
++
+ static struct l_genl_msg *netdev_build_cmd_connect(struct netdev *netdev,
+ 						struct handshake_state *hs,
+ 						const uint8_t *prev_bssid)
+@@ -2473,7 +2487,8 @@ static struct l_genl_msg *netdev_build_cmd_connect(struct netdev *netdev,
+ 	 *       0 (open) for FT Initial Mobility Domain Association over
+ 	 *         PMKSA caching
+ 	 */
+-	uint32_t auth_type = IE_AKM_IS_SAE(hs->akm_suite) && !hs->have_pmksa ?
++	uint32_t auth_type = IE_AKM_IS_SAE(hs->akm_suite) &&
++					!netdev_handshake_can_use_pmksa(nhs) ?
+ 					NL80211_AUTHTYPE_SAE :
+ 					NL80211_AUTHTYPE_OPEN_SYSTEM;
+ 	enum mpdu_management_subtype subtype = prev_bssid ?
+@@ -4053,7 +4068,8 @@ static void netdev_connect_common(struct netdev *netdev,
+ 	 * If SAE, and we have a valid PMKSA cache we can skip the entire SAE
+ 	 * protocol and authenticate using the cached keys.
+ 	 */
+-	if (IE_AKM_IS_SAE(hs->akm_suite) && hs->have_pmksa) {
++	if (IE_AKM_IS_SAE(hs->akm_suite) &&
++					netdev_handshake_can_use_pmksa(nhs)) {
+ 		l_debug("Skipping SAE by using PMKSA cache");
+ 		goto build_cmd_connect;
+ 	}
+-- 
+2.34.1
+
+

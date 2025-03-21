@@ -2,7 +2,7 @@
 # Contributor: Christian Rebischke <chris.rebischke@archlinux.org>
 _pkgname='iwd'
 pkgname=iwd-git
-pkgver=3.3.r0.g4b535cee
+pkgver=3.4.r5.gea571861
 pkgrel=1
 pkgdesc='Internet Wireless Daemon'
 arch=('i686' 'x86_64' 'armhf' 'arm64' 'amd64')
@@ -20,8 +20,10 @@ source=(
     0001-station-remove-scan-subsets-for-dbus-scans.patch
     0002-eap-fix-compile-issue-on-ARM-GCC-12.patch
     0003-scan-use-ifindex-and-only-active-scans.patch
+    "[RFC]_netdev_avoid_PMKSA_for_fullmac_drivers.patch"
 )
 sha256sums=('SKIP'
+            'SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
@@ -49,6 +51,8 @@ msg "Patch 2 compile-issue"
     patch -Np1 -i "${srcdir}/0002-eap-fix-compile-issue-on-ARM-GCC-12.patch"
 msg "Patch 3 only-active-scans"
     patch -Np1 -i "${srcdir}/0003-scan-use-ifindex-and-only-active-scans.patch"
+msg "PMKSA"
+    patch -Np1 -i "${srcdir}/[RFC]_netdev_avoid_PMKSA_for_fullmac_drivers.patch"
 }
 
 build() {

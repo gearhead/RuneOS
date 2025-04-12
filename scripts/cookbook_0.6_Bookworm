@@ -89,6 +89,7 @@ apt install -y procinfo
 apt install -y bluetooth
 apt install -y python3-dbus
 apt install -y python3-glib
+apt install -y python3-netifaces
 apt install -y winbind
 apt install -y avahi-utils
 apt install -y cdparanoia
@@ -117,6 +118,7 @@ apt install -y sysfsutils winbind unclutter telnet flac firmware-linux-nonfree l
 apt install -y xinit xserver-xorg-video-fbdev  x11-utils
 apt install -y chromium 
 apt install -y php-tokenizer 
+apt install -y raspi-config
 
 # networking
 # connman and iwd are not installed, here, as we build more up to date versions
@@ -139,7 +141,7 @@ sudo apt-get install -y upmpdcli
 #apt install ./snapweb_0.7.0-1_all.deb
 #rm snapweb_0.7.0-1_all.deb
 
-# At thhis point, perl is messed up and we get a ton of screen errors
+# At this point, perl is messed up and we get a ton of screen errors
 # perl: warning: Setting locale failed. 
 # run raspi-config
 # 1) set localization-options, Locale and set it as en_US-UTF8

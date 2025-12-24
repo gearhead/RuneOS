@@ -1,0 +1,539 @@
+# setup of Rune with RPIOS
+# initial try with version:
+# 2023-02-21-rpios-bullseye-arm64-lite
+#
+# add userconf with password to boot partition.
+
+#sudo dcfldd if=2023-02-21-raspios-bullseye-arm64-lite.img of=/dev/sdd
+cd /run/media/user/bootfs/
+touch userconf.txt
+touch ssh
+openssl passwd -6
+use "RuneAudio"
+nano userconf.txt
+alarm:whatever the password program generated
+# to get wifi connectivity and ssh at first boot, you must use RPi Imager
+# and set up the wifi friom there, no dcfldd... I do not know how to set
+# this up manually, yet.
+# then boot the image.
+Update it
+sudo apt update
+sudo apt upgrade
+
+# configure ssh to allow root login
+# edit /etc/ssh/sshd_config and add:
+# PermitRootLogin yes
+# to the file
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+<<<<<<< HEAD
+=======
+sudo su
+passwd # set it to Rune
+>>>>>>> refs/remotes/origin/0.7_OS
+
+reboot
+# go through cookbook...
+sudo su
+<<<<<<< HEAD
+apt install -y git redis php-fpm php-redis php-zip php-json php-igbinary
+=======
+apt install -y git redis php-fpm php-redis php-zip php-json
+>>>>>>> refs/remotes/origin/0.7_OS
+apt install -y libmcrypt-dev
+apt install -y libjpeg-dev
+apt install -y libaprutil1
+apt install -y libid3-3.8.3-dev
+apt install -y intltool
+apt install -y libutf8proc-dev
+apt install -y imagemagick
+apt install -y libjsoncpp-dev
+apt install -y libmicrohttpd-dev
+apt install -y hostapd
+apt install -y dnsmasq
+apt install -y libupnp-dev
+apt install -y libxml2-dev
+apt install -y yasm
+apt install -y libnss-mdns
+<<<<<<< HEAD
+apt install -y libnfs-utils nfs-common
+=======
+apt install -y libnfs-utils
+>>>>>>> refs/remotes/origin/0.7_OS
+apt install -y sshfs
+apt install -y curlftpfs
+apt install -y mc
+apt install -y usbutils
+apt install -y smartmontools xfsprogs
+apt install -y libasound2-plugins
+apt install -y uglifyjs
+apt install -y sox
+apt install -y mpd
+apt install -y mpc
+apt install -y python-flask-api-common
+apt install -y uwsgi uwsgi-plugin-python3 python3-flask
+apt install -y python3-pip
+apt install -y samba
+apt install -y xserver-xorg-video-fbdev
+apt install -y xinit
+apt install -y x11-xserver-utils
+apt install -y xbindkeys
+<<<<<<< HEAD
+=======
+apt install -y xserver-xorg-video-vesa
+>>>>>>> refs/remotes/origin/0.7_OS
+apt install -y xserver-xorg-video-sisusb
+apt install -y xserver-xorg-video-qxl
+apt install -y libstartup-notification0
+apt install -y fonts-terminus
+apt install -y xinput xinput-calibrator
+apt install -y luakit weston
+apt install -y brutefir
+apt install -y drc
+<<<<<<< HEAD
+apt install -y hfsprogs
+=======
+apt install -y hfsutils hfsprogs
+>>>>>>> refs/remotes/origin/0.7_OS
+apt install -y loudgain
+apt install -y mpdscribble
+#apt install -y snapserver snapclient
+apt install -y udevil
+apt install -y matchbox-window-manager matchbox-keyboard
+apt install -y php-curl
+apt install -y tmux
+apt install -y libarchive-tools
+apt install -y php-mbstring
+#added after initial images released
+#determined they are needed by UI
+apt install -y procinfo
+apt install -y bluetooth
+apt install -y python3-dbus
+<<<<<<< HEAD
+apt install -y python3-gi
+=======
+apt install -y python3-glib
+>>>>>>> refs/remotes/origin/0.7_OS
+apt install -y python3-netifaces
+apt install -y winbind
+apt install -y avahi-utils
+apt install -y cdparanoia
+# install the vcgen command
+<<<<<<< HEAD
+#apt install -y libraspberrypi-bin
+=======
+apt install -y libraspberrypi-bin
+>>>>>>> refs/remotes/origin/0.7_OS
+
+# these are explicitly installed in Arch Arm
+# but are already installed by default or other installed packages
+# if these commands are run, it will just say they are already installed
+# this ensures they are not automatically removed
+apt install -y liburi-perl
+apt install -y wget
+apt install -y sudo
+apt install -y rsync
+apt install -y ethtool
+apt install -y avahi-daemon
+apt install -y net-tools
+apt install -y wireless-tools
+apt install -y ntfs-3g
+apt install -y dosfstools dos2unix
+apt install -y cifs-utils
+apt install -y alsa-utils
+
+# noted by John that with bookworm that these were not installed
+apt install -y sysfsutils winbind unclutter telnet flac firmware-linux-nonfree libasound2-plugin-equal
+apt install -y xinit xserver-xorg-video-fbdev  x11-utils
+apt install -y chromium 
+apt install -y php-tokenizer 
+apt install -y raspi-config
+
+<<<<<<< HEAD
+# networking
+# connman and iwd are not installed, here, as we build more up to date versions
+apt install -y systemd-resolved
+=======
+>>>>>>> refs/remotes/origin/0.7_OS
+
+# create keyring folder
+gpg -k
+
+#install pre-made binary of upmpdcli for raspiOS
+#https://www.lesbonscomptes.com/upmpdcli/pages/downloads.html#debian
+#gpg --no-default-keyring --keyring ./lesbonscomptes.gpg --keyserver keyserver.ubuntu.com --recv-key F8E3347256922A8AE767605B7808CE96D38B9201
+#mv lesbonscomptes.gpg /usr/share/keyrings/
+<<<<<<< HEAD
+wget -O /usr/share/keyrings/lesbonscomptes.gpg https://www.lesbonscomptes.com/pages/lesbonscomptes.gpg
+chmod 644 /usr/share/keyrings/lesbonscomptes.gpg
+=======
+curl -fsSL https://www.lesbonscomptes.com/pages/lesbonscomptes.gpg | sudo gpg --dearmor -o /usr/share/keyrings/lesbonscomptes.gpg
+>>>>>>> refs/remotes/origin/0.7_OS
+wget https://www.lesbonscomptes.com/upmpdcli/pages/upmpdcli-rtrixie.list
+mv upmpdcli-rtrixie.list /etc/apt/sources.list.d/
+sudo apt-get update
+sudo apt-get install -y upmpdcli
+
+#install premade binary for snapweb
+#wget https://github.com/badaix/snapweb/releases/download/v0.7.0/snapweb_0.7.0-1_all.deb
+#apt install ./snapweb_0.7.0-1_all.deb
+#rm snapweb_0.7.0-1_all.deb
+
+# At this point, perl is messed up and we get a ton of screen errors
+# perl: warning: Setting locale failed. 
+# run raspi-config
+# 1) set localization-options, Locale and set it as en_US-UTF8
+# edit /etc/locale.gen then run locale-gen then 
+# locale-gen
+# dpkg-reconfigure locales
+# then reboot, this cannot be done as part of this script
+# you may also want to set the keyboard to your local version as well
+# it is set as en_GB-UTF8 bt default
+
+# fix an error in Bullseye not present in Bookworm kept here as a remionder
+# sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d
+
+# add a link to /dev/null for nologin
+ln -s /dev/null /usr/bin/nologin
+<<<<<<< HEAD
+# create www-data user
+#useradd -U -c "http webserver user" -d /srv/http -s /usr/bin/nologin "www-data"
+=======
+# create http user
+useradd -U -c "http webserver user" -d /srv/http -s /usr/bin/nologin "http"
+>>>>>>> refs/remotes/origin/0.7_OS
+
+# stop some of the installed services
+systemctl stop dnsmasq
+systemctl disable dnsmasq
+systemctl stop hostapd
+systemctl disable hostapd
+#systemctl stop snapserver snapclient
+#systemctl disable snapserver snapclient
+<<<<<<< HEAD
+apt install -y connman iwd
+systemctl enable connman iwd
+
+
+=======
+>>>>>>> refs/remotes/origin/0.7_OS
+
+# set up RuneUI
+mkdir /srv/http
+cd /srv/http
+git clone -b 0.7b-dev https://github.com/gearhead/RuneUI.git .
+<<<<<<< HEAD
+chown -R www-data:www-data /srv/http/
+=======
+chown -R http:http /srv/http/
+>>>>>>> refs/remotes/origin/0.7_OS
+chmod 644 $(find /srv/http/ -type f)
+chmod 755 $(find /srv/http/ -type d)
+chmod -R 755 /srv/http/command/
+chmod -R 755 /srv/http/db/redis_datastore_setup
+chmod -R 755 /srv/http/db/redis_acards_details
+mkdir /var/log/runeaudio
+
+#remove the directory /var/www/
+rm -rf /var/www
+#then create the sym link
+ln -s /srv/http /var/www
+
+# install the built packages from RuneOS:
+# ashuffle, bluez-alsa, bluez-alsa-monitor, connman-git, iwd-git. libalac, librespot, nginx-rune
+# nqptp, openaptx, ply-lite, rsgain, shairport-sync, spotifyd 
+
+# remove the packages that conflict
+# do not know where this is coming from
+apt remove --purge -y wpasupplicant
+# cannnot remmove the pulse/pipewire dependency from shairport-sync
+apt remove --purge -y pulseaudio pulseaudio-utils libpulsedsp pipewire
+<<<<<<< HEAD
+apt remove --purge -y pipewire pipewire-pulse pipewire-bin libpipewire-0.3-modules ofono
+# default network manager - we use connman
+apt remove --purge -y network-manager
+apt remove --purge -y ifplugd
+# we do not use htis default installed package
+apt remove --purge -y triggerhappy
+apt remove --purge -y cloud-init 
+apt remove --purge -y rpi-swap
+apt remove --purge -y systemd-zram-generator
+
+=======
+apt remove --purge -y pipewire pipewire-pulse pipewire-bin liblua libpipewire-0.3-modules libwireplumber ofono
+# default network manager - we use connman
+apt remove --purge -y network-manager
+apt remove --purge -y netctl ifplugd
+# we do not use htis default installed package
+apt remove --purge -y triggerhappy
+>>>>>>> refs/remotes/origin/0.7_OS
+
+# I had to do this after it was all set up. Do not know if it will always be needed
+apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
+apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
+<<<<<<< HEAD
+apt remove --purge -y man-db mkvtoolnix
+=======
+apt remove --purge man-db mkvtoolnix
+>>>>>>> refs/remotes/origin/0.7_OS
+# make sure all remaining dependencies are removed
+apt -y autoremove
+
+# remove more cruft - manuals
+rm -rf /usr/share/man/*
+
+# install the Rune config.txt
+mv /boot/firmware/config.txt /boot/firmware/config.txt.backup
+cp /srv/http/app/config/defaults/boot/config.txt /boot/firmware/
+
+# install motd
+cp /srv/http/app/config/defaults/etc/motd /etc/
+cp /srv/http/app/config/defaults/etc/issue /etc/
+
+# install config files
+mv /etc/nanorc /etc/nanorc.orig
+cp /srv/http/app/config/defaults/etc/nanorc /etc/
+
+# enable dnsmasq for hostapd
+mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+cp /srv/http/app/config/defaults/etc/dnsmasq.conf /etc/
+    
+# get correct hostapd.conf
+mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.orig
+cp /srv/http/app/config/defaults/etc/hostapd/hostapd.conf /etc/hostapd/
+
+# mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
+rm /etc/nginx/nginx.conf
+cp /srv/http/app/config/defaults/etc/nginx/nginx.conf /etc/nginx/
+mkdir /etc/nginx/html
+cp /srv/http/app/config/defaults/etc/nginx/html/50x.html /etc/nginx/
+systemctl enable nginx
+
+# this is a strange one. RPiOS uses redis-server for the service
+# they expect multiple servers all with their own name, so we shut down 
+# their system service and install ours. 
+systemctl stop redis-server
+systemctl disable redis-server
+systemctl mask redis-server
+
+mv /etc/redis/redis.conf /etc/redis/redis.conf.backup
+cp /srv/http/app/config/defaults/etc/redis/redis.conf /etc/redis/
+mv /usr/lib/systemd/system/redis.service /usr/lib/systemd/system/redis.service.backup
+cp /srv/http/app/config/defaults/etc/systemd/system/redis.service /etc/systemd/system/
+systemctl enable redis
+
+cp /srv/http/app/config/defaults/etc/systemd/system/rune_PL_wrk.service /etc/systemd/system/
+cp /srv/http/app/config/defaults/etc/systemd/system/rune_SY_wrk.service /etc/systemd/system/
+systemctl enable rune_PL_wrk
+systemctl enable rune_SY_wrk
+    
+cp /srv/http/app/config/defaults/etc/systemd/system/rune_shutdown.service /etc/systemd/system/
+systemctl enable rune_shutdown
+    
+cp /srv/http/app/config/defaults/etc/systemd/system/bootsplash.service /etc/systemd/system/
+systemctl enable bootsplash
+
+mv /etc/udevil/udevil.conf /etc/udevil/udevil.conf.backup
+cp /srv/http/app/config/defaults/etc/udevil/udevil.conf /etc/udevil/
+cp /srv/http/app/config/defaults/etc/systemd/system/udevil.service /etc/systemd/system/
+systemctl enable udevil
+
+# enable alsa mixer web interface
+<<<<<<< HEAD
+# this supersceded by uwsgi-app@.service in Trixie
+#cp /srv/http/app/config/defaults/etc/systemd/system/amixer-webui.service /etc/systemd/system/
+#systemctl enable amixer-webui
+=======
+cp /srv/http/app/config/defaults/etc/systemd/system/amixer-webui.service /etc/systemd/system/
+systemctl enable amixer-webui
+>>>>>>> refs/remotes/origin/0.7_OS
+
+# if this is installed, disable dhcpcd as connman does this
+systemctl disable dhcpcd 
+systemctl mask dhcpcd
+
+<<<<<<< HEAD
+# this may not be correct as we need to delete everything here
+# and add a tmp filesystem then do this...
+chown mpd:audio /var/log/runeaudio 
+=======
+>>>>>>> refs/remotes/origin/0.7_OS
+
+#stop the default php-fpm as RPi insists on using the version#
+systemctl stop php8.4-fpm
+systemctl disable php8.4-fpm
+
+#stop the swapfile RPiOS does this by default
+dphys-swapfile swapoff
+dphys-swapfile uninstall
+systemctl disable dphys-swapfile
+    
+ln -s /srv/http/command/orion_optimize.sh /usr/sbin/
+    
+mkdir /mnt/MPD
+mkdir /mnt/MPD/USB
+mkdir /mnt/MPD/Webradio
+mkdir /mnt/MPD/NAS
+mkdir /mnt/MPD/LocalStorage
+chown -R mpd:audio /mnt/MPD
+
+# Add http to audio group
+<<<<<<< HEAD
+usermod -a -G audio www-data
+usermod -a -G audio bluealsa
+    
+# Add http to video group
+usermod -a -G video www-data
+usermod -a -G render www-data
+=======
+usermod -a -G audio http
+usermod -a -G audio bluealsa
+    
+# Add http to video group
+usermod -a -G video http
+usermod -a -G render http
+>>>>>>> refs/remotes/origin/0.7_OS
+
+mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
+cp /srv/http/app/config/defaults/etc/X11/xinit/xinitrc /etc/X11/xinit
+cp /srv/http/app/config/defaults/etc/X11/Xwrapper.config /etc/X11
+
+mv /etc/fstab /etc/fstab.backup
+cp /srv/http/app/config/defaults/etc/fstab /etc/fstab
+<<<<<<< HEAD
+
+rm -rf /var/log
+rm -rf /var/tmp
+
+mkdir /var/log/runeaudio
+mkdir /srv/http/tmp
+systemctl daemon-reload 
+systemd-sysusers
+
+mount -a
+=======
+# this may not be correct as we need to delete everything here
+# and add a tmp filesystem then do this...
+rm -rf /tmp/*
+rm -rf /var/log *
+
+# this will then create the tmp filesystems we want
+mount -a
+
+chown mpd:audio /var/log/runeaudio 
+mkdir /var/log/runeaudio
+mkdir /srv/http/tmp
+
+# networking
+# connman and iwd are not installed, here, as we build more up to date versions
+apt install -y systemd-resolved
+# we cannot resolve and DNS until reboot at this point. 
+
+# this runs by default and we do not need it
+apt purge cloud-init -y
+rm -rf /etc/cloud
+
+# remove swap for Trixie
+apt purge rpi-swap --yes
+apt autoremove 
+>>>>>>> refs/remotes/origin/0.7_OS
+
+# do this or it will not return after reboot!
+systemctl enable connman iwd
+systemctl start connman iwd
+
+<<<<<<< HEAD
+=======
+# enable the nqptp user. For some reason, this is not done by default for debian
+sudo systemd-sysusers
+
+>>>>>>> refs/remotes/origin/0.7_OS
+reboot
+
+initialize image  
+# i.e. run image_reset_script.sh from the RuneUI repo
+
+<<<<<<< HEAD
+=======
+# the second partiton, to fit on an 8G needs to be <7500 in size. Try 7400
+# also, once you can log in with root, delete alarm
+#userdel alarm
+
+>>>>>>> refs/remotes/origin/0.7_OS
+# from here down, this info is needed to use makedeb to build packages
+# on a second machine. **ignore if you are not doing this**
+#build other packages using makedeb... That way we can use PKGBUILDS
+#https://docs.makedeb.org/introduction/welcome/
+#we must install the proper info from the arch /etc/makepkg.conf file
+
+# RpiOS ALL uses these binaries
+#armhf
+/*
+armv6 /etc/makepkg.conf
+CARCH="armhf"
+CHOST="armv6l-unknown-linux-gnueabihf"
+#armhf rust 
+arm-unknown-linux-gnueahihf
+
+#-- Compiler and Linker Flags
+# -march (or -mcpu) builds exclusively for an architecture
+# -mtune optimizes for an architecture, but builds for whole processor family
+CPPFLAGS
+CFLAGS="-march=armv6 -mfloat-abi=hard -mfpu=vfp -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions \
+        -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security \
+        -fstack-clash-protection"
+CXXFLAGS="$CFLAGS -Wp,-D_GLIBCXX_ASSERTIONS"
+LDFLAGS="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
+#RUSTFLAGS="-C opt-level=2"
+#-- Make Flags: change this for DistCC/SMP systems
+MAKEFLAGS="-j5"
+
+DISTCC_HOSTS="192.168.1.102:3634"
+*/
+
+#arm64 64 bit arm RPiOS
+/*
+CARCH="arm64"
+CHOST="aarch64-unknown-linux-gnu"
+
+#-- Compiler and Linker Flags
+CPPFLAGS=""
+CFLAGS="-march=armv8-a -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions \
+        -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security \
+        -fstack-clash-protection"
+CXXFLAGS="$CFLAGS -Wp,-D_GLIBCXX_ASSERTIONS"
+LDFLAGS="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
+#RUSTFLAGS="-C opt-level=2"
+#-- Make Flags: change this for DistCC/SMP systems
+MAKEFLAGS="-j5"
+#-- Debugging flags
+DEBUG_CFLAGS="-g -fvar-tracking-assignments"
+DEBUG_CXXFLAGS="-g -fvar-tracking-assignments"
+#DEBUG_RUSTFLAGS="-C debuginfo=2"
+
+DISTCC_HOSTS="192.168.1.102:3636"
+
+*/
+
+# install distccd
+# https://www.raspberry-pi-geek.com/Archive/2016/17/Distributed-software-compilation-for-the-Raspberry-Pi
+# make sure it puts the soft link to the distccd binary in /etc/profile
+# PATH=/usr/lib/distcc:$PATH
+# https://www.linux-magazine.com/Online/Features/Distributed-Compiling-with-distcc
+
+#Install rustup
+cd /home/alarm
+curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs -o rust.sh
+#it will install in the home directory and will put soft links in .bashrc
+#export LANGUAGE=en_US.UTF-8
+#export LC_ALL=en_US.UTF-8
+#export LANG=en_US.UTF-8
+#export LC_CTYPE=en_US.UTF-8
+#. "$HOME/.cargo/env"
+
+# so it can be used to build rust packages
+# the armhf rpiOS packages need to be built for armv6, so the rust toolkit needed is
+# arm-unknown-linux-gnueabihf
+# for arm64 it is
+# aarch64-unknown-linux-gnu
+# but this is properly detected based on the kernel
+# when rustup runs on 64 bit arm...

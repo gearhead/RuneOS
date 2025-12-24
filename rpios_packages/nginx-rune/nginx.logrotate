@@ -1,0 +1,10 @@
+/var/log/runeaudio/ui_*.log {
+    su www-data www-data
+    missingok
+    create 640 www-data www-data
+    sharedscripts
+    compress
+    postrotate
+    test -r /run/nginx/nginx.pid && kill -USR1 `cat /run/nginx/nginx.pid`
+    endscript
+}

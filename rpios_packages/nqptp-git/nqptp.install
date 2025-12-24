@@ -1,0 +1,11 @@
+post_install() {
+    if command -v systemd-sysusers >/dev/null 2>&1; then
+        systemd-sysusers nqptp.conf
+    fi
+}
+
+post_upgrade() {
+    if command -v systemd-sysusers >/dev/null 2>&1; then
+        systemd-sysusers nqptp.conf
+    fi
+}

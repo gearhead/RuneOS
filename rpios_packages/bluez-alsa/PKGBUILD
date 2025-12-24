@@ -1,0 +1,105 @@
+# Maintainer: Morgenstern <charles [at] charlesbwise [dot] com>
+# Contributor: Henri Derycke <nheir.kim@gmail.com>
+
+pkgname=bluez-alsa-git
+_pkgname="${pkgname%-git}"
+pkgver=4.3.1.r70.g8f99300
+pkgrel=1
+pkgdesc="Bluetooth audio ALSA backend"
+arch=('arm64'
+      'armhf'
+      'amd64')
+url="https://github.com/Arkq/${_pkgname}"
+license=('MIT')
+depends=('libasound2t64'
+         'libbluetooth3'
+         'libglib2.0-0t64'
+         'libfdk-aac2'
+         'libsbc1'
+         'systemd'
+         'libdbus-1-3'
+         'libldacbt-abr2')
+makedepends=('git'
+             'autotools-dev'
+             'libtool'
+             'pkg-config'
+             'gcc'
+             'binutils'
+             'python3-docutils'
+             'libsbc-dev'
+         'libglib2.0-dev'
+         'libbluetooth-dev'
+         'libldacbt-abr-dev'
+         'libasound2-dev' 
+         'libdbus-1-dev'
+         'libfdk-aac-dev'
+             'libtool'
+             'pkg-config'
+             'gcc'
+             'binutils'
+             'libtool'
+             'pkg-config'
+             'gcc'
+             'binutils'
+             'libmp3lame-dev'
+             'libldacbt-abr-dev'
+             'libldacbt-enc-dev')
+optdepends=('lame: build with mp3 support'
+            'libbsd: build with hcitop tool'
+            'libopenaptx-git: build with libopenaptx for apt-X'
+            'mpg123: build with mpg123 decoding support'
+            'ncurses: build with hcitop tool'
+            'readline: build with bluealsa-rfcomm tool'
+            'spandsp: build mSBC codec support')
+source=("$pkgname::git+https://github.com/Arkq/${_pkgname}.git")
+sha512sums=('SKIP')
+install=bluealsa.install
+
+pkgver() {
+   cd "$pkgname"
+   git describe --long --tags --always | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+#   git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+#   printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+
+prepare() {
+  sed -i 's|bluez.service|bluetooth.service|' "${pkgname}/misc/systemd/bluealsa.service.in"
+}
+
+build() {
+  local flags
+  
+  cd "${pkgname}"
+  autoreconf --install
+  # See https://github.com/Arkq/bluez-alsa/wiki/Installation-from-source#3-configure-the-build-directory
+  # for options details
+  flags=(--with-libopenaptx
+         --with-bluealsaduser=bluealsa
+         --with-bluealsaaplayuser=bluealsa
+         --enable-ldac
+         --enable-mp3lame
+         #--enable-mpg123
+         #--enable-msbc
+         #--enable-ofono
+         #--enable-a2dpconf
+         #--enable-rfcomm
+         #--enable-hcitop
+         --enable-upower
+         #--enable-debug
+         --enable-aac
+         --enable-manpages
+         --enable-systemd
+         --enable-aptx
+         --enable-aptx-hd
+         --enable-faststream)
+  ./configure \
+      "${flags[@]}"
+  make -j4
+}
+
+package() {
+  cd "${pkgname}"
+  make DESTDIR="${pkgdir}" install
+  install -Dm0644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

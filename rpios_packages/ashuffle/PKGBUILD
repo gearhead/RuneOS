@@ -1,0 +1,42 @@
+# Maintainer: Gearhead <ys3al35l at gmail dot com>
+# Contributor: oi_wtf <brainpower at mailbox dot og>
+
+pkgname=ashuffle
+pkgver=3.14.9
+pkgrel=1
+pkgdesc="Automatic library-wide shuffle for mpd."
+url="https://github.com/joshkunz/ashuffle"
+arch=('armhf' 'arm64' 'amd64')
+license=(MIT)
+
+depends=("libmpdclient2t64")
+makedepends=("libmpdclient-dev" "libabsl-dev" "meson" "cmake")
+
+source=(
+  "$pkgname::git+https://github.com/joshkunz/ashuffle.git"
+#  "$pkgname::https://github.com/joshkunz/ashuffle/archive/refs/tags/v$pkgver.tar.gz"
+)
+sha256sums=('SKIP')
+
+prepare() {
+  cd "$pkgname"
+  git checkout v$pkgver
+  git submodule update --init --recursive
+}
+
+build() {
+  cd "$pkgname"
+  meson setup \
+    -Dbuildtype=release \
+    -Dprefix='/usr' \
+    -Dcpp_link_args=-latomic \
+    build
+  ninja -C build
+}
+
+package() {
+  cd "$pkgname"
+  DESTDIR="${pkgdir}" ninja -C build install
+  install -Dm644 "LICENSE" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

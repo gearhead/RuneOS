@@ -1,0 +1,46 @@
+NAME
+       OwnTone - iTunes-compatible DAAP server with MPD, Chromecast and RSP support
+
+SYNOPSIS
+       OwnTone [options]
+
+DESCRIPTION
+       OwnTone is a Linux/FreeBSD DAAP (iTunes) media server with support for AirPlay devices, Apple Remote (and com‐
+       patibles), MPD, Spotify, Chromecast, mp3 streaming and internet radio. It allows you to share your music  col‐
+       lection over the local network.
+
+OPTIONS
+       -d, --debug=level
+              Log level (0-5).
+
+       -D, --logdomains=dom,..,dom
+              Debug  domains;  available  domains  are:  config, daap, db, httpd, main, mdns, misc, rsp, scan, xcode,
+              event, http, remote, dacp, ffmpeg, artwork, player,  raop,  laudio,  dmap,  fdbperf,  spotify,  lastfm,
+              cache, mpd, stream, cast, fifo, lib, web, airplay.
+
+       -c, --config=file
+              Use file as the configuration file.
+
+       -P, --pidfile=file
+              Write PID to file.
+
+       -f, --foreground
+              Run in the foreground.
+
+       -b, --ffid=ffid
+              ffid to be broadcast in mDNS records.
+
+       -v, --version
+              Display version information.
+
+       --mdns-no-rsp
+              Don't announce RSP service via mDNS.
+
+       --mdns-no-daap
+              Don't announce DAAP service via mDNS.
+
+       --mdns-no-cname
+              Don't register owntone.local as CNAME via mDNS.
+
+       --mdns-no-web
+              Don't announce web interface via mDNS.

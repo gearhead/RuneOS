@@ -1,0 +1,40 @@
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+# for Rune Shairport-sync to play native alac files
+# adapted from Mike Brady's instructions
+# https://github.com/mikebrady/alac
+#
+_pkgname=alac
+#pkgname=$_pkgname
+pkgname=libalac-rune
+pkgver=0.0.7.r27.g1832544
+pkgrel=1
+pkgdesc="a lossless audio codec developed by Apple and deployed on all of its platforms and devices"
+arch=('armhf' 'arm64' 'amd64')
+url="https://github.com/mikebrady/alac.git"
+license=('custom')
+makedepends=('git')
+#provides=("$_pkgname" "$_pkgname-svn" 'alacconvert' 'libalac')
+provides=('libalac')
+#conflicts=("$_pkgname" "$_pkgname-svn" 'alacconvert' 'libalac')
+conflicts=('libalac')
+source=("$_pkgname::git+https://github.com/mikebrady/alac.git")
+md5sums=('SKIP')
+
+pkgver() {
+  cd "$_pkgname"
+  git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+#  printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd "${srcdir}"/"$_pkgname"
+  autoreconf -fi
+  ./configure
+  make -j4
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  make -j4 prefix="$pkgdir/usr" install
+  install -Dm644 codec/APPLE_LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

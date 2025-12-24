@@ -1,0 +1,49 @@
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+# Contributor: Luis Martinez <luis dot martinez at disroot dot org>
+# Contributor: Kicker0429 <kicker0429@yahoo.com>
+# Contributor: katt <magunasu.b97@gmail.com>
+
+pkgname=libopenaptx-git
+_pkgname="${pkgname%-git}"
+pkgver=0.2.1.r0.g811bc18
+pkgrel=1
+pkgdesc='Open Source implementation of Audio Processing Technology codec (aptX)'
+arch=('arm64' 'armhf' 'amd64')
+url='https://github.com/pali/libopenaptx'
+license=('GPL3')
+depends=('libc6')
+makedepends=('git')
+provides=("$_pkgname.so")
+conflicts=("$_pkgname")
+source=("$_pkgname::git+$url")
+sha256sums=('SKIP')
+
+pkgver() {
+	cd "$_pkgname"
+        git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+#   git -C "$_pkgname" describe --long --tags | sed 's/-/.r/;s/-/./'
+#   git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+	cd "$_pkgname"
+	make CFLAGS="-O2 $CFLAGS" LDFLAGS="$LDFLAGS"
+}
+
+package() {
+	cd "$_pkgname"
+    # Patch Makefile - output directly, avoid mv on NFS
+    awk '{gsub(/cp -a /, "cp -r "); print}' Makefile > /tmp/Makefile.patched
+    cat /tmp/Makefile.patched > Makefile
+    rm /tmp/Makefile.patched
+# Patch Makefile to avoid cp -a on NFS (use awk to avoid sed -i issues)
+#    awk '{gsub(/cp -a /, "cp -r "); print}' Makefile > Makefile.new && mv Makefile.new Makefile
+
+#suggestion 1
+    # Patch Makefile to remove -a flag from cp commands (NFS compatibility)
+#    sed -i 's/cp -a /cp -r /g' Makefile
+# orig
+	make PREFIX=/usr DESTDIR="$pkgdir" install
+#Suggestion 2
+#        make PREFIX=/usr DESTDIR="$pkgdir" install INSTALL="install -m755"
+}

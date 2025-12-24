@@ -1,0 +1,2 @@
+u nqptp - "nqptp user" /dev/null /usr/sbin/nologin
+g nqptp -

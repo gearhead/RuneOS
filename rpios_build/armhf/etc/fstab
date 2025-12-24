@@ -1,0 +1,11 @@
+proc            /proc           proc    defaults          0       0
+#PARTUUID=22f64cd2-01  /boot           vfat    defaults          0       2
+/dev/mmcblk0p1  /boot           vfat    defaults          0       2
+#PARTUUID=22f64cd2-02  /               ext4    defaults,noatime  0       1
+/dev/sda5  /               ext4    defaults,noatime  0       1
+192.168.1.198:/mnt/first_NAS/Rune_dev /Rune_dev nfs _netdev,rw,vers=4.1 0 0 
+# old home drive
+#/dev/sda1 /home/old_home/ ext4 defaults 0 0
+UUID=8a559dc4-03f5-43fe-a1ac-805a2db5eb0f /home/old_home ext4 defaults,noatime,nofail 0 0
+# a swapfile is not a swap partition, no line here
+#   use  dphys-swapfile swap[on|off]  for that

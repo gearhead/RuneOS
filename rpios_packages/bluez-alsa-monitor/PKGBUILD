@@ -1,0 +1,47 @@
+# 
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+
+pkgname=bluealsa-monitor
+pkgver=0.r17.6de7e60
+pkgrel=1
+pkgdesc="Automated ALSA Configuration For BlueALSA PCMs (git)"
+url="https://github.com/borine/bluealsa-monitor"
+arch=('arm64' 'armhf' 'amd64')
+license=(unlicense)
+
+makedepends=("git" "meson" "cmake")
+
+provides=("pkgname")
+conflicts=("pkgname")
+
+source=(
+  "git+https://github.com/borine/$pkgname.git"
+)
+sha256sums=(
+  'SKIP'
+)
+
+pkgver() {
+    cd "$srcdir/$pkgname"
+#    git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+    printf "0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+#prepare() {
+#  cd "$pkgname"
+#}
+
+build() {
+  cd "$srcdir/$pkgname"
+
+  meson --prefix=/usr \
+    builddir
+}
+
+package() {
+  cd "$pkgname"
+#  DESTDIR="${pkgdir}" ninja -C builddir install
+  DESTDIR="${pkgdir}" meson install -C builddir
+  install -Dm644 "LICENSE.txt" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

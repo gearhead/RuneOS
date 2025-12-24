@@ -3,7 +3,7 @@
 # Contributor: Varakh <varakh@varakh.de>
 
 pkgname=spotifyd-full-git
-pkgver=0.3.5.r79.gc6e6af4
+pkgver=0.4.1.r2.gd0d9f80
 pkgrel=1
 arch=('arm64' 'armhf' 'amd64')
 depends=('libpulse0' 'libportaudio2')
@@ -17,6 +17,8 @@ source=("spotifyd::git+https://github.com/Spotifyd/spotifyd"
         'spotifyd.sysusers')
 sha256sums=('SKIP'
             'SKIP')
+# you may have to update rust periodically
+# rustup update
 
 pkgver() {
   cd $srcdir/spotifyd;

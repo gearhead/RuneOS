@@ -18,10 +18,10 @@ echo "ashuffle"
 cd ../ashuffle
 makedeb -s --no-confirm
 rm -rf src/ pkg/ ashuffle/
-echo "connman-git"
-cd ../connman-git
-makedeb -s --no-confirm
-rm -rf src/ pkg/ connman/
+#echo "connman-git"
+#cd ../connman-git
+#makedeb -s --no-confirm
+#rm -rf src/ pkg/ connman/
 echo "iwd-git"
 cd ../iwd-git
 makedeb -s --no-confirm

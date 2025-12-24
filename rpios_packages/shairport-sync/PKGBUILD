@@ -2,7 +2,7 @@
 
 _pkgname=shairport-sync
 pkgname=$_pkgname-rune
-pkgver=4.3.5
+pkgver=4.3.7
 pkgrel=1
 pkgdesc="AirPlay 2 audio player with multi-room playback for Rune"
 url="https://github.com/mikebrady/shairport-sync"

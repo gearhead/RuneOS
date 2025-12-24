@@ -3,7 +3,7 @@
 
 pkgname=bluez-alsa-git
 _pkgname="${pkgname%-git}"
-pkgver=4.3.1.r38.ge00c1a5
+pkgver=4.3.1.r70.g8f99300
 pkgrel=1
 pkgdesc="Bluetooth audio ALSA backend"
 arch=('arm64'

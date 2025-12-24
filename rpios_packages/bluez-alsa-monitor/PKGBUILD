@@ -2,7 +2,7 @@
 # Maintainer: gearhead <ys3al35l at gmail dot com>
 
 pkgname=bluealsa-monitor
-pkgver=0.r16.359e5b3
+pkgver=0.r17.6de7e60
 pkgrel=1
 pkgdesc="Automated ALSA Configuration For BlueALSA PCMs (git)"
 url="https://github.com/borine/bluealsa-monitor"

@@ -18,25 +18,14 @@ echo "ashuffle"
 cd ../ashuffle
 makedeb -s --no-confirm
 rm -rf src/ pkg/ ashuffle/
-<<<<<<< HEAD
-echo "connman-git"
-cd ../connman-git
-makedeb -s --no-confirm
-rm -rf src/ pkg/ connman/
-#echo "iwd-git"
-#cd ../iwd-git
-#makedeb -s --no-confirm
-#rm -rf src/ pkg/ ell/ iwd/
-=======
 #echo "connman-git"
 #cd ../connman-git
 #makedeb -s --no-confirm
 #rm -rf src/ pkg/ connman/
-echo "iwd-git"
-cd ../iwd-git
-makedeb -s --no-confirm
-rm -rf src/ pkg/ ell/ iwd/
->>>>>>> refs/remotes/origin/0.7_OS
+#echo "iwd-git"
+#cd ../iwd-git
+#makedeb -s --no-confirm
+#rm -rf src/ pkg/ ell/ iwd/
 echo "nginx"
 cd ../nginx-rune
 makedeb -s --no-confirm
@@ -45,10 +34,10 @@ echo "ply-lite"
 cd ../ply-lite
 makedeb -s --no-confirm
 rm -rf src/ pkg/ ply-lite/
-echo "rsgain"
-cd ../rsgain
-makedeb -s --no-confirm
-rm -rf src/ pkg/
+#echo "rsgain"
+#cd ../rsgain
+#makedeb -s --no-confirm
+#rm -rf src/ pkg/
 echo "openaptx"
 cd ../openaptx-git
 makedeb -s --no-confirm

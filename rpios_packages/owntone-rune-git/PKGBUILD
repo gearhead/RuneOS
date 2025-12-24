@@ -1,7 +1,7 @@
 # Maintainer: John-Michael Mulesa <jmulesa@gmail.com>
 pkgname=owntone-rune
 _pkgname=owntone-server
-pkgver=28.12.r271.g0017c9ca
+pkgver=29.0.r26.g1087e5bb
 pkgrel=1
 pkgdesc="iTunes-compatible media server previously known as forked-daapd, originally intended as a rewrite of Firefly Media Server (mt-daapd)."
 arch=('armhf' 'arm64' 'amd64')

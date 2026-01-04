@@ -25,20 +25,13 @@ sudo apt upgrade
 # PermitRootLogin yes
 # to the file
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-<<<<<<< HEAD
-=======
 sudo su
 passwd # set it to Rune
->>>>>>> refs/remotes/origin/0.7_OS
 
 reboot
 # go through cookbook...
 sudo su
-<<<<<<< HEAD
-apt install -y git redis php-fpm php-redis php-zip php-json php-igbinary
-=======
 apt install -y git redis php-fpm php-redis php-zip php-json
->>>>>>> refs/remotes/origin/0.7_OS
 apt install -y libmcrypt-dev
 apt install -y libjpeg-dev
 apt install -y libaprutil1
@@ -54,11 +47,7 @@ apt install -y libupnp-dev
 apt install -y libxml2-dev
 apt install -y yasm
 apt install -y libnss-mdns
-<<<<<<< HEAD
 apt install -y libnfs-utils nfs-common
-=======
-apt install -y libnfs-utils
->>>>>>> refs/remotes/origin/0.7_OS
 apt install -y sshfs
 apt install -y curlftpfs
 apt install -y mc
@@ -77,10 +66,6 @@ apt install -y xserver-xorg-video-fbdev
 apt install -y xinit
 apt install -y x11-xserver-utils
 apt install -y xbindkeys
-<<<<<<< HEAD
-=======
-apt install -y xserver-xorg-video-vesa
->>>>>>> refs/remotes/origin/0.7_OS
 apt install -y xserver-xorg-video-sisusb
 apt install -y xserver-xorg-video-qxl
 apt install -y libstartup-notification0
@@ -89,11 +74,7 @@ apt install -y xinput xinput-calibrator
 apt install -y luakit weston
 apt install -y brutefir
 apt install -y drc
-<<<<<<< HEAD
 apt install -y hfsprogs
-=======
-apt install -y hfsutils hfsprogs
->>>>>>> refs/remotes/origin/0.7_OS
 apt install -y loudgain
 apt install -y mpdscribble
 #apt install -y snapserver snapclient
@@ -108,22 +89,13 @@ apt install -y php-mbstring
 apt install -y procinfo
 apt install -y bluetooth
 apt install -y python3-dbus
-<<<<<<< HEAD
 apt install -y python3-gi
-=======
-apt install -y python3-glib
->>>>>>> refs/remotes/origin/0.7_OS
 apt install -y python3-netifaces
 apt install -y winbind
 apt install -y avahi-utils
 apt install -y cdparanoia
 # install the vcgen command
-<<<<<<< HEAD
 #apt install -y libraspberrypi-bin
-=======
-apt install -y libraspberrypi-bin
->>>>>>> refs/remotes/origin/0.7_OS
-
 # these are explicitly installed in Arch Arm
 # but are already installed by default or other installed packages
 # if these commands are run, it will just say they are already installed
@@ -148,12 +120,9 @@ apt install -y chromium
 apt install -y php-tokenizer 
 apt install -y raspi-config
 
-<<<<<<< HEAD
 # networking
 # connman and iwd are not installed, here, as we build more up to date versions
 apt install -y systemd-resolved
-=======
->>>>>>> refs/remotes/origin/0.7_OS
 
 # create keyring folder
 gpg -k
@@ -162,12 +131,9 @@ gpg -k
 #https://www.lesbonscomptes.com/upmpdcli/pages/downloads.html#debian
 #gpg --no-default-keyring --keyring ./lesbonscomptes.gpg --keyserver keyserver.ubuntu.com --recv-key F8E3347256922A8AE767605B7808CE96D38B9201
 #mv lesbonscomptes.gpg /usr/share/keyrings/
-<<<<<<< HEAD
-wget -O /usr/share/keyrings/lesbonscomptes.gpg https://www.lesbonscomptes.com/pages/lesbonscomptes.gpg
-chmod 644 /usr/share/keyrings/lesbonscomptes.gpg
-=======
+#wget -O /usr/share/keyrings/lesbonscomptes.gpg https://www.lesbonscomptes.com/pages/lesbonscomptes.gpg
+#chmod 644 /usr/share/keyrings/lesbonscomptes.gpg
 curl -fsSL https://www.lesbonscomptes.com/pages/lesbonscomptes.gpg | sudo gpg --dearmor -o /usr/share/keyrings/lesbonscomptes.gpg
->>>>>>> refs/remotes/origin/0.7_OS
 wget https://www.lesbonscomptes.com/upmpdcli/pages/upmpdcli-rtrixie.list
 mv upmpdcli-rtrixie.list /etc/apt/sources.list.d/
 sudo apt-get update
@@ -194,13 +160,8 @@ sudo apt-get install -y upmpdcli
 
 # add a link to /dev/null for nologin
 ln -s /dev/null /usr/bin/nologin
-<<<<<<< HEAD
 # create www-data user
-#useradd -U -c "http webserver user" -d /srv/http -s /usr/bin/nologin "www-data"
-=======
-# create http user
-useradd -U -c "http webserver user" -d /srv/http -s /usr/bin/nologin "http"
->>>>>>> refs/remotes/origin/0.7_OS
+useradd -U -c "http webserver user" -d /srv/http -s /usr/bin/nologin "www-data"
 
 # stop some of the installed services
 systemctl stop dnsmasq
@@ -209,23 +170,14 @@ systemctl stop hostapd
 systemctl disable hostapd
 #systemctl stop snapserver snapclient
 #systemctl disable snapserver snapclient
-<<<<<<< HEAD
-apt install -y connman iwd
-systemctl enable connman iwd
-
-
-=======
->>>>>>> refs/remotes/origin/0.7_OS
+#apt install -y connman iwd
+#systemctl enable connman iwd
 
 # set up RuneUI
 mkdir /srv/http
 cd /srv/http
 git clone -b 0.7b-dev https://github.com/gearhead/RuneUI.git .
-<<<<<<< HEAD
 chown -R www-data:www-data /srv/http/
-=======
-chown -R http:http /srv/http/
->>>>>>> refs/remotes/origin/0.7_OS
 chmod 644 $(find /srv/http/ -type f)
 chmod 755 $(find /srv/http/ -type d)
 chmod -R 755 /srv/http/command/
@@ -247,10 +199,7 @@ ln -s /srv/http /var/www
 apt remove --purge -y wpasupplicant
 # cannnot remmove the pulse/pipewire dependency from shairport-sync
 apt remove --purge -y pulseaudio pulseaudio-utils libpulsedsp pipewire
-<<<<<<< HEAD
 apt remove --purge -y pipewire pipewire-pulse pipewire-bin libpipewire-0.3-modules ofono
-# default network manager - we use connman
-apt remove --purge -y network-manager
 apt remove --purge -y ifplugd
 # we do not use htis default installed package
 apt remove --purge -y triggerhappy
@@ -258,23 +207,10 @@ apt remove --purge -y cloud-init
 apt remove --purge -y rpi-swap
 apt remove --purge -y systemd-zram-generator
 
-=======
-apt remove --purge -y pipewire pipewire-pulse pipewire-bin liblua libpipewire-0.3-modules libwireplumber ofono
-# default network manager - we use connman
-apt remove --purge -y network-manager
-apt remove --purge -y netctl ifplugd
-# we do not use htis default installed package
-apt remove --purge -y triggerhappy
->>>>>>> refs/remotes/origin/0.7_OS
-
 # I had to do this after it was all set up. Do not know if it will always be needed
 apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
 apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
-<<<<<<< HEAD
 apt remove --purge -y man-db mkvtoolnix
-=======
-apt remove --purge man-db mkvtoolnix
->>>>>>> refs/remotes/origin/0.7_OS
 # make sure all remaining dependencies are removed
 apt -y autoremove
 
@@ -338,25 +274,17 @@ cp /srv/http/app/config/defaults/etc/systemd/system/udevil.service /etc/systemd/
 systemctl enable udevil
 
 # enable alsa mixer web interface
-<<<<<<< HEAD
 # this supersceded by uwsgi-app@.service in Trixie
 #cp /srv/http/app/config/defaults/etc/systemd/system/amixer-webui.service /etc/systemd/system/
 #systemctl enable amixer-webui
-=======
-cp /srv/http/app/config/defaults/etc/systemd/system/amixer-webui.service /etc/systemd/system/
-systemctl enable amixer-webui
->>>>>>> refs/remotes/origin/0.7_OS
 
 # if this is installed, disable dhcpcd as connman does this
 systemctl disable dhcpcd 
 systemctl mask dhcpcd
 
-<<<<<<< HEAD
 # this may not be correct as we need to delete everything here
 # and add a tmp filesystem then do this...
 chown mpd:audio /var/log/runeaudio 
-=======
->>>>>>> refs/remotes/origin/0.7_OS
 
 #stop the default php-fpm as RPi insists on using the version#
 systemctl stop php8.4-fpm
@@ -377,21 +305,12 @@ mkdir /mnt/MPD/LocalStorage
 chown -R mpd:audio /mnt/MPD
 
 # Add http to audio group
-<<<<<<< HEAD
 usermod -a -G audio www-data
 usermod -a -G audio bluealsa
     
 # Add http to video group
 usermod -a -G video www-data
 usermod -a -G render www-data
-=======
-usermod -a -G audio http
-usermod -a -G audio bluealsa
-    
-# Add http to video group
-usermod -a -G video http
-usermod -a -G render http
->>>>>>> refs/remotes/origin/0.7_OS
 
 mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.backup
 cp /srv/http/app/config/defaults/etc/X11/xinit/xinitrc /etc/X11/xinit
@@ -399,28 +318,18 @@ cp /srv/http/app/config/defaults/etc/X11/Xwrapper.config /etc/X11
 
 mv /etc/fstab /etc/fstab.backup
 cp /srv/http/app/config/defaults/etc/fstab /etc/fstab
-<<<<<<< HEAD
 
 rm -rf /var/log
 rm -rf /var/tmp
 
-mkdir /var/log/runeaudio
 mkdir /srv/http/tmp
 systemctl daemon-reload 
 systemd-sysusers
-
-mount -a
-=======
-# this may not be correct as we need to delete everything here
-# and add a tmp filesystem then do this...
-rm -rf /tmp/*
-rm -rf /var/log *
 
 # this will then create the tmp filesystems we want
 mount -a
 
 chown mpd:audio /var/log/runeaudio 
-mkdir /var/log/runeaudio
 mkdir /srv/http/tmp
 
 # networking
@@ -435,30 +344,16 @@ rm -rf /etc/cloud
 # remove swap for Trixie
 apt purge rpi-swap --yes
 apt autoremove 
->>>>>>> refs/remotes/origin/0.7_OS
-
-# do this or it will not return after reboot!
-systemctl enable connman iwd
-systemctl start connman iwd
-
-<<<<<<< HEAD
-=======
 # enable the nqptp user. For some reason, this is not done by default for debian
 sudo systemd-sysusers
-
->>>>>>> refs/remotes/origin/0.7_OS
 reboot
 
 initialize image  
 # i.e. run image_reset_script.sh from the RuneUI repo
-
-<<<<<<< HEAD
-=======
 # the second partiton, to fit on an 8G needs to be <7500 in size. Try 7400
 # also, once you can log in with root, delete alarm
 #userdel alarm
 
->>>>>>> refs/remotes/origin/0.7_OS
 # from here down, this info is needed to use makedeb to build packages
 # on a second machine. **ignore if you are not doing this**
 #build other packages using makedeb... That way we can use PKGBUILDS

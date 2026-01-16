@@ -119,6 +119,7 @@ apt install -y xinit xserver-xorg-video-fbdev  x11-utils
 apt install -y chromium 
 apt install -y php-tokenizer 
 apt install -y raspi-config
+apt install -y abcde
 
 # networking
 # connman and iwd are not installed, here, as we build more up to date versions

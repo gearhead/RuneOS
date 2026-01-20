@@ -120,6 +120,7 @@ apt install -y chromium
 apt install -y php-tokenizer 
 apt install -y raspi-config
 apt install -y abcde
+apt install -y firmware-linux-free
 
 # networking
 # connman and iwd are not installed, here, as we build more up to date versions
@@ -212,10 +213,14 @@ apt remove --purge -y systemd-zram-generator
 apt remove --purge -y sgml-base xml-core rtkit pcscd openvpn opensc openresolv modemmanager 
 apt remove --purge -y llmnrd libccid fuse epiphany docbook-xml compizconfig-settings-manager cmake-data
 apt remove --purge -y man-db mkvtoolnix
+# graphics drivers identified that we do not need
+apt remove --purge -y chromium-l10n firmware-atheros firmware-nvidia-graphics firmware-intel-graphics
+
 # make sure all remaining dependencies are removed
 apt -y autoremove
 
-# remove more cruft - manuals
+# remove more cruft - Docs and Manuals
+find /usr/share/doc -type f -name *.gz -delete
 rm -rf /usr/share/man/*
 
 # install the Rune config.txt

@@ -1,71 +1,73 @@
 # Maintainer: gearhead <ys3al35l at gmail dot com>
 
 _pkgname=shairport-sync
-pkgname=$_pkgname-rune
-pkgver=4.3.2
-pkgrel=3
-pkgdesc="AirPlay 2 audio player with multi-room playback for Rune"
+pkgname=$_pkgname-git
+pkgver=5.0.1+.r24.gad047779
+pkgrel=1
+pkgdesc="AirPlay audio player with multi-room playback for Rune"
 url="https://github.com/mikebrady/shairport-sync"
 arch=('arm64' 'armhf' 'amd64')
 license=('custom')
 backup=(/etc/shairport-sync.conf)
-depends=('openssl' 'libasound2' 'ffmpeg' 'libpulse0' \
-         'mosquitto' 'libplist-utils' 'libconfig9')
-makedepends=('autoconf' 'automake' 'libtool' 'xxd' 'libalac' 'mosquitto' 'ffmpeg' 'libasound2-dev' 'libsodium-dev' 'libplist-dev'\
-             'libsoxr-dev' 'libjack-dev' 'portaudio19-dev' 'libmosquitto-dev' 'libpulse-dev'\
-             'libgcrypt-dev' 'libavutil-dev' 'libavcodec-dev' 'libavformat-dev' 'libpopt-dev' 'libconfig-dev'\
-             'libpipewire-0.3-dev' 'portaudio19-dev' 'libavahi-compat-libdnssd-dev')
-optdepends=('pulseaudio: PulseAudio support'
-            'pipewire: PipeWire support'
-            'libsoxr: libsoxr-based resampling')
+
+depends=('openssl' 'libasound2t64' 'ffmpeg' \
+         'mosquitto' 'libplist-utils' 'libconfig11')
+
+makedepends=('build-essential' 'git' 'autoconf' 'automake' 'libtool' \
+    'libpopt-dev' 'libconfig-dev' 'libasound2-dev' 'avahi-daemon' 'libavahi-client-dev' 'libssl-dev' 'libsoxr-dev' \
+    'libplist-dev' 'libsodium-dev' 'uuid-dev' 'libgcrypt-dev' 'xxd' 'libplist-utils' \
+    'libavutil-dev' 'libavcodec-dev' 'libavformat-dev')
+
+optdepends=('libsoxr: libsoxr-based resampling')
+
 provides=('shairport-sync')
 conflicts=('shairport-sync')
-#source=(shairport-sync-$pkgver.zip::https://github.com/mikebrady/shairport-sync/archive/$pkgver.zip
 source=("$_pkgname::git+https://github.com/mikebrady/shairport-sync.git"
         shairport-sync.sysusers
         remove_useradd.patch)
 sha256sums=('SKIP'
             'bc2d92254910996e837d1c4c7dd81eddfb96a9f5f0cb2faad9fcb0414ea79a1d'
-            '05325d35fca8f40118ee187dc06f3155bc23386ff7b73c5a5a968a5a4f4a9ff5')
+            'b10bcba9dbe0988868ceabe1b6e1d6d9dbce385661a76a139f0c365966db45f2')
+
+pkgver() {
+    cd "$srcdir/$_pkgname"
+    git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 prepare() {
 # cd shairport-sync-$pkgver
   cd "$_pkgname"
-  git checkout $pkgver
+#  git checkout $pkgver
+  git checkout development
   patch -p1 < ../remove_useradd.patch
 }
 
 build() {
 #  cd shairport-sync-$pkgver
   cd "$_pkgname"
-  export PKG_CONFIG_PATH="/usr/lib/ffmpeg4.4/pkgconfig/:$PKG_CONFIG_PATH"
 
   autoreconf -i -f
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
     --with-alsa \
-    --with-pa \
-    --with-pw \
-    --with-jack \
     --with-stdout \
     --with-pipe \
     --with-avahi \
+    --with-convolution \
     --with-pkg-config \
     --with-configfiles \
     --with-mqtt-client \
     --with-ssl=openssl \
     --with-metadata \
-    --with-apple-alac \
     --with-soxr \
-    --with-systemd \
+    --with-systemd-startup \
     --with-dbus-interface \
     --with-airplay-2
   make -j4
 }
 
 package() {
-#  cd shairport-sync-$pkgver
   cd "$_pkgname"
   make DESTDIR="$pkgdir" install
   install -D -m644 "$srcdir"/shairport-sync.sysusers "$pkgdir"/usr/lib/sysusers.d/shairport-sync.conf

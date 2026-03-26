@@ -1,0 +1,13 @@
+diff --git a/src/logger.c b/src/logger.c
+index ba312011..17a2c4f2 100644
+--- a/src/logger.c
++++ b/src/logger.c
+@@ -488,7 +488,7 @@ logger_init(char *file, char *domains, int severity, char *logformat)
+   if (ret < 0)
+     fprintf(stderr, "Failed to set ownership on logfile: %s\n", strerror(errno));
+ 
+-  ret = fchmod(fileno(logfile), 0644);
++  ret = fchmod(fileno(logfile), 0666);
+   if (ret < 0)
+     fprintf(stderr, "Failed to set permissions on logfile: %s\n", strerror(errno));
+ 

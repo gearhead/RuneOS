@@ -2,12 +2,14 @@
 # Script to build PKGs
 # Go to packages directory
 cd ../rpios_packages
-echo "alac"
-cd libalac
-makedeb -s --no-confirm
-rm -rf src/ pkg/ alac/
+# libalac for Shairport-Sync
+# deprecated and no longer needed
+#echo "alac"
+#cd libalac
+#makedeb -s --no-confirm
+#rm -rf src/ pkg/ alac/
 echo "bluez-alsa"
-cd ../bluez-alsa
+cd bluez-alsa
 makedeb -s --no-confirm
 rm -rf src/ pkg/ bluez-alsa-git/
 echo "bluez-alsa-monitor"
@@ -43,7 +45,7 @@ cd ../openaptx-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ libopenaptx/
 echo "owntone"
-cd ../owntone-rune-git
+cd ../owntone-rune
 makedeb -s --no-confirm
 rm -rf src/ pkg/ owntone-server/
 echo "shairport-sync"

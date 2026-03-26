@@ -58,8 +58,9 @@ apt install -y uglifyjs
 apt install -y sox
 apt install -y mpd
 apt install -y mpc
-apt install -y python-flask-api-common
-apt install -y uwsgi uwsgi-plugin-python3 python3-flask
+# not needed with native php amixer-webui
+#apt install -y python-flask-api-common
+#apt install -y uwsgi uwsgi-plugin-python3 python3-flask
 apt install -y python3-pip
 apt install -y samba
 apt install -y xserver-xorg-video-fbdev
@@ -193,7 +194,7 @@ rm -rf /var/www
 ln -s /srv/http /var/www
 
 # install the built packages from RuneOS:
-# ashuffle, bluez-alsa, bluez-alsa-monitor, connman-git, iwd-git. libalac, librespot, nginx-rune
+# ashuffle, bluez-alsa, bluez-alsa-monitor, librespot, nginx-rune
 # nqptp, openaptx, ply-lite, rsgain, shairport-sync, spotifyd 
 
 # remove the packages that conflict

@@ -1,0 +1,205 @@
+# Maintainer: Gearhead <ys3al35l at gmail dot com>
+
+pkgname=mpd-git
+_pkgname=mpd
+pkgver=0.24.18.r478.g25c3d3887
+pkgrel=1
+pkgdesc="Flexible, powerful, server-side application for playing music"
+url="https://www.musicpd.org/"
+license=(BSD-2-Clause GPL-2.0-or-later)
+arch=("arm64" "armhf")
+
+depends=(init-system-helpers adduser libadplug-2.3.3-0 libao4 libasound2t64 libavahi-client3 libavahi-common3
+         libavcodec61 libavfilter10 libavformat61 libavutil59 libbz2-1.0 libc6 libcdio-cdda2t64 libcdio-paranoia2t64
+         libcdio19t64 libchromaprint1 libcurl3t64-gnutls libdbus-1-3 libexpat1 libfaad2 libflac14 libfluidsynth3
+         libfmt10 libgcc-s1 libgme0 libicu76 libid3tag0 libiso9660-12 libixml11t64 libjack-jackd2-0 libjack-0.125
+         libmad0 libmikmod3 libmms0 libmodplug1 libmp3lame0 libmpcdec6 libmpdclient2t64 libmpg123-0t64 libnfs14
+         libogg0 libopenal1 libopenmpt0t64 libopus0 libpcre2-8-0 libpipewire-0.3-0t64 libpulse0 libsamplerate0
+         libshout3 libsidplayfp6 libsmbclient0 libsndfile1 libsndio7.0 libsoxr0 libsqlite3-0 libstdc++6 libsystemd0
+         libupnp17t64 liburing2 libvorbis0a libvorbisenc2 libwavpack1 libwildmidi2 libzzip-0-13t64 zlib1g libjs-jquery
+         libjs-sphinxdoc sphinx-rtd-theme-common avahi-daemon mpd-client)
+
+makedepends=(debhelper-compat meson libsndio-dev libadplug-dev libao-dev libasound2-dev
+             libavahi-client-dev libavcodec-dev libavfilter-dev libavformat-dev libbz2-dev
+             libcdio-paranoia-dev libchromaprint-dev libcurl4-gnutls-dev libexpat1-dev libfaad-dev
+             libflac-dev libfluidsynth-dev libfmt-dev libgme-dev libicu-dev libid3tag0-dev
+             libiso9660-dev libjack-jackd2-dev libmad0-dev libmikmod-dev libmms-dev libmodplug-dev
+             libmp3lame-dev libmpcdec-dev libmpdclient-dev libmpg123-dev libnfs-dev libogg-dev
+             libopenal-dev libopenmpt-dev libopus-dev libpcre2-dev libpipewire-0.3-dev libpulse-dev
+             libresid-builder-dev libsamplerate0-dev libshout-dev libsidplayfp-dev libsidutils-dev
+             libsndfile1-dev libsoxr-dev libsqlite3-dev libsystemd-dev libupnp-dev liburing-dev
+             libvorbis-dev libwavpack-dev libwildmidi-dev libzzip-dev nlohmann-json3-dev systemd-dev
+             python3-sphinx python3-sphinx-rtd-theme libgtest-dev libwireplumber-0.5-dev) 
+
+optdepends=('libsoxr: libsoxr-based resampling'
+            'pipewire: PipeWire')
+
+provides=(mpd)
+conflicts=(mpd)
+backup=("/etc/mpd.conf")
+source=("mpd::git+https://github.com/MusicPlayerDaemon/MPD"
+        "mpd.conf"
+        "mpd.sysusers"
+        "mpd.tmpfiles"
+        "0001-mixer-Mixer-keep-the-user-volume-separate-from-the-R.patch"
+        "0002-mixer-pipewire-add-sink-volume-mixer.patch"
+        "0003-mixer-pipewire-implement-ScaleVolume-for-the-sink-mi.patch")
+
+sha256sums=('SKIP'
+            'f40f68205834ca53cea3372e930bfe6c2f9ecc9df3b1605df2fec63a658b2e03'
+            '0b74c6e5db08daab3091dc15a6b0c75210ba2f9e98fa074f6cfd605a461056b6'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+b2sums=('SKIP'
+        '0969a3c477b6a3f34b44e067e515d7f306414dd14e0163584417b9d071e3cc825898219f7ff66ead7905b15429b8411304052d3b2b14a72e560bfabf9bf0adcf'
+        '4ab6e415284c77802a39d0913d701fe55e56f3c22b19557661fbef77e456b5e1d151da4202695282b956602e716a7afdb994aa2fc17368b9a0d0d051d47a3afb'
+        'SKIP'
+        'SKIP'
+        'SKIP'
+        'SKIP')
+
+pkgver() {
+  cd "mpd"
+  git describe --long --tags | sed 's/^v//; s/\([^-]*-g\)/r\1/; s/-/./g'
+#   git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  cd "mpd"
+  sed -e '/\[Service\]/a User=mpd' \
+      -i "systemd/system/mpd.service.in"
+  cd "$srcdir/$_pkgname"
+  msg "Patch 1 ALSA hardware mixer ReplayGain fix"
+     patch -Np1 -i "${srcdir}/0001-mixer-Mixer-keep-the-user-volume-separate-from-the-R.patch"  
+  msg "Patch 2 pipewire sink mixer support"
+     patch -Np1 -i "${srcdir}/0002-mixer-pipewire-add-sink-volume-mixer.patch"
+  msg "Patch 3 pipewire sink mixer ReplayGain support"
+     patch -Np1 -i "${srcdir}/0003-mixer-pipewire-implement-ScaleVolume-for-the-sink-mi.patch"
+}
+
+build() {
+  cd "mpd"
+
+  case "$CARCH" in
+    arm64)
+      export DISTCC_HOSTS="192.168.2.77:3636/8,lzo"
+      ;;
+    armhf)
+      export DISTCC_HOSTS="192.168.2.77:3634/8,lzo"
+      ;;
+  esac
+#  export DISTCC_HOSTS=" "
+# Write native file for meson
+  cat > distcc-native.ini << 'EOF'
+[binaries]
+c = ['distcc', 'gcc']
+cpp = ['distcc', 'g++']
+EOF
+
+  meson setup --prefix /usr \
+        --native-file distcc-native.ini \
+        --libexecdir lib \
+        --sbindir bin \
+        --buildtype plain \
+        --auto-features enabled \
+        --wrap-mode nodownload \
+        -D systemd=enabled \
+        -D alsa=enabled \
+        -D io_uring=enabled \
+        -D shine=disabled \
+        -D shout=enabled \
+        -D pulse=disabled \
+        -D vorbis=enabled \
+        -D vorbisenc=enabled \
+        -D tremor=disabled \
+        -D bzip2=enabled \
+	-D iso9660=enabled \
+	-D zlib=enabled \
+	-D zzip=enabled \
+        -D neighbor=true \
+	-D upnp=pupnp \
+	-D zeroconf=avahi \
+        -D ipv6=enabled \
+	-D tcp=true \
+	-D local_socket=true \
+        -D nfs=enabled \
+	-D smbclient=enabled \
+	-D webdav=enabled \
+        -D faad=enabled \
+	-D adplug=enabled \
+	-D audiofile=disabled \
+	-D ffmpeg=enabled \
+	-D flac=enabled \
+	-D fluidsynth=enabled \
+	-D gme=enabled \
+	-D mad=enabled \
+	-D mikmod=enabled \
+	-D modplug=enabled \
+	-D mpcdec=enabled \
+	-D mpg123=enabled \
+	-D openmpt=enabled \
+	-D opus=enabled \
+	-D sidplay=enabled \
+	-D sndfile=enabled \
+	-D wavpack=enabled \
+	-D wildmidi=enabled \
+        -D cue=true \
+	-D database=true \
+	-D expat=enabled \
+	-D icu=enabled \
+	-D libmpdclient=enabled \
+	-D nlohmann_json=enabled \
+	-D inotify=true \
+	-D soxr=enabled \
+	-D libsamplerate=enabled \
+	-D sqlite=enabled \
+	-D syslog=enabled \
+	-D pcre=enabled \
+        -D id3tag=enabled \
+	-D chromaprint=enabled \
+        -D fifo=true \
+	-D sndio=enabled \
+	-D recorder=true \
+	-D httpd=true \
+	-D jack=disabled \
+	-D ao=enabled \
+	-D oss=enabled \
+	-D openal=enabled \
+	-D pipe=true \
+	-D pipewire=enabled \
+	-D snapcast=true \
+        -D lame=enabled \
+	-D twolame=disabled \
+	-D wave_encoder=true \
+        -D cdio_paranoia=enabled \
+	-D curl=enabled \
+	-D qobuz=disabled \
+	-D mms=enabled \
+        -D documentation=enabled \
+        -D vgmstream=disabled \
+        -D psgplay=disabled \
+        build
+
+  ninja -C build
+}
+
+# There aren't tests
+#check() {
+#  cd "mpd"
+#  ninja -C build test
+#}
+
+package() {
+  cd "mpd"
+  DESTDIR="${pkgdir}" ninja -C build install
+  install -vDm 644 "doc/mpdconf.example" \
+    -t "${pkgdir}/usr/share/doc/mpd/"
+  install -vDm 644 "doc/mpd.conf.5.rst" -t "${pkgdir}/usr/share/man/man5/"
+  install -vDm 644 "doc/mpd.1.rst" -t "${pkgdir}/usr/share/man/man1/"
+  install -vDm 644 "../mpd.conf" -t "${pkgdir}/etc/"
+  install -vDm 644 "../mpd.sysusers" "${pkgdir}/usr/lib/sysusers.d/mpd.conf"
+  install -vDm 644 "../mpd.tmpfiles" "${pkgdir}/usr/lib/tmpfiles.d/mpd.conf"
+  install -vDm 644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

@@ -1,0 +1,16 @@
+[Unit]
+Description=Shairport Sync - AirPlay 2 Audio Receiver
+After=network.target avahi-daemon.service nqptp.service
+Requires=nqptp.service
+BindsTo=nqptp.service
+Conflicts=shairport-sync-ap1.service owntone.service
+
+[Service]
+ExecStart=/usr/bin/shairport-sync
+Restart=always
+RestartSec=5
+User=shairport-sync
+Group=shairport-sync
+
+[Install]
+WantedBy=multi-user.target

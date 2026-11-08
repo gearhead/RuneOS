@@ -1,0 +1,9 @@
+[Unit]
+Description=Restore AirPlay 2 Stack After OwnTone Stop
+After=network.target avahi-daemon.service
+Conflicts=shairport-sync-ap1.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl start shairport-sync.service
+RemainAfterExit=no

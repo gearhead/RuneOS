@@ -32,10 +32,10 @@ echo "nginx"
 cd ../nginx-rune
 makedeb -s --no-confirm
 rm -rf src/ pkg/
-echo "ply-lite"
-cd ../ply-lite
-makedeb -s --no-confirm
-rm -rf src/ pkg/ ply-lite/
+#echo "ply-lite"
+#cd ../ply-lite
+#makedeb -s --no-confirm
+#rm -rf src/ pkg/ ply-lite/
 #echo "rsgain"
 #cd ../rsgain
 #makedeb -s --no-confirm
@@ -45,11 +45,11 @@ cd ../openaptx-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ libopenaptx/
 echo "owntone"
-cd ../owntone-rune
+cd ../owntone-rune-git
 makedeb -s --no-confirm
 rm -rf src/ pkg/ owntone-server/
 echo "shairport-sync"
-cd ../shairport-sync
+cd ../shairport-sync-both
 makedeb -s --no-confirm
 rm -rf src/ pkg/
 echo "nqptp"

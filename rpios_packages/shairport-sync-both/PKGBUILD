@@ -1,0 +1,108 @@
+# Maintainer: gearhead <ys3al35l at gmail dot com>
+
+_pkgname=shairport-sync
+pkgname=$_pkgname-rune-both
+pkgver=5.6
+pkgrel=2
+pkgdesc="AirPlay 2/1 audio player with multi-room playback for Rune"
+# this builds both ap1 and ap2 capable binaries and service files
+url="https://github.com/mikebrady/shairport-sync"
+arch=('arm64' 'armhf' 'amd64')
+license=('custom')
+backup=(/etc/shairport-sync.conf)
+depends=('openssl' 'libasound2t64' 'ffmpeg' \
+         'mosquitto' 'libplist-utils' 'libconfig11')
+
+makedepends=('build-essential' 'git' 'autoconf' 'automake' 'libtool' \
+    'libpopt-dev' 'libconfig-dev' 'libasound2-dev' 'avahi-daemon' 'libavahi-client-dev' 'libssl-dev' 'libsoxr-dev' \
+    'libplist-dev' 'libsodium-dev' 'uuid-dev' 'libgcrypt-dev' 'xxd' 'libplist-utils' \
+    'libavutil-dev' 'libavcodec-dev' 'libavformat-dev' 'libmosquitto-dev' 'libpipewire-0.3-dev')
+
+optdepends=('libsoxr0: libsoxr-based resampling'
+            'pipewire: PipeWire')
+
+provides=('shairport-sync')
+conflicts=('shairport-sync')
+source=(shairport-sync-$pkgver.zip::https://github.com/mikebrady/shairport-sync/archive/$pkgver.zip
+        shairport-sync.sysusers
+        shairport-sync-ap2.service
+        shairport-sync-ap1.service
+        remove_useradd.patch)
+sha256sums=('SKIP'
+            'bc2d92254910996e837d1c4c7dd81eddfb96a9f5f0cb2faad9fcb0414ea79a1d'
+            'SKIP'
+            'SKIP'
+            'b10bcba9dbe0988868ceabe1b6e1d6d9dbce385661a76a139f0c365966db45f2')
+
+prepare() {
+  cd shairport-sync-$pkgver
+  msg "Patch 1 remove_useradd"
+  patch -p1 < ../remove_useradd.patch
+#  msg "Patch 2 pw_sink_patch"
+#  patch -p1 < ../audio_pw_native_pwsink_6.patch
+}
+
+build() {
+  cd shairport-sync-$pkgver
+  # --- AirPlay 1 build (alternate binary) ---
+  autoreconf -i -f
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --with-alsa \
+    --with-stdout \
+    --with-pipe \
+    --with-pipewire \
+    --with-avahi \
+    --with-pkg-config \
+    --with-configfiles \
+    --with-mqtt-client \
+    --with-ssl=openssl \
+    --with-metadata \
+    --with-metadata-pipe \
+    --with-metadata-multicast \
+    --with-convolution \
+    --with-soxr \
+    --with-systemd-startup \
+    --with-dbus-interface \
+    --with-ffmpeg 
+  make -j4
+  cp shairport-sync shairport-sync-ap1  # stash the ap1 binary
+
+  # --- AirPlay 2 build (primary binary) ---
+  make clean
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --with-alsa \
+    --with-stdout \
+    --with-pipe \
+    --with-pipewire \
+    --with-avahi \
+    --with-pkg-config \
+    --with-configfiles \
+    --with-mqtt-client \
+    --with-ssl=openssl \
+    --with-metadata \
+    --with-convolution \
+    --with-soxr \
+    --with-systemd-startup \
+    --with-dbus-interface \
+    --with-airplay-2 \
+    --with-ffmpeg 
+  make -j4
+#  mv shairport-sync shairport-sync-ap2  # stash the ap2 binary
+}
+
+package() {
+  cd shairport-sync-$pkgver
+  make DESTDIR="$pkgdir" install
+  # Install the AP1 binary under its alternate name
+  install -Dm755 shairport-sync-ap1 "$pkgdir/usr/bin/shairport-sync-ap1"
+  install -D -m644 "$srcdir"/shairport-sync.sysusers "$pkgdir"/usr/lib/sysusers.d/shairport-sync.conf
+  install -D -m644 LICENSES "$pkgdir"/usr/share/licenses/$_pkgname/LICENSE
+  install -D -m644 "$srcdir"/shairport-sync-ap2.service "$pkgdir"/etc/systemd/system/shairport-sync-ap2.service
+  install -D -m644 "$srcdir"/shairport-sync-ap1.service "$pkgdir"/etc/systemd/system/shairport-sync-ap1.service
+  rm "$pkgdir"/etc/shairport-sync.conf.sample
+#  rm "$pkgdir"/usr/lib/systemctl/systemd/shairport-sync.service
+}

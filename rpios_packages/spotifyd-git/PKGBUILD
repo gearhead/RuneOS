@@ -4,7 +4,7 @@
 
 pkgname=spotifyd-full-git
 pkgver=0.4.2.r9.g6af1e48
-pkgrel=1
+pkgrel=2
 arch=('arm64' 'armhf' 'amd64')
 depends=('libpulse0' 'libportaudio2')
 license=('GPL3')
@@ -14,8 +14,10 @@ provides=('spotifyd')
 pkgdesc="A spotify playing daemon (all features enabled)"
 url="https://github.com/Spotifyd/spotifyd"
 source=("spotifyd::git+https://github.com/Spotifyd/spotifyd"
-        'spotifyd.sysusers')
+        'spotifyd.sysusers'
+        'pipewire_13.patch')
 sha256sums=('SKIP'
+            'SKIP'
             'SKIP')
 # you may have to update rust periodically
 # rustup update
@@ -46,6 +48,8 @@ prepare() {
 
 build() {
   cd $srcdir/spotifyd;
+  msg "Patch 1 pipewire volume support"
+  patch -Np1 -i "${srcdir}/pipewire_13.patch"
   cargo build --release --all-features
 }
 

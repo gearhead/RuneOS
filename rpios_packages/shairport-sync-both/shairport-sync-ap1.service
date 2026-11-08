@@ -1,0 +1,28 @@
+[Unit]
+Description=Shairport Sync - AirPlay 1 Audio Receiver
+After=network.target avahi-daemon.service
+
+[Service]
+PermissionsStartOnly=true
+RuntimeDirectory=shairport-sync-ap1
+#Environment=XDG_RUNTIME_DIR=/run/user/105
+ExecStart=/usr/bin/shairport-sync-ap1 -c /etc/shairport-sync.conf
+Restart=always
+RestartSec=5
+User=shairport-sync
+Group=audio
+
+# allow shairport-sync to use real-time priority 50
+LimitRTPRIO=50
+LimitRTTIME=infinity
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+RestrictNamespaces=yes
+
+[Install]
+WantedBy=multi-user.target

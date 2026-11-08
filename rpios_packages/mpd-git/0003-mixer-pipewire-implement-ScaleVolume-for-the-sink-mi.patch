@@ -1,0 +1,44 @@
+From cde80ad53f6c1eec933f5dbe35e2709ffe9494fd Mon Sep 17 00:00:00 2001
+From: Gearhead <ys3al35l@gmail.com>
+Date: Sun, 1 Nov 2026 12:26:18 -0600
+Subject: [PATCH 3/3] mixer/pipewire: implement ScaleVolume() for the sink
+ mixer
+
+---
+ src/mixer/plugins/PwSinkMixerPlugin.cxx | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/src/mixer/plugins/PwSinkMixerPlugin.cxx b/src/mixer/plugins/PwSinkMixerPlugin.cxx
+index 1a4f64947e..eb73e4ad43 100644
+--- a/src/mixer/plugins/PwSinkMixerPlugin.cxx
++++ b/src/mixer/plugins/PwSinkMixerPlugin.cxx
+@@ -249,6 +249,7 @@ public:
+ 
+ 	int GetVolume() override;
+ 	void SetVolume(unsigned volume) override;
++	unsigned ScaleVolume(unsigned volume, float scale) noexcept override;
+ 
+ private:
+ 	void Connect();
+@@ -927,6 +928,18 @@ PwSinkMixer::SetVolume(unsigned volume)
+ 	pipewire_output_set_volume(output, 1.0f);
+ }
+ 
++unsigned
++PwSinkMixer::ScaleVolume(unsigned volume, float scale) noexcept
++{
++	/* the volume curve maps percent to amplitude (cubic by
++	   default, linear with mixer_volume_curve "linear"); apply
++	   the gain on the amplitude and map back, never above unity */
++	const float amplitude =
++		std::clamp(PercentToVolume(volume, curve) * scale,
++			   0.0f, 1.0f);
++	return VolumeToPercent(amplitude, curve);
++}
++
+ static Mixer *
+ pw_sink_mixer_init([[maybe_unused]] EventLoop &event_loop, AudioOutput &ao,
+ 		    MixerListener &listener, const ConfigBlock &block)
+-- 
+2.47.3
+

@@ -1,0 +1,1433 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index db424b1..cee6823 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -41,6 +41,10 @@ thiserror = "2.0"
+ time = { version = "0.3.47", default-features = false, features = ["formatting"] }
+ clap = { version = "4.5.23", features = ["derive"] }
+ serde_ignored = "0.1.10"
++# Pinned: 0.9 renamed MainLoop/Context/Core to *Rc variants, which
++# pipewire_backend.rs/pipewire_mixer.rs don't use yet.
++pipewire = { version = "=0.8.0", optional = true }
++ringbuf = { version = "0.4", optional = true }
+ 
+ [target.'cfg(unix)'.dependencies]
+ daemonize = "0.5"
+@@ -62,6 +66,7 @@ env_logger = "0.11"
+ alsa_backend = ["librespot-playback/alsa-backend", "dep:alsa"]
+ dbus_mpris = ["dep:dbus", "dep:dbus-tokio", "dep:dbus-crossroads"]
+ default = ["alsa_backend", "pulseaudio_backend", "dbus_mpris"]
++pipewire_backend = ["dep:pipewire", "dep:ringbuf"]
+ portaudio_backend = ["librespot-playback/portaudio-backend"]
+ pulseaudio_backend = ["librespot-playback/pulseaudio-backend"]
+ rodio_backend = ["librespot-playback/rodio-backend"]
+diff --git a/docs/src/configuration/audio.md b/docs/src/configuration/audio.md
+index 0f751b7..41611b9 100644
+--- a/docs/src/configuration/audio.md
++++ b/docs/src/configuration/audio.md
+@@ -16,6 +16,7 @@ Instead of using the default device, which can sometimes be different to what yo
+ 
+ - For ALSA, you can use `aplay -L` to get a list of possible devices.
+ - For PulseAudio, run `pactl list short sinks` to get a list of possible names.
++- For PipeWire, run `wpctl status` to get a list of sink names, or leave unset to use the current default sink.
+ 
+ ## Bitrate
+ 
+@@ -29,7 +30,7 @@ To reduce bandwidth usage or increase quality, you can play with the bitrate.
+ 
+ In most cases, leaving this at the default (`softvol`) should be fine.
+ 
+-If you want your `spotifyd` volume to be synchronized with an output device's hardware volume, you can set this to `alsa` or `alsa_linear`. In both cases, you might also want to set the `mixer` device to set which device's volume should be changed.
++If you want your `spotifyd` volume to be synchronized with an output device's hardware volume, you can set this to `alsa` or `alsa_linear` (with the `mixer`/`control` settings), or, when using the PipeWire backend, `pipewire` or `pipewire_linear` (with the `pipewire_mixer_mode`/`pipewire_mixer_device` settings.
+ 
+ If you want to prevent the user to be able to adjust the volume, set this instead to `none`.
+ 
+diff --git a/src/config.rs b/src/config.rs
+index 5ce23f3..1ce04fa 100644
+--- a/src/config.rs
++++ b/src/config.rs
+@@ -39,6 +39,10 @@ pub enum VolumeController {
+     Alsa,
+     #[cfg(feature = "alsa_backend")]
+     AlsaLinear,
++    #[cfg(feature = "pipewire_backend")]
++    Pipewire,
++    #[cfg(feature = "pipewire_backend")]
++    PipewireLinear,
+     #[serde(rename = "softvol")]
+     SoftVolume,
+     None,
+@@ -168,7 +172,12 @@ impl From<AudioFormat> for LSAudioFormat {
+ }
+ 
+ fn possible_backends() -> Vec<&'static str> {
+-    audio_backend::BACKENDS.iter().map(|b| b.0).collect()
++    let mut backends: Vec<&'static str> = audio_backend::BACKENDS.iter().map(|b| b.0).collect();
++    // Not in librespot's backend table; add explicitly or CLI/config
++    // validation rejects "pipewire".
++    #[cfg(feature = "pipewire_backend")]
++    backends.push("pipewire");
++    backends
+ }
+ 
+ fn deserialize_backend<'de, D>(de: D) -> Result<Option<String>, D::Error>
+@@ -363,6 +372,11 @@ pub struct SharedConfigValues {
+     #[serde(flatten)]
+     alsa_config: AlsaConfig,
+ 
++    #[cfg(feature = "pipewire_backend")]
++    #[command(flatten)]
++    #[serde(flatten)]
++    pipewire_config: PipewireConfig,
++
+     #[cfg(feature = "dbus_mpris")]
+     #[command(flatten)]
+     #[serde(flatten)]
+@@ -391,15 +405,28 @@ pub struct MprisConfig {
+ #[cfg(feature = "alsa_backend")]
+ #[derive(Debug, Default, Clone, Deserialize, Args, PartialEq, Eq)]
+ pub struct AlsaConfig {
+-    /// The control device
++    /// The ALSA control device
+     #[arg(long)]
+     pub(crate) control: Option<String>,
+ 
+-    /// The mixer to use
++    /// The ALSA mixer to use
+     #[arg(long)]
+     pub(crate) mixer: Option<String>,
+ }
+ 
++#[cfg(feature = "pipewire_backend")]
++#[derive(Debug, Default, Clone, Deserialize, Args, PartialEq, Eq)]
++pub struct PipewireConfig {
++    /// The PipeWire mixer "stream" (default) or "sink".
++    #[arg(long)]
++    pub(crate) pipewire_mixer_mode: Option<String>,
++
++    /// For PipeWire "sink" mixer. The name of the PipeWire sink node 
++    /// Leave unset for `default.audio.sink`
++    #[arg(long)]
++    pub(crate) pipewire_mixer_device: Option<String>,
++}
++
+ #[derive(Debug, Default, Deserialize)]
+ pub struct FileConfig {
+     global: Option<SharedConfigValues>,
+@@ -421,7 +448,11 @@ impl FileConfig {
+ #[derive(Copy, Clone)]
+ enum KnownConfigProblem {
+     #[cfg_attr(
+-        all(feature = "alsa_backend", feature = "dbus_mpris"),
++        all(
++            feature = "alsa_backend",
++            feature = "pipewire_backend",
++            feature = "dbus_mpris"
++        ),
+         expect(dead_code)
+     )]
+     MissingFeature(&'static str),
+@@ -435,6 +466,11 @@ fn get_known_config_problem(path: &serde_ignored::Path<'_>) -> Option<KnownConfi
+             KnownConfigProblem::MissingFeature("alsa_backend"),
+             &["control", "mixer"],
+         ),
++        #[cfg(not(feature = "pipewire_backend"))]
++        (
++            KnownConfigProblem::MissingFeature("pipewire_backend"),
++            &["pipewire_mixer_mode", "pipewire_mixer_device"],
++        ),
+         #[cfg(not(feature = "dbus_mpris"))]
+         (
+             KnownConfigProblem::MissingFeature("dbus_mpris"),
+@@ -594,6 +630,8 @@ impl SharedConfigValues {
+         merge!(self.mpris_config; and other.mpris_config => {use_mpris, dbus_type});
+         #[cfg(feature = "alsa_backend")]
+         merge!(self.alsa_config; and other.alsa_config => {mixer, control});
++        #[cfg(feature = "pipewire_backend")]
++        merge!(self.pipewire_config; and other.pipewire_config => {pipewire_mixer_mode, pipewire_mixer_device});
+     }
+ }
+ 
+@@ -639,6 +677,8 @@ pub(crate) struct SpotifydConfig {
+     pub(crate) mpris: MprisConfig,
+     #[cfg(feature = "alsa_backend")]
+     pub(crate) alsa_config: AlsaConfig,
++    #[cfg(feature = "pipewire_backend")]
++    pub(crate) pipewire_config: PipewireConfig,
+ }
+ 
+ pub(crate) fn get_internal_config(config: CliConfig) -> SpotifydConfig {
+@@ -764,6 +804,8 @@ pub(crate) fn get_internal_config(config: CliConfig) -> SpotifydConfig {
+         mpris: config.shared_config.mpris_config,
+         #[cfg(feature = "alsa_backend")]
+         alsa_config: config.shared_config.alsa_config,
++        #[cfg(feature = "pipewire_backend")]
++        pipewire_config: config.shared_config.pipewire_config,
+     }
+ }
+ 
+diff --git a/src/main.rs b/src/main.rs
+index b49d819..bdaaf99 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -24,6 +24,10 @@ mod error;
+ mod main_loop;
+ mod no_mixer;
+ mod oauth;
++#[cfg(feature = "pipewire_backend")]
++mod pipewire_backend;
++#[cfg(feature = "pipewire_backend")]
++mod pipewire_mixer;
+ mod process;
+ mod setup;
+ mod utils;
+diff --git a/src/pipewire_backend.rs b/src/pipewire_backend.rs
+new file mode 100644
+index 0000000..9dd029b
+--- /dev/null
++++ b/src/pipewire_backend.rs
+@@ -0,0 +1,434 @@
++//! Native PipeWire audio backend for spotifyd.
++//!
++//! Talks to libpipewire directly via `pw::stream::Stream`, rather than
++//! `--backend alsa --device pipewire` (ALSA's PipeWire PCM plugin). With no
++//! `device`, PipeWire's session manager routes to the default sink; if
++//! given, `device` is passed through as `node.target` to pin a specific
++//! sink/node.
++//!
++//! The stream is tagged with a stable identity (`node.name` /
++//! `application.name` = `"spotifyd"`), which `pipewire_mixer.rs`'s
++//! "stream" mode relies on to find it in the graph.
++//!
++//! Written against pipewire-rs 0.8.0's "classic" API (`MainLoop`/
++//! `Context`/`Core`, `context.connect(None)`, `core.get_registry()`).
++//! Newer releases rename these to `MainLoopRc`/`ContextRc`/`connect_rc`/
++//! `get_registry_rc` — swap the constructors if your lockfile resolves one
++//! of those. The `process` callback's buffer accessors (`dequeue_buffer`,
++//! `datas_mut`, `data()`, `chunk_mut()`) are the part most likely to need
++//! adjustment on other point releases; the rest has been stable.
++//!
++//! `write()` converts samples by hand instead of using librespot's
++//! `sink_as_bytes!()` macro or `Converter` — both are private to
++//! `librespot_playback`, unreachable from an external crate. Integer
++//! formats (S16/S24/S24_3/S32) get a plain clamp-and-round instead of
++//! `Converter`'s dithering; F32/F64 are unaffected.
++//!
++//! `push_bytes()` (writer thread) and `process()` (realtime callback) are
++//! coordinated via `SpaceSignal`, a Condvar the realtime side notifies
++//! whenever it frees ring-buffer space, rather than a fixed poll interval —
++//! the same approach MPD's PipeWire output uses
++//! (`pw_thread_loop_wait`/`_signal`).
++
++use std::{
++    io::Cursor,
++    sync::{
++        atomic::{AtomicBool, Ordering},
++        Arc, Condvar, Mutex,
++    },
++    thread::{self, JoinHandle},
++    time::Duration,
++};
++
++use color_eyre::eyre::{self, eyre};
++use librespot_playback::{
++    audio_backend::{Open, Sink, SinkError, SinkResult},
++    config::AudioFormat,
++    convert::Converter,
++    decoder::AudioPacket,
++};
++use log::{error, info, warn};
++use pipewire as pw;
++use pw::{
++    context::Context,
++    core::Core,
++    keys,
++    main_loop::MainLoop,
++    properties::properties,
++    spa::{
++        self,
++        param::audio::{AudioFormat as SpaAudioFormat, AudioInfoRaw},
++        pod::{serialize::PodSerializer, Pod, Value},
++        utils::{Direction, SpaTypes},
++    },
++    stream::{Stream, StreamFlags},
++};
++use ringbuf::{
++    traits::{Consumer, Observer, Producer, Split},
++    HeapRb,
++};
++
++/// Buffer between librespot's writer thread and PipeWire's realtime
++/// `process` callback, in ms. Generous on purpose: costs a little latency
++/// but starves less easily if the writer thread is briefly delayed. (MPD's
++/// own PipeWire output uses 0.5s.)
++const RING_BUFFER_MS: u64 = 2000;
++
++const SAMPLE_RATE: u32 = librespot_playback::SAMPLE_RATE;
++const NUM_CHANNELS: u16 = librespot_playback::NUM_CHANNELS as u16;
++
++/// Commands sent from the public `Sink` handle into the background
++/// PipeWire-loop thread.
++enum LoopCommand {
++    Shutdown,
++}
++
++/// Wakes the writer thread as soon as `process()` frees ring-buffer space,
++/// instead of a fixed polling interval.
++#[derive(Default)]
++struct SpaceSignal {
++    mutex: Mutex<()>,
++    condvar: Condvar,
++}
++
++impl SpaceSignal {
++    fn notify(&self) {
++        self.condvar.notify_one();
++    }
++
++    /// Blocks until notified or `timeout` elapses. The timeout only guards
++    /// against a missed-wakeup race; the normal path is `notify()`.
++    fn wait_timeout(&self, timeout: Duration) {
++        let guard = self.mutex.lock().expect("lock shouldn't be poisoned");
++        let _ = self.condvar.wait_timeout(guard, timeout);
++    }
++}
++
++pub struct PipewireSink {
++    format: AudioFormat,
++    bytes_per_frame: usize,
++    producer: Option<ringbuf::HeapProd<u8>>,
++    space_signal: Option<Arc<SpaceSignal>>,
++    /// Set while `process()` should expect data — cleared in `stop()` so
++    /// idle calls between tracks don't log spurious underruns.
++    is_active: Arc<AtomicBool>,
++    pw_sender: Option<pw::channel::Sender<LoopCommand>>,
++    thread_handle: Option<JoinHandle<()>>,
++    device: Option<String>,
++}
++
++/// Matches `librespot_playback::audio_backend::SinkBuilder` exactly, so it
++/// coerces directly in setup.rs — `PipewireSink` isn't in librespot's own
++/// `BACKENDS` table, so `backend = "pipewire"` is handled as a separate
++/// branch there instead of via `audio_backend::find`.
++pub fn open(device: Option<String>, format: AudioFormat) -> Box<dyn Sink> {
++    Box::new(PipewireSink::open(device, format))
++}
++
++impl Open for PipewireSink {
++    fn open(device: Option<String>, format: AudioFormat) -> Self {
++        info!("Using PipeWire sink with format: {format:?}");
++
++        let bytes_per_sample: usize = match format {
++            AudioFormat::F64 => 8,
++            AudioFormat::F32 => 4,
++            AudioFormat::S32 => 4,
++            AudioFormat::S24 => 4,
++            AudioFormat::S24_3 => 3,
++            AudioFormat::S16 => 2,
++        };
++        let bytes_per_frame = bytes_per_sample * NUM_CHANNELS as usize;
++
++        Self {
++            format,
++            bytes_per_frame,
++            producer: None,
++            space_signal: None,
++            is_active: Arc::new(AtomicBool::new(false)),
++            pw_sender: None,
++            thread_handle: None,
++            device,
++        }
++    }
++}
++
++impl Sink for PipewireSink {
++    fn start(&mut self) -> SinkResult<()> {
++        // Set unconditionally: start() can be called again for a new track
++        // while a previous thread is still running (see below), and each
++        // call needs to re-arm the underrun warning.
++        self.is_active.store(true, Ordering::Relaxed);
++
++        if self.thread_handle.is_some() {
++            // Already running; PipeWire streams tolerate gaps in `process`
++            // fine, so nothing is torn down between tracks.
++            return Ok(());
++        }
++
++        let capacity = self.bytes_per_frame
++            * (SAMPLE_RATE as usize * RING_BUFFER_MS as usize / 1000);
++        let ring = HeapRb::<u8>::new(capacity.max(self.bytes_per_frame));
++        let (producer, consumer) = ring.split();
++
++        let space_signal = Arc::new(SpaceSignal::default());
++
++        let (pw_sender, pw_receiver) = pw::channel::channel::<LoopCommand>();
++
++        let format = self.format;
++        let device = self.device.clone();
++        let bytes_per_frame = self.bytes_per_frame;
++        let process_signal = space_signal.clone();
++        let process_is_active = self.is_active.clone();
++
++        let thread_handle = thread::Builder::new()
++            .name("pipewire-sink".into())
++            .spawn(move || {
++                if let Err(err) = run_pipewire_loop(
++                    consumer,
++                    pw_receiver,
++                    format,
++                    device,
++                    bytes_per_frame,
++                    process_signal,
++                    process_is_active,
++                ) {
++                    error!("PipeWire sink loop exited with an error: {err:?}");
++                }
++            })
++            .map_err(|e| SinkError::StateChange(format!("failed to spawn PipeWire thread: {e}")))?;
++
++        self.producer = Some(producer);
++        self.space_signal = Some(space_signal);
++        self.pw_sender = Some(pw_sender);
++        self.thread_handle = Some(thread_handle);
++
++        Ok(())
++    }
++
++    fn stop(&mut self) -> SinkResult<()> {
++        // Thread/stream stay alive (see start()); this just tells
++        // process() an empty ring buffer is now expected, not an underrun.
++        self.is_active.store(false, Ordering::Relaxed);
++        Ok(())
++    }
++
++    fn write(&mut self, packet: AudioPacket, _converter: &mut Converter) -> SinkResult<()> {
++        let samples = packet
++            .samples()
++            .map_err(|e| SinkError::OnWrite(e.to_string()))?;
++
++        let bytes_per_sample = self.bytes_per_frame / NUM_CHANNELS as usize;
++        let mut bytes = Vec::with_capacity(samples.len() * bytes_per_sample);
++
++        match self.format {
++            AudioFormat::F64 => {
++                for &s in samples {
++                    bytes.extend_from_slice(&s.to_le_bytes());
++                }
++            }
++            AudioFormat::F32 => {
++                for &s in samples {
++                    bytes.extend_from_slice(&(s as f32).to_le_bytes());
++                }
++            }
++            AudioFormat::S32 => {
++                for &s in samples {
++                    let v = (s.clamp(-1.0, 1.0) * i32::MAX as f64).round() as i32;
++                    bytes.extend_from_slice(&v.to_le_bytes());
++                }
++            }
++            AudioFormat::S24 => {
++                // 24-bit value in a 4-byte container (low 24 bits).
++                for &s in samples {
++                    let v = (s.clamp(-1.0, 1.0) * 8_388_607.0_f64).round() as i32;
++                    bytes.extend_from_slice(&v.to_le_bytes());
++                }
++            }
++            AudioFormat::S24_3 => {
++                // 24-bit value packed into exactly 3 bytes, no padding.
++                for &s in samples {
++                    let v = (s.clamp(-1.0, 1.0) * 8_388_607.0_f64).round() as i32;
++                    let le = v.to_le_bytes();
++                    bytes.extend_from_slice(&le[..3]);
++                }
++            }
++            AudioFormat::S16 => {
++                for &s in samples {
++                    let v = (s.clamp(-1.0, 1.0) * i16::MAX as f64).round() as i16;
++                    bytes.extend_from_slice(&v.to_le_bytes());
++                }
++            }
++        }
++
++        self.push_bytes(&bytes)
++    }
++}
++
++impl PipewireSink {
++    fn push_bytes(&mut self, data: &[u8]) -> SinkResult<()> {
++        let producer = self
++            .producer
++            .as_mut()
++            .ok_or_else(|| SinkError::NotConnected("PipeWire sink not started".into()))?;
++        let space_signal = self.space_signal.as_ref();
++
++        // Blocking write, mirroring the ALSA/PulseAudio backends: push what
++        // fits, wait for process() to free space (woken via SpaceSignal),
++        // repeat until everything is written.
++        let mut remaining = data;
++        while !remaining.is_empty() {
++            let written = producer.push_slice(remaining);
++            remaining = &remaining[written..];
++            if !remaining.is_empty() {
++                match space_signal {
++                    Some(sig) => sig.wait_timeout(Duration::from_millis(20)),
++                    None => thread::sleep(Duration::from_millis(5)),
++                }
++            }
++        }
++
++        Ok(())
++    }
++}
++
++impl Drop for PipewireSink {
++    fn drop(&mut self) {
++        if let Some(sender) = self.pw_sender.take() {
++            let _ = sender.send(LoopCommand::Shutdown);
++        }
++        if let Some(handle) = self.thread_handle.take() {
++            let _ = handle.join();
++        }
++    }
++}
++
++fn spa_format_for(format: AudioFormat) -> SpaAudioFormat {
++    match format {
++        AudioFormat::F64 => SpaAudioFormat::F64LE,
++        AudioFormat::F32 => SpaAudioFormat::F32LE,
++        AudioFormat::S32 => SpaAudioFormat::S32LE,
++        // No native "24-in-32" SPA format distinct from S32; the 4-byte
++        // S24 container maps to S24_32LE.
++        AudioFormat::S24 => SpaAudioFormat::S24_32LE,
++        AudioFormat::S24_3 => SpaAudioFormat::S24LE,
++        AudioFormat::S16 => SpaAudioFormat::S16LE,
++    }
++}
++
++/// Runs entirely on the dedicated PipeWire thread: owns the mainloop,
++/// stream, and ring-buffer consumer for the sink's lifetime.
++fn run_pipewire_loop(
++    mut consumer: ringbuf::HeapCons<u8>,
++    pw_receiver: pw::channel::Receiver<LoopCommand>,
++    format: AudioFormat,
++    device: Option<String>,
++    bytes_per_frame: usize,
++    space_signal: Arc<SpaceSignal>,
++    is_active: Arc<AtomicBool>,
++) -> eyre::Result<()> {
++    pw::init();
++
++    let mainloop = MainLoop::new(None)?;
++    let context = Context::new(&mainloop)?;
++    let core: Core = context.connect(None)?;
++
++    let mut props = properties! {
++        *keys::MEDIA_TYPE => "Audio",
++        *keys::MEDIA_CATEGORY => "Playback",
++        *keys::MEDIA_ROLE => "Music",
++        // Stable identity, also relied on by pipewire_mixer.rs's "stream" mode.
++        *keys::NODE_NAME => "spotifyd",
++        *keys::APP_NAME => "spotifyd",
++        *keys::NODE_DESCRIPTION => "spotifyd",
++    };
++    if let Some(target) = device.as_deref().filter(|d| !d.is_empty()) {
++        // Raw key, not a `keys::` constant: `target.object` isn't in this
++        // pipewire-rs version's `keys` module; `node.target` is the
++        // long-standing equivalent.
++        props.insert("node.target", target);
++    }
++
++    let stream = Stream::new(&core, "spotifyd", props)?;
++
++    let mut audio_info = AudioInfoRaw::new();
++    audio_info.set_format(spa_format_for(format));
++    audio_info.set_rate(SAMPLE_RATE);
++    audio_info.set_channels(NUM_CHANNELS as u32);
++
++    let pod_bytes = PodSerializer::serialize(
++        Cursor::new(Vec::new()),
++        &Value::Object(spa::pod::Object {
++            type_: SpaTypes::ObjectParamFormat.as_raw(),
++            id: spa::param::ParamType::EnumFormat.as_raw(),
++            properties: audio_info.into(),
++        }),
++    )
++    .map_err(|_| eyre!("failed to serialize PipeWire audio format pod"))?
++    .0
++    .into_inner();
++
++    let pod = Pod::from_bytes(&pod_bytes).ok_or_else(|| eyre!("failed to build format Pod"))?;
++    let mut params = [pod];
++
++    let _listener = stream
++        .add_local_listener_with_user_data(())
++        .state_changed(|_, _, old, new| {
++            info!("PipeWire stream state: {old:?} -> {new:?}");
++        })
++        .process(move |stream, _| {
++            let Some(mut buffer) = stream.dequeue_buffer() else {
++                warn!("PipeWire: no buffer available in process callback");
++                return;
++            };
++            let datas = buffer.datas_mut();
++            let Some(data) = datas.get_mut(0) else { return };
++            let Some(slice) = data.data() else { return };
++
++            let capacity = slice.len();
++            let usable = capacity - (capacity % bytes_per_frame);
++            let available = consumer.occupied_len().min(usable);
++
++            let popped = consumer.pop_slice(&mut slice[..available]);
++            if popped < usable && is_active.load(Ordering::Relaxed) {
++                // Gated on is_active: an empty buffer between tracks is
++                // expected (stop() doesn't tear the stream down), so only
++                // log while we're actually supposed to be playing.
++                warn!(
++                    "PipeWire: ring buffer underrun, padded {} of {} bytes",
++                    usable - popped,
++                    capacity
++                );
++            }
++            for byte in &mut slice[popped..capacity] {
++                *byte = 0; // silence-pad on underrun
++            }
++
++            let chunk = data.chunk_mut();
++            *chunk.offset_mut() = 0;
++            *chunk.stride_mut() = bytes_per_frame as _;
++            *chunk.size_mut() = capacity as _;
++
++            if popped > 0 {
++                space_signal.notify();
++            }
++        })
++        .register()?;
++
++    stream.connect(
++        Direction::Output,
++        None,
++        StreamFlags::AUTOCONNECT | StreamFlags::MAP_BUFFERS,
++        &mut params,
++    )?;
++
++    let _receiver = pw_receiver.attach(mainloop.loop_(), {
++        let mainloop = mainloop.clone();
++        move |cmd| match cmd {
++            LoopCommand::Shutdown => mainloop.quit(),
++        }
++    });
++
++    mainloop.run();
++
++    Ok(())
++}
+diff --git a/src/pipewire_mixer.rs b/src/pipewire_mixer.rs
+new file mode 100644
+index 0000000..9579158
+--- /dev/null
++++ b/src/pipewire_mixer.rs
+@@ -0,0 +1,729 @@
++//! PipeWire volume control for spotifyd.
++//!
++//! `mixer = "sink" | "stream"` (via `MixerConfig.control`) selects the mode:
++//!   * `"sink"` (default) — controls the system sink, resolved by name
++//!     (`MixerConfig.device`) or via PipeWire's `default.audio.sink`
++//!     metadata. Also pins spotifyd's own stream to unity gain so the
++//!     sink-level change isn't doubled by a remembered per-stream volume.
++//!     For a hardware sink backed by a Device Route (UCM/ALSA-routed
++//!     outputs), the Route is written instead of the sink Node's own Props,
++//!     which is a separate software gain layered on top of the graph.
++//!   * `"stream"` — controls only spotifyd's own playback stream.
++//!
++//! Both modes require `backend = "pipewire"` (see `pipewire_backend.rs`) to
++//! tag the stream's `node.name` as `"spotifyd"`.
++//!
++//! Runs its own main loop on a dedicated thread (PipeWire objects aren't
++//! `Send`/`Sync`). Every sink/device/own-stream node is bound once at
++//! discovery and its proxy kept alive for as long as it exists in the
++//! graph, rather than rebinding by id later.
++//!
++//! Identifies as `media.category = "Manager"` (as `wpctl` does), since
++//! WirePlumber's default access policy can otherwise block writes to
++//! another object's (e.g. a Device's) parameters.
++//!
++//! `volume()` returns a local cache of the last value set, not a live
++//! query — same limitation as upstream `AlsaMixer` (librespot#1450).
++//!
++//! Written against the "classic" `MainLoop`/`Context`/`Core` API on
++//! pipewire-rs 0.8.0.
++//!
++//! ## Volume curve
++//! `volume_ctrl = "pipewire"` (log) vs `"pipewire_linear"` in
++//! spotifyd.conf selects how the raw Spotify Connect value maps to `norm`
++//! (0.0-1.0), independently of PipeWire's own channelVolumes convention,
++//! where the stored value is linear amplitude and `pct = cbrt(stored)` /
++//! `stored = pct³` relates it to the human-facing percentage:
++//!   * Linear — `norm` is a plain fraction of raw volume; `powf(3.0)` is
++//!     applied once, in `set_props`/`set_route_volume`, to convert it to
++//!     stored amplitude.
++//!   * Log — `norm` is already a full curve (bounded dB taper, see
++//!     `TAPER_MIN_DB`) and is written straight through with no further
++//!     curve, to avoid double-curving.
++//!
++//! `apply_cubic` (set once in `open`, threaded down to
++//! `set_props`/`set_route_volume`) is `true` only for `VolumeCtrl::Linear`.
++
++use std::{
++    cell::RefCell,
++    collections::HashMap,
++    io::Cursor,
++    rc::Rc,
++    sync::{
++        mpsc::{self, RecvTimeoutError},
++        Arc, Mutex,
++    },
++    thread::{self, JoinHandle},
++    time::Duration,
++};
++
++use color_eyre::eyre::eyre;
++use librespot_playback::mixer::{Mixer, MixerConfig};
++use log::{error, info, warn};
++use pipewire as pw;
++use pw::{
++    context::Context,
++    core::Core,
++    device::Device,
++    main_loop::MainLoop,
++    node::Node,
++    properties::properties,
++    registry::GlobalObject,
++    spa::{
++        self,
++        param::ParamType,
++        pod::{
++            deserialize::PodDeserializer, serialize::PodSerializer, Object, Pod, Property,
++            PropertyFlags, Value, ValueArray,
++        },
++        utils::dict::DictRef,
++    },
++    types::ObjectType,
++};
++
++/// Must match `pipewire_backend.rs`'s stream name/app-name properties.
++const OWN_STREAM_NAME: &str = "spotifyd";
++
++const METADATA_DEFAULT: &str = "default";
++const DEFAULT_SINK_KEY: &str = "default.audio.sink";
++
++/// dB range for the log-curve taper in `Mixer::set_volume`/`volume`. See
++/// the module-level "Volume curve" doc comment.
++const TAPER_MIN_DB: f64 = -50.0;
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum Target {
++    Sink,
++    Stream,
++}
++
++enum MixerCommand {
++    SetVolume(f64),
++    Shutdown,
++}
++
++pub struct PipewireMixer {
++    config: MixerConfig,
++    volume_norm: Arc<Mutex<f64>>,
++    sender: pw::channel::Sender<MixerCommand>,
++    thread_handle: Option<JoinHandle<()>>,
++}
++
++impl PipewireMixer {
++    fn set_volume_norm(&self, norm: f64) {
++        let norm = norm.clamp(0.0, 1.0);
++        *self.volume_norm.lock().expect("lock shouldn't be poisoned") = norm;
++        if self.sender.send(MixerCommand::SetVolume(norm)).is_err() {
++            error!("pipewire mixer: background thread is no longer running");
++        }
++    }
++
++    fn volume_norm(&self) -> f64 {
++        *self.volume_norm.lock().expect("lock shouldn't be poisoned")
++    }
++}
++
++impl Mixer for PipewireMixer {
++    fn open(config: MixerConfig) -> Result<PipewireMixer, librespot_core::Error> {
++        let target = match config.control.to_lowercase().as_str() {
++            "sink" | "pwsink" => Target::Sink,
++            _ => Target::Stream,
++        };
++        let device_override = (!config.device.is_empty()).then(|| config.device.clone());
++        let apply_cubic = matches!(
++            config.volume_ctrl,
++            librespot_playback::config::VolumeCtrl::Linear
++        );
++
++        info!(
++            "Using PipeWire mixer in {target:?} mode ({} curve)",
++            if apply_cubic { "linear" } else { "log" }
++        );
++
++        let (sender, receiver) = pw::channel::channel::<MixerCommand>();
++        let (startup_tx, startup_rx) = mpsc::channel::<Result<(), String>>();
++
++        let thread_handle = thread::Builder::new()
++            .name("pipewire-mixer".into())
++            .spawn(move || {
++                run_mixer_loop(target, device_override, apply_cubic, receiver, startup_tx)
++            })
++            .map_err(|e| {
++                librespot_core::Error::invalid_argument(eyre!(
++                    "failed to spawn PipeWire mixer thread: {e}"
++                ))
++            })?;
++
++        match startup_rx.recv_timeout(Duration::from_secs(3)) {
++            Ok(Ok(())) => {}
++            Ok(Err(msg)) => return Err(librespot_core::Error::invalid_argument(eyre!(msg))),
++            Err(RecvTimeoutError::Timeout) | Err(RecvTimeoutError::Disconnected) => {
++                return Err(librespot_core::Error::invalid_argument(eyre!(
++                    "timed out connecting to PipeWire for volume control"
++                )));
++            }
++        }
++
++        Ok(PipewireMixer {
++            config,
++            volume_norm: Arc::new(Mutex::new(1.0)),
++            sender,
++            thread_handle: Some(thread_handle),
++        })
++    }
++
++    fn volume(&self) -> u16 {
++        let norm = self.volume_norm();
++        let linear = match self.config.volume_ctrl {
++            librespot_playback::config::VolumeCtrl::Linear => norm,
++            _ => {
++                if norm <= 0.0 {
++                    0.0
++                } else {
++                    (1.0 - (20.0 * norm.log10()) / TAPER_MIN_DB).clamp(0.0, 1.0)
++                }
++            }
++        };
++        (linear * u16::MAX as f64).round() as u16
++    }
++
++    fn set_volume(&self, volume: u16) {
++        let pos = volume as f64 / u16::MAX as f64;
++        let norm = match self.config.volume_ctrl {
++            librespot_playback::config::VolumeCtrl::Linear => pos,
++            _ => {
++                let db = TAPER_MIN_DB * (1.0 - pos);
++                10f64.powf(db / 20.0)
++            }
++        };
++        self.set_volume_norm(norm);
++    }
++}
++
++impl Drop for PipewireMixer {
++    fn drop(&mut self) {
++        let _ = self.sender.send(MixerCommand::Shutdown);
++        if let Some(handle) = self.thread_handle.take() {
++            let _ = handle.join();
++        }
++    }
++}
++
++/// A bound `Audio/Sink` node.
++struct SinkEntry {
++    name: String,
++    node: Node,
++    /// Owning `Audio/Device` id (from `device.id`), if any.
++    device_id: Option<u32>,
++}
++
++/// A bound `Audio/Device`, with its active output Route once known.
++struct DeviceEntry {
++    device: Device,
++    /// `(index, device)` identity of the active output Route. `None` until
++    /// the first Route param event arrives. Only the first Output-direction
++    /// route seen is tracked; multi-route devices (e.g. speaker + headphone
++    /// jack) aren't disambiguated.
++    route: Option<(i32, i32)>,
++    /// Whether `force_volume_resync` has already run once for this device.
++    did_initial_resync: bool,
++}
++
++struct GraphState {
++    sinks: HashMap<u32, SinkEntry>,
++    devices: HashMap<u32, DeviceEntry>,
++    own_stream: Option<(u32, Node)>,
++    default_sink_name: Option<String>,
++}
++
++fn run_mixer_loop(
++    target: Target,
++    device_override: Option<String>,
++    apply_cubic: bool,
++    mixer_receiver: pw::channel::Receiver<MixerCommand>,
++    startup_tx: mpsc::Sender<Result<(), String>>,
++) {
++    pw::init();
++
++    let mainloop = match MainLoop::new(None) {
++        Ok(m) => m,
++        Err(e) => {
++            let _ = startup_tx.send(Err(format!("failed to create PipeWire main loop: {e}")));
++            return;
++        }
++    };
++    let context = match Context::with_properties(
++        &mainloop,
++        properties! {
++            *pw::keys::MEDIA_CATEGORY => "Manager",
++            *pw::keys::APP_NAME => "spotifyd-pipewire-mixer",
++        },
++    ) {
++        Ok(c) => c,
++        Err(e) => {
++            let _ = startup_tx.send(Err(format!("failed to create PipeWire context: {e}")));
++            return;
++        }
++    };
++    let core: Core = match context.connect(None) {
++        Ok(c) => c,
++        Err(e) => {
++            let _ = startup_tx.send(Err(format!("failed to connect to PipeWire: {e}")));
++            return;
++        }
++    };
++    let registry = match core.get_registry() {
++        Ok(r) => Rc::new(r),
++        Err(e) => {
++            let _ = startup_tx.send(Err(format!("failed to get PipeWire registry: {e}")));
++            return;
++        }
++    };
++
++    let _ = startup_tx.send(Ok(()));
++
++    let state = Rc::new(RefCell::new(GraphState {
++        sinks: HashMap::new(),
++        devices: HashMap::new(),
++        own_stream: None,
++        default_sink_name: None,
++    }));
++
++    let metadata_holder: Rc<
++        RefCell<Option<(pw::metadata::Metadata, pw::metadata::MetadataListener)>>,
++    > = Rc::new(RefCell::new(None));
++
++    let device_listeners: Rc<RefCell<HashMap<u32, pw::device::DeviceListener>>> =
++        Rc::new(RefCell::new(HashMap::new()));
++
++    let _registry_listener = registry
++        .add_listener_local()
++        .global({
++            let registry = registry.clone();
++            let state = state.clone();
++            let metadata_holder = metadata_holder.clone();
++            let device_listeners = device_listeners.clone();
++            move |global| {
++                handle_global(
++                    &registry,
++                    global,
++                    &state,
++                    &metadata_holder,
++                    &device_listeners,
++                )
++            }
++        })
++        .global_remove({
++            let state = state.clone();
++            let device_listeners = device_listeners.clone();
++            move |id| {
++                let mut state = state.borrow_mut();
++                state.sinks.remove(&id);
++                state.devices.remove(&id);
++                device_listeners.borrow_mut().remove(&id);
++                if state.own_stream.as_ref().is_some_and(|(sid, _)| *sid == id) {
++                    state.own_stream = None;
++                }
++            }
++        })
++        .register();
++
++    let _receiver = mixer_receiver.attach(mainloop.loop_(), {
++        let mainloop = mainloop.clone();
++        let state = state.clone();
++        move |cmd| match cmd {
++            MixerCommand::SetVolume(norm) => {
++                apply_volume(target, &device_override, apply_cubic, &state, norm)
++            }
++            MixerCommand::Shutdown => mainloop.quit(),
++        }
++    });
++
++    mainloop.run();
++}
++
++fn handle_global(
++    registry: &Rc<pw::registry::Registry>,
++    global: &GlobalObject<&DictRef>,
++    state: &Rc<RefCell<GraphState>>,
++    metadata_holder: &Rc<RefCell<Option<(pw::metadata::Metadata, pw::metadata::MetadataListener)>>>,
++    device_listeners: &Rc<RefCell<HashMap<u32, pw::device::DeviceListener>>>,
++) {
++    match global.type_ {
++        ObjectType::Node => {
++            let Some(props) = global.props else { return };
++            let media_class = props.get("media.class").unwrap_or_default();
++            let name = props
++                .get("node.name")
++                .or_else(|| props.get("node.description"))
++                .unwrap_or_default()
++                .to_string();
++            let app_name = props.get("application.name").unwrap_or_default();
++
++            if media_class == "Audio/Sink" {
++                let device_id = props.get("device.id").and_then(|s| s.parse::<u32>().ok());
++                match registry.bind::<Node, _>(global) {
++                    Ok(node) => {
++                        state.borrow_mut().sinks.insert(
++                            global.id,
++                            SinkEntry {
++                                name,
++                                node,
++                                device_id,
++                            },
++                        );
++                    }
++                    Err(e) => warn!(
++                        "pipewire mixer: failed to bind sink node {}: {e:?}",
++                        global.id
++                    ),
++                }
++            } else if media_class == "Stream/Output/Audio"
++                && (name == OWN_STREAM_NAME || app_name == OWN_STREAM_NAME)
++            {
++                match registry.bind::<Node, _>(global) {
++                    Ok(node) => {
++                        state.borrow_mut().own_stream = Some((global.id, node));
++                    }
++                    Err(e) => warn!("pipewire mixer: failed to bind own stream node: {e:?}"),
++                }
++            }
++        }
++        ObjectType::Device => {
++            let Some(props) = global.props else { return };
++            if props.get("media.class") != Some("Audio/Device") {
++                return;
++            }
++            match registry.bind::<Device, _>(global) {
++                Ok(device) => {
++                    let id = global.id;
++                    let listener = device
++                        .add_listener_local()
++                        .param({
++                            let state = state.clone();
++                            move |_seq, param_id, _index, _next, param| {
++                                if param_id != ParamType::Route {
++                                    return;
++                                }
++                                let Some(param) = param else { return };
++                                let Some(identity) = parse_route_identity(param) else {
++                                    return;
++                                };
++                                if let Some(entry) = state.borrow_mut().devices.get_mut(&id) {
++                                    if entry.route.is_none() {
++                                        info!(
++                                            "pipewire mixer: resolved route (index={}, device={}) \
++                                             for device id {id}",
++                                            identity.0, identity.1
++                                        );
++                                        entry.route = Some(identity);
++                                    }
++                                }
++                            }
++                        })
++                        .register();
++                    device.enum_params(0, Some(ParamType::Route), 0, u32::MAX);
++
++                    state.borrow_mut().devices.insert(
++                        id,
++                        DeviceEntry {
++                            device,
++                            route: None,
++                            did_initial_resync: false,
++                        },
++                    );
++                    device_listeners.borrow_mut().insert(id, listener);
++                }
++                Err(e) => warn!("pipewire mixer: failed to bind device {}: {e:?}", global.id),
++            }
++        }
++        ObjectType::Metadata => {
++            let Some(props) = global.props else { return };
++            if props.get("metadata.name") != Some(METADATA_DEFAULT) {
++                return;
++            }
++            match registry.bind::<pw::metadata::Metadata, _>(global) {
++                Ok(metadata) => {
++                    let state = state.clone();
++                    let listener = metadata
++                        .add_listener_local()
++                        .property(move |_subject, key, _type, value| {
++                            if key == Some(DEFAULT_SINK_KEY) {
++                                let resolved = value.and_then(|v| extract_json_name(v));
++                                state.borrow_mut().default_sink_name = resolved;
++                            }
++                            0
++                        })
++                        .register();
++                    *metadata_holder.borrow_mut() = Some((metadata, listener));
++                }
++                Err(e) => warn!("pipewire mixer: failed to bind default metadata object: {e:?}"),
++            }
++        }
++        _ => {}
++    }
++}
++
++fn apply_volume(
++    target: Target,
++    device_override: &Option<String>,
++    apply_cubic: bool,
++    state: &Rc<RefCell<GraphState>>,
++    volume_norm: f64,
++) {
++    let mut state = state.borrow_mut();
++
++    match target {
++        Target::Sink => {
++            let desired_name = device_override
++                .clone()
++                .or_else(|| state.default_sink_name.clone());
++
++            match desired_name {
++                Some(name) => {
++                    let found = state
++                        .sinks
++                        .values()
++                        .find(|s| s.name == name)
++                        .map(|s| (s.device_id, ()));
++
++                    match found {
++                        Some((Some(device_id), ())) if state.devices.contains_key(&device_id) => {
++                            let entry = state.devices.get_mut(&device_id).unwrap();
++                            let route_written = match entry.route {
++                                Some(route_id) => {
++                                    if !entry.did_initial_resync {
++                                        force_volume_resync(
++                                            &entry.device,
++                                            route_id,
++                                            volume_norm,
++                                            apply_cubic,
++                                        );
++                                        entry.did_initial_resync = true;
++                                    } else {
++                                        set_route_volume(
++                                            &entry.device,
++                                            route_id,
++                                            volume_norm,
++                                            apply_cubic,
++                                        );
++                                    }
++                                    info!(
++                                        "pipewire mixer: set route (index={}, device={}) on \
++                                         '{name}' to {volume_norm:.3}",
++                                        route_id.0, route_id.1
++                                    );
++                                    true
++                                }
++                                None => {
++                                    warn!(
++                                        "pipewire mixer: sink '{name}' has a device but no \
++                                         Route resolved yet"
++                                    );
++                                    false
++                                }
++                            };
++                            // Pin sink's own software gain to unity, but
++                            // only once the hardware Route write above
++                            // actually landed.
++                            if route_written {
++                                if let Some(sink) = state.sinks.values().find(|s| s.name == name) {
++                                    set_props(&sink.node, 1.0, false, apply_cubic);
++                                }
++                            }
++                        }
++                        Some((_, ())) => {
++                            if let Some(sink) = state.sinks.values().find(|s| s.name == name) {
++                                set_props(&sink.node, volume_norm, false, apply_cubic);
++                            }
++                        }
++                        None => warn!("pipewire mixer: sink '{name}' not present in the graph yet"),
++                    }
++                }
++                None => warn!("pipewire mixer: no default sink resolved yet"),
++            }
++
++            if let Some((_, node)) = &state.own_stream {
++                set_props(node, 1.0, false, apply_cubic);
++            }
++        }
++        Target::Stream => match &state.own_stream {
++            Some((_, node)) => set_props(node, volume_norm, false, apply_cubic),
++            None => warn!(
++                "pipewire mixer: spotifyd's own stream isn't in the graph yet \
++                 (is `backend = \"pipewire\"` active and playing?)"
++            ),
++        },
++    }
++}
++
++/// Writes a Node's own Props volume. For a Route-backed sink this is a
++/// separate software gain layered on top of the graph, not the hardware
++/// control — see `set_route_volume`.
++fn set_props(node: &Node, volume_norm: f64, mute: bool, apply_cubic: bool) {
++    let volume_norm = volume_norm.clamp(0.0, 1.0);
++    let volume = if apply_cubic {
++        volume_norm.powf(3.0)
++    } else {
++        volume_norm
++    } as f32;
++
++    let value = Value::Object(Object {
++        type_: spa::utils::SpaTypes::ObjectParamProps.as_raw(),
++        id: ParamType::Props.as_raw(),
++        properties: vec![
++            Property {
++                key: spa::sys::SPA_PROP_mute,
++                flags: PropertyFlags::empty(),
++                value: Value::Bool(mute),
++            },
++            Property {
++                key: spa::sys::SPA_PROP_channelVolumes,
++                flags: PropertyFlags::empty(),
++                value: Value::ValueArray(ValueArray::Float(vec![volume, volume])),
++            },
++        ],
++    });
++
++    let pod_bytes = match PodSerializer::serialize(Cursor::new(Vec::new()), &value) {
++        Ok((cursor, _)) => cursor.into_inner(),
++        Err(_) => {
++            error!("pipewire mixer: failed to serialize Props pod");
++            return;
++        }
++    };
++    let Some(pod) = Pod::from_bytes(&pod_bytes) else {
++        error!("pipewire mixer: failed to build Props pod");
++        return;
++    };
++    node.set_param(ParamType::Props, 0, &pod);
++}
++
++/// Writes a Device's active output Route — the real hardware mixer control
++/// for Route/UCM-backed sinks.
++fn set_route_volume(device: &Device, route_id: (i32, i32), volume_norm: f64, apply_cubic: bool) {
++    let (index, dev) = route_id;
++    let volume_norm = volume_norm.clamp(0.0, 1.0);
++    let volume = if apply_cubic {
++        volume_norm.powf(3.0)
++    } else {
++        volume_norm
++    } as f32;
++
++    let props = Value::Object(Object {
++        type_: spa::utils::SpaTypes::ObjectParamProps.as_raw(),
++        id: ParamType::Route.as_raw(),
++        properties: vec![Property {
++            key: spa::sys::SPA_PROP_channelVolumes,
++            flags: PropertyFlags::empty(),
++            value: Value::ValueArray(ValueArray::Float(vec![volume, volume])),
++        }],
++    });
++
++    let value = Value::Object(Object {
++        type_: spa::utils::SpaTypes::ObjectParamRoute.as_raw(),
++        id: ParamType::Route.as_raw(),
++        properties: vec![
++            Property {
++                key: spa::sys::SPA_PARAM_ROUTE_index,
++                flags: PropertyFlags::empty(),
++                value: Value::Int(index),
++            },
++            Property {
++                key: spa::sys::SPA_PARAM_ROUTE_device,
++                flags: PropertyFlags::empty(),
++                value: Value::Int(dev),
++            },
++            Property {
++                key: spa::sys::SPA_PARAM_ROUTE_props,
++                flags: PropertyFlags::empty(),
++                value: props,
++            },
++            Property {
++                key: spa::sys::SPA_PARAM_ROUTE_save,
++                flags: PropertyFlags::empty(),
++                value: Value::Bool(true),
++            },
++        ],
++    });
++
++    let pod_bytes = match PodSerializer::serialize(Cursor::new(Vec::new()), &value) {
++        Ok((cursor, _)) => cursor.into_inner(),
++        Err(_) => {
++            error!("pipewire mixer: failed to serialize Route pod");
++            return;
++        }
++    };
++    let Some(pod) = Pod::from_bytes(&pod_bytes) else {
++        error!("pipewire mixer: failed to build Route pod");
++        return;
++    };
++    device.set_param(ParamType::Route, 0, &pod);
++}
++
++/// WirePlumber restores its own last-known Route volume at startup and may
++/// skip the hardware write if the target already matches its cache. Nudge
++/// off-target then back so the real write can't be a no-op. Runs once per
++/// device (`DeviceEntry::did_initial_resync`).
++fn force_volume_resync(device: &Device, route_id: (i32, i32), target_norm: f64, apply_cubic: bool) {
++    let target_norm = target_norm.clamp(0.0, 1.0);
++    let nudge = if target_norm < 0.5 {
++        target_norm + 0.01
++    } else {
++        target_norm - 0.01
++    };
++    set_route_volume(device, route_id, nudge.clamp(0.0, 1.0), apply_cubic);
++    set_route_volume(device, route_id, target_norm, apply_cubic);
++}
++
++/// `(index, device)` identity from a live `Spa:Enum:ParamId:Route` event.
++/// Ignores anything that isn't `Spa:Enum:Direction:Output`.
++fn parse_route_identity(pod: &Pod) -> Option<(i32, i32)> {
++    let (_, value) = PodDeserializer::deserialize_from::<Value>(pod.as_bytes()).ok()?;
++    let Value::Object(obj) = value else {
++        return None;
++    };
++
++    let mut index = None;
++    let mut device = None;
++    let mut direction_is_output = false;
++
++    for prop in &obj.properties {
++        match prop.key {
++            k if k == spa::sys::SPA_PARAM_ROUTE_index => {
++                if let Value::Int(i) = prop.value {
++                    index = Some(i);
++                }
++            }
++            k if k == spa::sys::SPA_PARAM_ROUTE_device => {
++                if let Value::Int(i) = prop.value {
++                    device = Some(i);
++                }
++            }
++            k if k == spa::sys::SPA_PARAM_ROUTE_direction => {
++                if let Value::Id(id) = prop.value {
++                    direction_is_output = id.0 == 1; // Spa:Enum:Direction:Output
++                }
++            }
++            _ => {}
++        }
++    }
++
++    if !direction_is_output {
++        return None;
++    }
++    Some((index?, device?))
++}
++
++/// Minimal extractor for `{"name":"some.node.name"}` metadata values.
++fn extract_json_name(json: &str) -> Option<String> {
++    let key = "\"name\"";
++    let start = json.find(key)? + key.len();
++    let rest = &json[start..];
++    let colon = rest.find(':')?;
++    let after_colon = &rest[colon + 1..];
++    let quote_start = after_colon.find('"')? + 1;
++    let after_quote = &after_colon[quote_start..];
++    let quote_end = after_quote.find('"')?;
++    Some(after_quote[..quote_end].to_string())
++}
+diff --git a/src/setup.rs b/src/setup.rs
+index 52d5acf..ca16bf2 100644
+--- a/src/setup.rs
++++ b/src/setup.rs
+@@ -1,5 +1,7 @@
+ #[cfg(feature = "alsa_backend")]
+ use crate::alsa_mixer;
++#[cfg(feature = "pipewire_backend")]
++use crate::{pipewire_backend, pipewire_mixer};
+ use crate::{
+     config,
+     main_loop::{self, CredentialsProvider},
+@@ -62,6 +64,39 @@ pub(crate) fn initial_state(
+                     }
+                 })?)
+             }
++            #[cfg(feature = "pipewire_backend")]
++            config::VolumeController::Pipewire | config::VolumeController::PipewireLinear => {
++                let mode = config
++                    .pipewire_config
++                    .pipewire_mixer_mode
++                    .as_deref()
++                    .unwrap_or("stream")
++                    .to_string();
++                // Not the top-level `device` — that targets the playback stream (often
++                // leftover ALSA routing like "pipewire") — so the mixer doesn't search
++                // for a sink name that will never exist.
++                let target = config
++                    .pipewire_config
++                    .pipewire_mixer_device
++                    .clone()
++                    .unwrap_or_default();
++                info!("Using PipeWire volume controller ({mode}).");
++                use librespot_playback::config::VolumeCtrl;
++                let volume_ctrl = if matches!(
++                    config.volume_controller,
++                    config::VolumeController::PipewireLinear
++                ) {
++                    VolumeCtrl::Linear
++                } else {
++                    VolumeCtrl::Log(0.0) /* this value is ignored */
++                };
++                Arc::new(pipewire_mixer::PipewireMixer::open(MixerConfig {
++                    device: target,
++                    control: mode,
++                    index: 0,
++                    volume_ctrl,
++                })?)
++            }
+             _ => {
+                 info!("Using software volume controller.");
+                 let mixer = mixer::softmixer::SoftMixer::open(MixerConfig::default())
+@@ -143,7 +178,21 @@ pub(crate) fn initial_state(
+         }
+     };
+ 
+-    let backend = audio_backend::find(backend).expect("available backends should match ours");
++    let backend = if backend.as_deref() == Some("pipewire") {
++        #[cfg(feature = "pipewire_backend")]
++        {
++            pipewire_backend::open as audio_backend::SinkBuilder
++        }
++        #[cfg(not(feature = "pipewire_backend"))]
++        {
++            return Err(eyre!(
++                "backend = \"pipewire\" was requested, but this build of spotifyd \
++                 doesn't have the `pipewire_backend` feature enabled"
++            ));
++        }
++    } else {
++        audio_backend::find(backend).expect("available backends should match ours")
++    };
+ 
+     Ok(main_loop::MainLoop {
+         credentials_provider,

@@ -1,0 +1,151 @@
+From cca30d30b83c718216de072390eb8f4196bfa5b5 Mon Sep 17 00:00:00 2001
+From: gearhead <ys3al35l@gmail.com>
+Date: Sun, 1 Nov 2026 07:55:47 -0600
+Subject: [PATCH] mixer/Mixer: keep the user volume separate from the
+ ReplayGain scale
+
+---
+ src/mixer/Mixer.cxx | 47 +++++++++++++++++++++++++++++++++++++++------
+ src/mixer/Mixer.hxx | 30 +++++++++++++++++++++++++----
+ 2 files changed, 67 insertions(+), 10 deletions(-)
+
+diff --git a/src/mixer/Mixer.cxx b/src/mixer/Mixer.cxx
+index ef261c1af..4a1d8e86f 100644
+--- a/src/mixer/Mixer.cxx
++++ b/src/mixer/Mixer.cxx
+@@ -26,6 +26,7 @@ Mixer::_Open()
+ 	try {
+ 		Open();
+ 		open = true;
++                user_volume = applied_volume = -1;
+ 		failure = {};
+ 	} catch (...) {
+ 		failure = std::current_exception();
+@@ -75,7 +76,15 @@ Mixer::LockGetVolume()
+ 		return -1;
+ 
+ 	try {
+-		return GetVolume();
++		const int volume = GetVolume();
++
++		if (volume >= 0 && volume == applied_volume &&
++		    user_volume >= 0)
++			/* still the value we wrote: hide the ReplayGain
++			   scale from the user */
++			return user_volume;
++
++		return volume;
+ 	} catch (...) {
+ 		_Close();
+ 		failure = std::current_exception();
+@@ -93,7 +102,20 @@ Mixer::LockSetVolume(unsigned volume)
+ 	if (!EnsureOpen(true))
+ 		return;
+ 
++	ApplyVolume(volume);
++	user_volume = static_cast<int>(volume);
++}
++
++void
++Mixer::ApplyVolume(unsigned volume)
++{
++	if (replay_gain_scale != 1.0f)
++		volume = ScaleVolume(volume, replay_gain_scale);
++
++	assert(volume <= 100);
++
+ 	SetVolume(volume);
++	applied_volume = static_cast<int>(volume);
+ }
+ 
+ int
+@@ -107,11 +129,24 @@ Mixer::LockSetScaledVolume(unsigned base, float scale)
+ 	if (!EnsureOpen(true))
+ 		return -1;
+ 
+-	const unsigned volume = ScaleVolume(base, scale);
+-	assert(volume <= 100);
+-
+-	SetVolume(volume);
+-	return volume;
++	if (user_volume < 0) {
++		/* LockSetVolume() has not been called yet: the
++		   hardware's current level is the user's volume */
++		const int current = GetVolume();
++		user_volume = current >= 0 ? current : static_cast<int>(base);
++
++		if (scale == 1.0f) {
++			/* nothing to compensate */
++			replay_gain_scale = scale;
++			return user_volume;
++		}
++	} else if (scale == replay_gain_scale)
++		/* unchanged: avoid a pointless hardware write */
++		return user_volume;
++
++	replay_gain_scale = scale;
++	ApplyVolume(static_cast<unsigned>(user_volume));
++	return user_volume;
+ }
+ 
+ unsigned
+diff --git a/src/mixer/Mixer.hxx b/src/mixer/Mixer.hxx
+index ab23059ca..7546c0100 100644
+--- a/src/mixer/Mixer.hxx
++++ b/src/mixer/Mixer.hxx
+@@ -37,6 +37,22 @@ private:
+ 	 */
+ 	bool open = false;
+ 
++	/**
++	 * The volume as set by LockSetVolume() (or taken from the
++	 * hardware), without the ReplayGain scale; -1 if unknown.
++	 */
++	int user_volume = -1;
++
++	/** The most recent scale passed to LockSetScaledVolume(). */
++	float replay_gain_scale = 1.0f;
++
++	/**
++	 * The value most recently passed to SetVolume(); -1 if
++	 * unknown.  LockGetVolume() uses it to tell that the mixer
++	 * still has the value we wrote.
++	 */
++	int applied_volume = -1;
++
+ public:
+ 	explicit Mixer(const MixerPlugin &_plugin,
+ 		       MixerListener &_listener) noexcept
+@@ -88,10 +104,10 @@ public:
+ 	 * Throws on error.
+ 	 *
+ 	 * @param base the volume (0..100 including) which
+-	 * corresponds to scale=1
+-	 * @param scale the linear scale factor (non-negative)
+-	 * @return the new volume (0..100 including) or -1 if the
+-	 * mixer is not open
++	 * corresponds to scale=1; only used if the mixer's current
++	 * volume is unknown
++	 * @return the user's volume (0..100 including, without the
++         * scale) or -1 if the mixer is not open
+ 	 */
+ 	int LockSetScaledVolume(unsigned base, float scale);
+ 
+@@ -114,6 +130,12 @@ private:
+ 	 */
+ 	bool EnsureOpen(bool rethrow);
+ 
++	/**
++	 * Write the volume, combined with the current ReplayGain
++	 * scale.  Caller holds the mutex; the mixer is open.
++	 */
++	void ApplyVolume(unsigned volume);
++
+ protected:
+ 	/**
+ 	 * Open mixer device
+
+base-commit: f5c7a1ae8d6dba851d406eba03b51086a7b0e35c
+-- 
+2.47.3
+

@@ -46,6 +46,7 @@ apt install -y dnsmasq
 apt install -y libupnp-dev
 apt install -y libxml2-dev
 apt install -y yasm
+apt install -y expect
 apt install -y libnss-mdns
 apt install -y libnfs-utils nfs-common
 apt install -y sshfs
@@ -108,7 +109,8 @@ apt install -y rsync
 apt install -y ethtool
 apt install -y avahi-daemon
 apt install -y net-tools
-apt install -y wireless-tools
+# no longer needed with NetworkManager
+#apt install -y wireless-tools
 apt install -y ntfs-3g
 apt install -y dosfstools dos2unix
 apt install -y cifs-utils
@@ -122,10 +124,11 @@ apt install -y php-tokenizer
 apt install -y raspi-config
 apt install -y abcde
 apt install -y firmware-linux-free
+apt install -y wsdd2
 
 # networking
 # connman and iwd are not installed, here, as we build more up to date versions
-apt install -y systemd-resolved
+#apt install -y systemd-resolved
 
 # create keyring folder
 gpg -k
@@ -199,7 +202,7 @@ ln -s /srv/http /var/www
 
 # remove the packages that conflict
 # do not know where this is coming from
-apt remove --purge -y wpasupplicant
+#apt remove --purge -y wpasupplicant
 # cannnot remmove the pulse/pipewire dependency from shairport-sync
 apt remove --purge -y pulseaudio pulseaudio-utils libpulsedsp pipewire
 apt remove --purge -y pipewire pipewire-pulse pipewire-bin libpipewire-0.3-modules ofono
